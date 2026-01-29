@@ -3,83 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Master: Smart Targeting (Fixed)</title>
+    <title>Headcount Like a Pro by Nexus</title>
     <style>
-        :root { --primary: #4f46e5; --bg: #f3f4f6; --white: #fff; --text: #1f2937; --border: #d1d5db; --success: #059669; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
-        .container { max-width: 1100px; margin: 0 auto; background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        :root { 
+            --primary: #4f46e5; /* Nexus Blue */
+            --bg: #f3f4f6; 
+            --white: #ffffff; 
+            --text: #1f2937; 
+            --border: #d1d5db; 
+            --success: #059669; 
+            --accent: #818cf8;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
         
-        h1 { color: var(--primary); margin-top: 0; font-size: 1.5rem; }
+        /* HEADER BRANDING */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; }
+        h1 { color: var(--primary); margin: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
+        .brand-subtitle { font-size: 1rem; color: #6b7280; font-weight: 400; margin-left: 5px; }
+
+        .header-actions { display: flex; gap: 10px; }
 
         /* STRATEGY PANEL */
         .strategy-panel {
-            background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 20px; margin-bottom: 20px;
+            background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 20px; margin-bottom: 25px;
         }
-        .strat-row { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .strat-header { margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; color: #6366f1; font-weight: 800; letter-spacing: 0.5px; }
+        
+        .strat-row { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
         .strat-row:last-child { margin-bottom: 0; }
 
-        label { font-weight: 600; cursor: pointer; color: #3730a3; }
+        label { font-weight: 600; cursor: pointer; color: #312e81; }
         
-        input[type="radio"] { transform: scale(1.2); cursor: pointer; margin-right: 8px; }
+        input[type="radio"] { transform: scale(1.2); cursor: pointer; margin-right: 8px; accent-color: var(--primary); }
         
         input[type="number"] { 
-            width: 70px; padding: 8px; border: 1px solid #9ca3af; border-radius: 4px; 
-            text-align: center; font-weight: bold; font-size: 1rem;
+            width: 70px; padding: 8px; border: 2px solid #c7d2fe; border-radius: 6px; 
+            text-align: center; font-weight: bold; font-size: 1rem; color: var(--primary);
+            transition: 0.2s;
         }
+        input[type="number"]:focus { outline: none; border-color: var(--primary); }
+        input[type="number"]:disabled { background: #e5e7eb; border-color: #d1d5db; color: #9ca3af; }
 
         .btn-shuffle {
-            background: #f59e0b; color: white; border: none; padding: 8px 15px; 
+            background: #f59e0b; color: white; border: none; padding: 8px 16px; 
             border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem;
-            margin-left: 10px; display: none; /* Hidden by default */
+            margin-left: 10px; display: none; box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);
         }
-        .btn-shuffle:hover { background: #d97706; }
+        .btn-shuffle:hover { background: #d97706; transform: translateY(-1px); }
 
-        /* Step Boxes */
-        .step-box { border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; background: #f9fafb; }
-        .step-title { font-weight: bold; margin-bottom: 10px; color: var(--primary); display: block; }
-        textarea { width: 100%; height: 100px; padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; font-family: monospace; font-size: 0.85rem; }
+        /* STEP BOXES */
+        .step-box { border: 1px solid var(--border); border-radius: 10px; padding: 25px; margin-bottom: 25px; background: #f9fafb; }
+        .step-title { font-weight: 700; margin-bottom: 12px; color: var(--text); display: block; font-size: 1.1rem; }
+        
+        textarea { 
+            width: 100%; height: 120px; padding: 15px; border-radius: 8px; border: 1px solid #9ca3af; 
+            font-family: monospace; font-size: 0.9rem; resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: var(--primary); ring: 2px solid var(--accent); }
 
-        /* Column Picker */
+        /* COLUMN PICKER */
         #columnPicker { display: none; background: #ecfdf5; border-color: #6ee7b7; }
-        .picker-grid { display: flex; gap: 20px; align-items: center; margin-top: 10px; }
-        select { padding: 8px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 150px; }
+        .picker-grid { display: flex; gap: 20px; align-items: flex-end; margin-top: 10px; flex-wrap: wrap; }
+        .picker-group { display: flex; flex-direction: column; gap: 5px; }
+        select { padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 200px; font-size: 1rem; }
 
-        /* Buttons */
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; }
-        .btn-blue { background: var(--primary); }
-        .btn-blue:hover { background: #4338ca; }
-        .btn-green { background: var(--success); }
-        .btn-green:hover { background: #047857; }
-        .btn-dark { background: #374151; }
+        /* BUTTONS */
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; transition: all 0.2s; font-size: 1rem; }
+        .btn-blue { background: var(--primary); box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); }
+        .btn-blue:hover { background: #4338ca; transform: translateY(-1px); }
+        
+        .btn-green { background: var(--success); box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); }
+        .btn-green:hover { background: #047857; transform: translateY(-1px); }
+        
+        .btn-dark { background: #374151; padding: 10px 20px; font-size: 0.9rem; }
+        .btn-dark:hover { background: #1f2937; }
 
-        /* Table */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
-        th { text-align: left; padding: 12px; background: #e5e7eb; border-bottom: 2px solid #9ca3af; }
-        td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
-        .col-target { background: #f0fdf4; color: #166534; font-weight: bold; border-left: 2px solid #e5e7eb; }
-        .col-gain { color: #059669; font-weight: bold; font-size: 0.9rem; background: #ecfdf5; }
+        .btn-excel { background: #059669; padding: 10px 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        .btn-excel:hover { background: #047857; }
 
-        /* Print Mode */
+        /* TABLE */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        th { text-align: left; padding: 15px; background: #f3f4f6; border-bottom: 2px solid #e5e7eb; font-weight: 700; color: #4b5563; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f3f4f6; }
+        tr:last-child td { border-bottom: none; }
+        
+        .col-target { background: #f0fdf4; color: #166534; font-weight: 700; border-left: 1px solid #e5e7eb; }
+        .col-gain { color: #059669; font-weight: 700; font-size: 0.9rem; background: #ecfdf5; text-align: center; }
+
+        /* PRINT MODE */
         @media print {
             body { background: white; padding: 0; }
-            .container { box-shadow: none; margin: 0; max-width: 100%; }
-            .step-box, .strategy-panel, .btn { display: none !important; }
-            table { border: 1px solid black; width: 100%; }
+            .container { box-shadow: none; margin: 0; max-width: 100%; padding: 0; }
+            .step-box, .strategy-panel, .btn, .btn-shuffle, .header-actions { display: none !important; }
+            header { border-bottom: 2px solid black; margin-bottom: 20px; }
+            h1 { color: black; font-size: 24pt; }
+            .brand-subtitle { color: black; }
+            
+            table { border: 1px solid black; width: 100%; border-radius: 0; }
             th, td { border: 1px solid black; color: black !important; padding: 8px; }
-            .col-target { background: none !important; color: black !important; font-weight: bold; }
+            .col-target { background: none !important; color: black !important; border-left: 1px solid black; }
+            .col-gain { background: none !important; color: black !important; }
+            
+            /* Signature Footer for Print */
+            .print-footer { display: block !important; margin-top: 50px; display: flex; justify-content: space-between; }
+            .sig-line { border-top: 1px solid black; width: 200px; padding-top: 5px; font-size: 10pt; }
         }
+        .print-footer { display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h1>Headcount Master</h1>
-        <button class="btn btn-dark" onclick="window.print()">🖨️ Print / Save PDF</button>
-    </div>
+    <header>
+        <h1>Headcount Like a Pro <span class="brand-subtitle">by Nexus</span></h1>
+        <div class="header-actions">
+            <button class="btn btn-excel" onclick="downloadExcel()">📥 Download Excel</button>
+            <button class="btn btn-dark" onclick="window.print()">🖨️ Print / PDF</button>
+        </div>
+    </header>
 
     <div class="strategy-panel">
-        <div style="margin-bottom:10px; font-size:0.9rem; text-transform:uppercase; color:#6b7280; font-weight:bold;">Target Strategy</div>
+        <div class="strat-header">Target Setting Strategy</div>
 
         <div class="strat-row">
             <input type="radio" name="strategy" id="stratFixed" value="fixed" checked onchange="updateLive()">
@@ -101,22 +146,22 @@
     </div>
 
     <div class="step-box" id="step1">
-        <span class="step-title">Step 1: Paste Excel Data</span>
-        <textarea id="pasteArea" placeholder="Paste your entire table here (Headers included)..."></textarea>
+        <span class="step-title">Step 1: Paste Data (Excel / Google Sheets)</span>
+        <textarea id="pasteArea" placeholder="Paste your entire table here (Must include Headers like 'Name', 'Math', etc.)..."></textarea>
         <br><br>
         <button class="btn btn-blue" onclick="readData()">Analyze Columns</button>
     </div>
 
     <div class="step-box" id="columnPicker">
         <span class="step-title">Step 2: Select Columns</span>
-        <p style="margin:0 0 10px 0;">Which subject do you want to process?</p>
+        <p style="margin:0 0 15px 0; color: #6b7280;">Which subject do you want to process today?</p>
         <div class="picker-grid">
-            <div>
-                <label>Name Column:</label><br>
+            <div class="picker-group">
+                <label>Name Column:</label>
                 <select id="nameCol"></select>
             </div>
-            <div>
-                <label>Subject (TOV) Column:</label><br>
+            <div class="picker-group">
+                <label>Subject (TOV) Column:</label>
                 <select id="markCol"></select>
             </div>
             <button class="btn btn-green" onclick="generateHeadcount()">Calculate Targets</button>
@@ -124,22 +169,27 @@
     </div>
 
     <div id="resultSection" style="display:none;">
-        <h3 id="subjectTitle" style="margin-bottom:10px; color:#374151;"></h3>
+        <h3 id="subjectTitle" style="margin-bottom:15px; color:#374151; border-left: 5px solid var(--primary); padding-left: 10px;"></h3>
         <table id="dataTable">
             <thead>
                 <tr>
-                    <th style="width: 5%;">#</th>
+                    <th style="width: 50px;">#</th>
                     <th>Student Name</th>
                     <th>TOV</th>
                     <th>OTI 1</th>
                     <th>OTI 2</th>
                     <th>OTI 3</th>
                     <th class="col-target">ETR</th>
-                    <th class="col-gain" style="width: 10%;">Gain</th>
+                    <th class="col-gain" style="width: 80px;">Gain</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
+        
+        <div class="print-footer">
+            <div class="sig-line">Prepared By (Teacher)</div>
+            <div class="sig-line">Verified By (Admin)</div>
+        </div>
     </div>
 </div>
 
@@ -147,30 +197,24 @@
     let rawData = [];
     let headers = [];
     let isDataLoaded = false;
+    let processedData = []; // Store calculated data for Export
 
     // 1. Live Update Logic
     function updateLive() {
-        // Toggle Input Availability
         const isFixed = document.getElementById('stratFixed').checked;
         document.getElementById('fixedVal').disabled = !isFixed;
         document.getElementById('randMin').disabled = isFixed;
         document.getElementById('randMax').disabled = isFixed;
-        
-        // Show/Hide Shuffle Button
         document.getElementById('btnShuffle').style.display = isFixed ? 'none' : 'inline-block';
 
-        // Only re-calculate if we actually have data displayed
-        if(isDataLoaded) {
-            generateHeadcount();
-        }
+        if(isDataLoaded) generateHeadcount();
     }
 
-    // 2. Force Shuffle (for Random Mode)
     function forceReShuffle() {
         if(isDataLoaded) generateHeadcount();
     }
 
-    // 3. Read Data
+    // 2. Read Data
     function readData() {
         const text = document.getElementById('pasteArea').value.trim();
         if(!text) return alert("Please paste data first.");
@@ -203,7 +247,7 @@
         document.getElementById('columnPicker').style.display = 'block';
     }
 
-    // 4. Generate Results
+    // 3. Generate Results
     function generateHeadcount() {
         const nameIdx = parseInt(document.getElementById('nameCol').value);
         const markIdx = parseInt(document.getElementById('markCol').value);
@@ -215,13 +259,13 @@
         let minVal = parseInt(document.getElementById('randMin').value) || 1;
         let maxVal = parseInt(document.getElementById('randMax').value) || 10;
 
-        // Validation: Ensure Min < Max
-        if (minVal > maxVal) {
-            let temp = minVal; minVal = maxVal; maxVal = temp;
-        }
+        if (minVal > maxVal) { let temp = minVal; minVal = maxVal; maxVal = temp; }
 
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
+        
+        // Reset Export Data
+        processedData = [];
         let count = 0;
 
         rawData.forEach(line => {
@@ -237,34 +281,42 @@
                 count++;
                 
                 // --- CORE LOGIC ---
-                let inc = 0;
-                if(isFixed) {
-                    inc = fixedVal;
-                } else {
-                    // Random Integer Formula
-                    inc = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                }
-                // ------------------
+                let inc = isFixed ? fixedVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
 
                 let etr = tov + inc;
                 if(etr > 100) etr = 100;
-                if(etr < 0) etr = 0; // Safety
+                if(etr < 0) etr = 0; 
                 
-                // Recalculate OTI steps
-                // OTI step = (ETR - TOV) / 4
-                // Note: The total growth is (ETR - TOV), not just 'inc' because of the 100 cap.
                 let realGrowth = etr - tov;
                 let step = realGrowth / 4;
 
+                // Format values
+                let oti1 = fmt(tov + step);
+                let oti2 = fmt(tov + step*2);
+                let oti3 = fmt(tov + step*3);
+                let etrFmt = fmt(etr);
+
+                // Save to processed array for Excel Export
+                processedData.push({
+                    name: name,
+                    tov: tov,
+                    oti1: oti1,
+                    oti2: oti2,
+                    oti3: oti3,
+                    etr: etrFmt,
+                    gain: inc
+                });
+
+                // Build HTML Table Row
                 let row = `
                     <tr>
                         <td>${count}</td>
                         <td>${name}</td>
                         <td>${tov}</td>
-                        <td>${fmt(tov + step)}</td>
-                        <td>${fmt(tov + step*2)}</td>
-                        <td>${fmt(tov + step*3)}</td>
-                        <td class="col-target">${fmt(etr)}</td>
+                        <td>${oti1}</td>
+                        <td>${oti2}</td>
+                        <td>${oti3}</td>
+                        <td class="col-target">${etrFmt}</td>
                         <td class="col-gain">+${inc}</td>
                     </tr>
                 `;
@@ -272,9 +324,41 @@
             }
         });
 
-        document.getElementById('subjectTitle').innerText = "Target Analysis for: " + subject;
+        document.getElementById('subjectTitle').innerText = "Headcount Analysis: " + subject;
         document.getElementById('resultSection').style.display = 'block';
         isDataLoaded = true;
+    }
+
+    // 4. Download Excel Function
+    function downloadExcel() {
+        if (!processedData.length) {
+            alert("Please calculate targets before downloading!");
+            return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "No,Student Name,TOV,OTI 1,OTI 2,OTI 3,ETR,Projected Gain\n";
+
+        processedData.forEach((row, index) => {
+            // Handle names with commas by wrapping in quotes
+            let safeName = row.name.includes(',') ? `"${row.name}"` : row.name;
+            let csvRow = `${index + 1},${safeName},${row.tov},${row.oti1},${row.oti2},${row.oti3},${row.etr},${row.gain}`;
+            csvContent += csvRow + "\n";
+        });
+
+        // Determine filename
+        const markIdx = parseInt(document.getElementById('markCol').value);
+        const subject = document.getElementById('markCol').options[markIdx] ? document.getElementById('markCol').options[markIdx].text : "Headcount";
+        const fileName = `Headcount_Analysis_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`;
+
+        // Trigger Download
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     function fmt(num) { return Number.isInteger(num) ? num : num.toFixed(2); }
