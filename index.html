@@ -77,6 +77,9 @@
 
             /* Hide UI Elements */
             .step-box, .strategy-panel, .btn, .btn-shuffle, .header-actions, #columnPicker, .signature-controls { display: none !important; }
+            
+            /* HIDE GAIN COLUMN IN PRINT */
+            .col-gain { display: none !important; }
 
             /* Print Header */
             header { border-bottom: 2px solid black; margin-bottom: 15px; padding-bottom: 10px; justify-content: center; }
@@ -91,7 +94,7 @@
             th, td { border: 1px solid black; color: black !important; padding: 4px 6px; font-size: 10pt; }
             th { background-color: #f0f0f0 !important; font-weight: bold; }
             .col-target { background: none !important; color: black !important; border-left: 1px solid black; }
-            .col-gain { background: none !important; color: black !important; }
+            
             tr { page-break-inside: avoid; }
             
             /* MALAY SIGNATURE FOOTER */
@@ -173,7 +176,25 @@
                 <div class="input-group">
                     <label>Jawatan:</label>
                     <select id="jawatanInput" onchange="updateSignature()">
-                        <option value="GURU MATA PELAJARAN" selected>GURU MATA PELAJARAN</option>
+                        <option value="" disabled selected>Pilih Jawatan...</option>
+                        
+                        <optgroup label="GURU MATA PELAJARAN (TERAS)">
+                            <option value="GURU MATA PELAJARAN BAHASA MELAYU">GURU MATA PELAJARAN BAHASA MELAYU</option>
+                            <option value="GURU MATA PELAJARAN BAHASA INGGERIS">GURU MATA PELAJARAN BAHASA INGGERIS</option>
+                            <option value="GURU MATA PELAJARAN MATEMATIK">GURU MATA PELAJARAN MATEMATIK</option>
+                            <option value="GURU MATA PELAJARAN SAINS">GURU MATA PELAJARAN SAINS</option>
+                            <option value="GURU MATA PELAJARAN PENDIDIKAN ISLAM">GURU MATA PELAJARAN PENDIDIKAN ISLAM</option>
+                            <option value="GURU MATA PELAJARAN SEJARAH">GURU MATA PELAJARAN SEJARAH</option>
+                        </optgroup>
+
+                        <optgroup label="GURU MATA PELAJARAN (ELEKTIF)">
+                            <option value="GURU MATA PELAJARAN RBT">GURU MATA PELAJARAN RBT</option>
+                            <option value="GURU MATA PELAJARAN PSV">GURU MATA PELAJARAN PSV</option>
+                            <option value="GURU MATA PELAJARAN PENDIDIKAN MUZIK">GURU MATA PELAJARAN PENDIDIKAN MUZIK</option>
+                            <option value="GURU MATA PELAJARAN PJPK">GURU MATA PELAJARAN PJPK</option>
+                            <option value="GURU MATA PELAJARAN BAHASA ARAB">GURU MATA PELAJARAN BAHASA ARAB</option>
+                            <option value="GURU MATA PELAJARAN PENDIDIKAN MORAL">GURU MATA PELAJARAN PENDIDIKAN MORAL</option>
+                        </optgroup>
                         
                         <optgroup label="KETUA PANITIA (TERAS)">
                             <option value="KETUA PANITIA BAHASA MELAYU">KETUA PANITIA BAHASA MELAYU</option>
@@ -302,7 +323,7 @@
         const tName = document.getElementById('teacherInput').value;
         const tJaw = document.getElementById('jawatanInput').value;
         document.getElementById('printName').textContent = tName ? tName : "..............................................................";
-        document.getElementById('printJawatan').textContent = tJaw;
+        document.getElementById('printJawatan').textContent = tJaw ? tJaw : "...........................................................";
 
         // Admin
         const aName = document.getElementById('adminInput').value;
@@ -409,7 +430,7 @@
         document.getElementById('subjectTitle').innerText = "Analisis Headcount: " + subject;
         document.getElementById('resultSection').style.display = 'block';
         isDataLoaded = true;
-        updateSignature(); // Init signature
+        updateSignature();
     }
 
     function downloadExcel() {
