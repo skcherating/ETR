@@ -3,380 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Calculator (Batch Upload)</title>
+    <title>Smart ETR Estimator & Headcount</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f3f4f6;
+            --primary: #4f46e5; /* Indigo */
+            --primary-light: #e0e7ff;
+            --bg: #f9fafb;
             --white: #ffffff;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
+            --text-dark: #111827;
             --border: #e5e7eb;
-            --danger: #ef4444;
             --success: #10b981;
-            --warning: #f59e0b;
+            --danger: #ef4444;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg); color: var(--text-dark); padding: 20px; }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             background: var(--white);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-
-        header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
-        h1 { color: var(--primary); margin-bottom: 5px; }
-
-        /* Batch Upload Section */
-        .upload-section {
-            background: #eff6ff;
-            border: 2px dashed #bfdbfe;
-            padding: 25px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .upload-btn-wrapper {
-            position: relative;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            display: inline-block;
-            margin-top: 10px;
         }
 
-        .btn-upload {
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            background-color: white;
-            padding: 8px 20px;
+        /* Header */
+        header {
+            background: linear-gradient(to right, #4f46e5, #6366f1);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 { margin-bottom: 5px; font-weight: 800; }
+        header p { opacity: 0.9; }
+
+        /* Strategy Control Panel (The New Feature) */
+        .strategy-panel {
+            background: var(--primary-light);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .strategy-label {
+            font-weight: 700;
+            color: #3730a3;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        .strategy-btn-group {
+            display: flex;
+            background: white;
             border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        .upload-btn-wrapper input[type=file] {
-            font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
+        .btn-strategy {
+            border: 1px solid #c7d2fe;
+            background: white;
+            padding: 10px 20px;
             cursor: pointer;
+            font-weight: 600;
+            color: #4338ca;
+            transition: all 0.2s;
         }
+        
+        .btn-strategy:hover { background: #eef2ff; }
+        .btn-strategy.active { background: #4f46e5; color: white; border-color: #4f46e5; }
 
-        .template-link {
-            display: block;
-            margin-top: 10px;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-
-        /* Divider */
-        .divider {
+        .custom-input-wrapper {
             display: flex;
             align-items: center;
+            gap: 10px;
+        }
+        
+        #customIncrement {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #c7d2fe;
+            border-radius: 6px;
             text-align: center;
-            margin: 20px 0;
-            color: var(--text-light);
+            font-weight: bold;
+            color: var(--primary);
         }
-        .divider::before, .divider::after {
-            content: ''; flex: 1; border-bottom: 1px solid var(--border);
-        }
-        .divider span { padding: 0 10px; font-size: 0.85rem; }
 
-        /* Manual Input */
-        .input-grid {
+        /* Main Content Grid */
+        .main-content {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
-            gap: 15px;
-            align-items: end;
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
+            grid-template-columns: 300px 1fr;
+            min-height: 600px;
         }
 
-        label { font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;}
-        input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+        /* Sidebar (Upload & Add) */
+        .sidebar {
+            padding: 25px;
+            border-right: 1px solid var(--border);
+            background: #fff;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        h3 { font-size: 0.95rem; margin-bottom: 15px; color: #4b5563; text-transform: uppercase; font-weight: 700; }
+
+        .btn-action {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
         
-        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: 0.2s; }
-        .btn-add { background: var(--primary); color: white; height: 42px; }
-        .btn-add:hover { background: var(--primary-hover); }
-
-        /* Table */
-        .table-responsive { overflow-x: auto; max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { position: sticky; top: 0; background: #f9fafb; z-index: 10; padding: 12px; text-align: left; font-size: 0.85rem; border-bottom: 2px solid var(--border); }
-        td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        .btn-upload { background: var(--text-dark); color: white; }
+        .btn-upload:hover { background: #000; }
         
-        .col-tov { background-color: #eff6ff; color: #1e40af; font-weight: 600; }
-        .col-etr { background-color: #ecfdf5; color: #065f46; font-weight: 600; }
-        .col-oti { color: #555; }
+        .btn-add-manual { background: var(--primary); color: white; }
+        .btn-add-manual:hover { background: var(--primary-hover); }
 
-        .btn-delete { color: var(--danger); background: none; font-size: 1.2rem; padding: 0 5px; }
+        .link-text { color: var(--primary); text-decoration: underline; cursor: pointer; font-size: 0.85rem; display: block; margin-top: 10px; text-align: center;}
 
-        /* Footer */
-        .actions-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
-        .btn-export { background: var(--success); color: white; }
-        .btn-export:hover { background: #059669; }
-        .btn-clear { background: var(--white); border: 1px solid var(--danger); color: var(--danger); }
-        .btn-clear:hover { background: #fef2f2; }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
 
+        /* Table Area */
+        .table-area {
+            padding: 0;
+            overflow-x: auto;
+            background: white;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        
+        th {
+            background: #f9fafb;
+            padding: 15px;
+            text-align: left;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #6b7280;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        /* Highlight Key Columns */
+        .col-tov { font-weight: 600; color: #555; background: #fafafa; border-right: 2px solid #e5e7eb; }
+        .col-etr { font-weight: 700; color: #047857; background: #ecfdf5; border-left: 2px solid #e5e7eb; }
+        .col-increment { color: #059669; font-size: 0.8rem; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; }
+            .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+            .strategy-panel { flex-direction: column; align-items: stretch; }
+            .strategy-btn-group { flex-direction: column; }
+            .btn-strategy { text-align: center; border-bottom: 1px solid #e0e7ff; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Headcount Calculator (Batch Upload)</h1>
-        <p style="color: #666;">Upload your class list or add students manually.</p>
+        <h1>Smart Headcount Estimator</h1>
+        <p>Strategic Target Setting based on TOV (Final Exam Marks)</p>
     </header>
 
-    <div class="upload-section">
-        <h3>📂 Option 1: Batch Upload</h3>
-        <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">Upload a CSV file with columns: <strong>Name, TOV, ETR</strong></p>
+    <div class="strategy-panel">
+        <span class="strategy-label">Step 1: Choose Strategic Increment</span>
         
-        <div class="upload-btn-wrapper">
-            <button class="btn-upload">Choose CSV File</button>
-            <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileUpload(this)">
+        <div class="strategy-btn-group">
+            <button class="btn-strategy" onclick="setStrategy(5, this)">Conservative (+5)</button>
+            <button class="btn-strategy active" onclick="setStrategy(10, this)">Moderate (+10)</button>
+            <button class="btn-strategy" onclick="setStrategy(15, this)">Challenging (+15)</button>
         </div>
-        
-        <br>
-        <span class="template-link" onclick="downloadTemplate()">Download Template File</span>
+
+        <div class="custom-input-wrapper">
+            <span style="font-size: 0.9rem; font-weight: 600; color: #4338ca;">OR Custom:</span>
+            <input type="number" id="customIncrement" value="10" min="0" max="50" oninput="updateCustomStrategy(this.value)">
+            <span style="font-size: 0.9rem; color: #666;">marks</span>
+        </div>
     </div>
 
-    <div class="divider"><span>OR</span></div>
+    <div class="main-content">
+        <div class="sidebar">
+            <div class="card">
+                <h3>Batch Upload</h3>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">
+                    Upload CSV with columns: <br><strong>Name, TOV</strong>
+                </p>
+                <input type="file" id="csvFile" accept=".csv" style="display: none;" onchange="handleFileUpload(this)">
+                <button class="btn-action btn-upload" onclick="document.getElementById('csvFile').click()">📂 Select CSV File</button>
+                <span class="link-text" onclick="downloadTemplate()">Download Template</span>
+            </div>
 
-    <div class="input-grid">
-        <div>
-            <label>Student Name</label>
-            <input type="text" id="studentName" placeholder="Name">
-        </div>
-        <div>
-            <label>TOV</label>
-            <input type="number" id="tov" placeholder="0-100">
-        </div>
-        <div>
-            <label>ETR</label>
-            <input type="number" id="etr" placeholder="0-100">
-        </div>
-        <button class="btn-add" onclick="addManualStudent()">Add</button>
-    </div>
+            <div class="card">
+                <h3>Add Single Student</h3>
+                <input type="text" id="manualName" placeholder="Student Name">
+                <input type="number" id="manualTov" placeholder="TOV Mark (0-100)">
+                <button class="btn-action btn-add-manual" onclick="addManual()">Add to List</button>
+            </div>
 
-    <div class="table-responsive">
-        <table id="dataTable">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th class="col-tov">TOV</th>
-                    <th>OTI 1</th>
-                    <th>OTI 2</th>
-                    <th>OTI 3</th>
-                    <th class="col-etr">ETR</th>
-                    <th style="width: 50px;">Action</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                </tbody>
-        </table>
-    </div>
-    
-    <div id="emptyMessage" style="text-align: center; padding: 30px; color: #9ca3af;">
-        No data yet. Upload a file or add a student manually.
-    </div>
+            <div class="card" style="border-color: #fca5a5; background: #fef2f2;">
+                <h3 style="color: #b91c1c;">Actions</h3>
+                <button class="btn-action" style="background: white; border: 1px solid #ef4444; color: #ef4444;" onclick="clearAll()">Clear Data</button>
+                <button class="btn-action" style="background: #059669; color: white; margin-top: 10px;" onclick="exportData()">Download Excel (CSV)</button>
+            </div>
+        </div>
 
-    <div class="actions-bar">
-        <span id="countDisplay" style="color: #6b7280; font-weight: 500;">0 Students</span>
-        <div style="gap: 10px; display: flex;">
-            <button class="btn-clear" onclick="clearAll()">Clear All</button>
-            <button class="btn-export" onclick="exportResults()">Download Results (CSV)</button>
+        <div class="table-area">
+            <table id="resultTable">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Student Name</th>
+                        <th class="col-tov" style="width: 10%;">TOV</th>
+                        <th style="width: 10%;">OTI 1</th>
+                        <th style="width: 10%;">OTI 2</th>
+                        <th style="width: 10%;">OTI 3</th>
+                        <th class="col-etr" style="width: 10%;">Est. ETR</th>
+                        <th style="width: 15%;">Gain</th>
+                        <th style="width: 5%;"></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
+            <div id="emptyState" style="text-align: center; padding: 50px; color: #9ca3af;">
+                <h3>No students yet</h3>
+                <p>Upload a file or add students manually to start estimating targets.</p>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    let students = [];
+    // --- STATE MANAGEMENT ---
+    let students = []; // Stores { id, name, tov }
+    let currentIncrement = 10; // Default strategic increment
 
-    // --- 1. CORE LOGIC (Headcount Formula) ---
-    function calculateOTI(name, tov, etr) {
+    // --- STRATEGY FUNCTIONS ---
+    function setStrategy(val, btnElement) {
+        currentIncrement = parseInt(val);
+        
+        // Update UI buttons
+        document.querySelectorAll('.btn-strategy').forEach(b => b.classList.remove('active'));
+        if(btnElement) btnElement.classList.add('active');
+        
+        // Update custom input to match (for visual consistency)
+        document.getElementById('customIncrement').value = currentIncrement;
+
+        recalculateAll();
+    }
+
+    function updateCustomStrategy(val) {
+        const num = parseInt(val);
+        if (!isNaN(num)) {
+            currentIncrement = num;
+            // Remove active state from preset buttons since we are custom
+            document.querySelectorAll('.btn-strategy').forEach(b => b.classList.remove('active'));
+            recalculateAll();
+        }
+    }
+
+    function recalculateAll() {
+        renderTable();
+    }
+
+    // --- CALCULATION ENGINE ---
+    function calculateRow(tov) {
         tov = parseFloat(tov);
-        etr = parseFloat(etr);
-
-        if (isNaN(tov) || isNaN(etr)) return null;
-
-        // Formula: Increment = (ETR - TOV) / 4
-        const increment = (etr - tov) / 4;
-
-        return {
-            id: Date.now() + Math.random(), // Unique ID
-            name: name,
-            tov: tov,
-            oti1: (tov + increment).toFixed(2),
-            oti2: (tov + (increment * 2)).toFixed(2),
-            oti3: (tov + (increment * 3)).toFixed(2),
-            etr: etr
-        };
-    }
-
-    // --- 2. BATCH UPLOAD HANDLER ---
-    function handleFileUpload(input) {
-        const file = input.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const text = e.target.result;
-            processCSV(text);
-        };
-        reader.readAsText(file);
-        input.value = ''; // Reset input so same file can be selected again if needed
-    }
-
-    function processCSV(csvText) {
-        const lines = csvText.split('\n');
-        let addedCount = 0;
-
-        // Start from index 1 to skip header row
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-
-            // Split by comma (handles simple CSVs)
-            const cols = line.split(',');
-            
-            // Expected Format: Name, TOV, ETR (cols[0], cols[1], cols[2])
-            if (cols.length >= 3) {
-                const name = cols[0].trim();
-                const tov = cols[1].trim();
-                const etr = cols[2].trim();
-
-                const studentObj = calculateOTI(name, tov, etr);
-                if (studentObj) {
-                    students.push(studentObj);
-                    addedCount++;
-                }
-            }
-        }
         
-        if (addedCount > 0) {
-            renderTable();
-            alert(`Successfully added ${addedCount} students!`);
-        } else {
-            alert("Could not read data. Please ensure CSV format is: Name, TOV, ETR");
-        }
-    }
+        // 1. Estimate ETR based on Strategy
+        let estimatedEtr = tov + currentIncrement;
 
-    // --- 3. MANUAL ADD ---
-    function addManualStudent() {
-        const name = document.getElementById('studentName').value;
-        const tov = document.getElementById('tov').value;
-        const etr = document.getElementById('etr').value;
-
-        if (!name || !tov || !etr) {
-            alert("Please fill in all fields");
-            return;
-        }
-
-        const student = calculateOTI(name, tov, etr);
-        students.push(student);
+        // 2. Cap ETR at 100
+        if (estimatedEtr > 100) estimatedEtr = 100;
         
-        // Clear inputs
-        document.getElementById('studentName').value = '';
-        document.getElementById('tov').value = '';
-        document.getElementById('etr').value = '';
-        
-        renderTable();
-    }
-
-    // --- 4. RENDER & UTILS ---
-    function renderTable() {
-        const tbody = document.getElementById('tableBody');
-        const emptyMsg = document.getElementById('emptyMessage');
-        const countDisplay = document.getElementById('countDisplay');
-        
-        tbody.innerHTML = '';
-
-        if (students.length === 0) {
-            emptyMsg.style.display = 'block';
-            countDisplay.innerText = "0 Students";
-            return;
-        }
-
-        emptyMsg.style.display = 'none';
-        countDisplay.innerText = `${students.length} Students`;
-
-        students.forEach(s => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${s.name}</td>
-                <td class="col-tov">${s.tov}</td>
-                <td class="col-oti">${formatNum(s.oti1)}</td>
-                <td class="col-oti">${formatNum(s.oti2)}</td>
-                <td class="col-oti">${formatNum(s.oti3)}</td>
-                <td class="col-etr">${s.etr}</td>
-                <td style="text-align:center;">
-                    <button class="btn-delete" onclick="deleteStudent(${s.id})">&times;</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function formatNum(num) {
-        return parseFloat(num) % 1 === 0 ? parseInt(num) : num;
-    }
-
-    function deleteStudent(id) {
-        students = students.filter(s => s.id !== id);
-        renderTable();
-    }
-
-    function clearAll() {
-        if(confirm("Clear all data?")) {
-            students = [];
-            renderTable();
-        }
-    }
-
-    // --- 5. EXPORT & TEMPLATE ---
-    function downloadTemplate() {
-        const csvContent = "data:text/csv;charset=utf-8,Name,TOV,ETR\nStudent A,40,60\nStudent B,55,80";
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "headcount_template.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    function exportResults() {
-        if (students.length === 0) {
-            alert("No data to export.");
-            return;
-        }
-        let csv = "data:text/csv;charset=utf-8,Name,TOV,OTI 1,OTI 2,OTI 3,ETR\n";
-        students.forEach(s => {
-            csv += `${s.name},${s.tov},${s.oti1},${s.oti2},${s.oti3},${s.etr}\n`;
-        });
-        const encodedUri = encodeURI(csv);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "headcount_results.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-</script>
-
-</body>
-</html>
+        // 3. Calculate OTIs based on the New ETR
+        // Formula: Step = (ETR - TOV)
