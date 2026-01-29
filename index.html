@@ -3,267 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Headcount Calculator</title>
+    <title>Headcount Pro: Column Picker</title>
     <style>
-        :root {
-            --primary: #4f46e5;
-            --bg: #f3f4f6;
-            --white: #ffffff;
-            --text: #1f2937;
-            --border: #e5e7eb;
-            --green: #10b981;
-        }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
-        .container { max-width: 1000px; margin: 0 auto; background: var(--white); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --white: #fff; --text: #334155; --border: #cbd5e1; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         
-        /* Header */
-        header { background: var(--primary); padding: 20px; color: white; text-align: center; }
-        h1 { margin: 0; font-size: 1.5rem; }
-        .strategy-controls { margin-top: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; }
-        .btn-strat { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
-        .btn-strat.active { background: white; color: var(--primary); font-weight: bold; }
+        h1 { color: var(--primary); margin-top: 0; }
         
-        /* Magic Input Section */
-        .input-section { padding: 30px; border-bottom: 1px solid var(--border); background: #fafafa; }
-        .input-label { display: block; margin-bottom: 10px; font-weight: 600; color: #4b5563; }
-        
-        .magic-input-wrapper { display: flex; gap: 10px; }
-        #magicInput {
-            flex: 1;
-            padding: 15px;
-            font-size: 1.1rem;
-            border: 2px solid #d1d5db;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-        #magicInput:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        
-        .btn-add { background: var(--primary); color: white; border: none; padding: 0 25px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .btn-add:hover { background: #4338ca; }
+        /* Step 1: Input Area */
+        .step-box { border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; background: #f1f5f9; }
+        .step-title { font-weight: bold; margin-bottom: 10px; color: var(--primary); display: block; }
 
-        .helper-text { font-size: 0.85rem; color: #6b7280; margin-top: 8px; }
+        textarea { width: 100%; height: 100px; padding: 10px; border-radius: 6px; border: 1px solid #94a3b8; font-family: monospace; font-size: 0.85rem; }
+
+        /* Step 2: Column Picker (Hidden initially) */
+        #columnPicker { display: none; background: #eff6ff; border-color: #bfdbfe; }
+        .picker-grid { display: flex; gap: 20px; align-items: center; margin-top: 10px; }
+        select { padding: 8px; border-radius: 6px; border: 1px solid #94a3b8; min-width: 150px; }
         
-        /* Action Log (Feedback) */
-        #log { font-size: 0.9rem; color: var(--green); margin-top: 10px; height: 20px; font-weight: 600; }
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-blue { background: var(--primary); }
+        .btn-blue:hover { background: #1d4ed8; }
+        .btn-green { background: #10b981; }
+        .btn-green:hover { background: #059669; }
+        .btn-print { background: #374151; }
+
+        /* Strategy Bar */
+        .strategy-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .inc-btn { background: white; border: 1px solid #cbd5e1; color: var(--text); padding: 5px 12px; border-radius: 20px; cursor: pointer; }
+        .inc-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* Table */
-        .table-container { padding: 0; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f9fafb; padding: 12px 15px; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #6b7280; border-bottom: 1px solid var(--border); }
-        td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
+        th { text-align: left; padding: 12px; background: #e2e8f0; border-bottom: 2px solid #cbd5e1; }
+        td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+        .col-target { background: #f0fdf4; color: #15803d; font-weight: bold; }
         
-        .col-mark { font-weight: bold; color: var(--primary); background: #eef2ff; }
-        .col-etr { font-weight: bold; color: #047857; background: #ecfdf5; }
-
-        .btn-del { color: #ef4444; border: none; background: none; cursor: pointer; font-size: 1.2rem; }
-        
-        .footer-actions { padding: 20px; text-align: right; background: #f9fafb; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .btn-dl { background: #059669; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; cursor: pointer; border: none; font-weight: 600; }
+        /* Print Mode */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; margin: 0; max-width: 100%; }
+            .step-box, .strategy-bar, .btn { display: none !important; }
+            table { border: 1px solid black; }
+            th, td { border: 1px solid black; color: black; }
+            .col-target { background: none; color: black; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>Fast Headcount Calculator</h1>
-        <div class="strategy-controls">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1>Headcount Pro</h1>
+        <div class="strategy-bar" style="border:none; margin:0;">
             <span>Target Increment:</span>
-            <button class="btn-strat" onclick="setStrat(5, this)">+5</button>
-            <button class="btn-strat active" onclick="setStrat(10, this)">+10</button>
-            <button class="btn-strat" onclick="setStrat(15, this)">+15</button>
-            <input type="number" id="customStrat" value="10" oninput="setStrat(this.value)" style="width: 50px; padding: 3px; border-radius: 4px; border: none; text-align: center;">
+            <button class="inc-btn" onclick="setInc(5, this)">+5</button>
+            <button class="inc-btn active" onclick="setInc(10, this)">+10</button>
+            <button class="inc-btn" onclick="setInc(15, this)">+15</button>
         </div>
-    </header>
-
-    <div class="input-section">
-        <label class="input-label">📝 Smart Entry (Space separated)</label>
-        <div class="magic-input-wrapper">
-            <input type="text" id="magicInput" placeholder="e.g. Ali Bin Abu 80" autocomplete="off">
-            <button class="btn-add" onclick="processInput()">Add</button>
-        </div>
-        <div class="helper-text">
-            <strong>Tip:</strong> Just type the Name, press <strong>Space</strong>, then the Mark. Hit <strong>Enter</strong> to add. <br>
-            You can also paste a whole list (Name Mark) from Excel/WhatsApp here!
-        </div>
-        <div id="log"></div>
     </div>
 
-    <div class="table-container">
+    <div class="step-box" id="step1">
+        <span class="step-title">Step 1: Paste Data from Excel / Google Sheets</span>
+        <p style="font-size:0.9rem; margin-top:0;">Copy your <strong>entire table</strong> (Headers included). For example: Name, Class, BM, BI, Math.</p>
+        <textarea id="pasteArea" placeholder="Paste your data here..."></textarea>
+        <br><br>
+        <button class="btn btn-blue" onclick="readData()">Analyze Columns</button>
+    </div>
+
+    <div class="step-box" id="columnPicker">
+        <span class="step-title">Step 2: Select Columns</span>
+        <p style="font-size:0.9rem; margin:0;">I found the following columns. Which ones should I use?</p>
+        
+        <div class="picker-grid">
+            <div>
+                <label>Student Name is in:</label><br>
+                <select id="nameCol"></select>
+            </div>
+            <div>
+                <label><strong>Subject Marks</strong> (TOV) are in:</label><br>
+                <select id="markCol"></select>
+            </div>
+            <button class="btn btn-green" onclick="generateHeadcount()">Calculate Now</button>
+        </div>
+    </div>
+
+    <div id="resultSection" style="display:none;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <h3 id="subjectTitle" style="margin:0;">Headcount Results</h3>
+            <button class="btn btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+        </div>
         <table id="dataTable">
             <thead>
                 <tr>
-                    <th style="width: 50px;">#</th>
+                    <th>#</th>
                     <th>Student Name</th>
-                    <th class="col-mark">TOV</th>
+                    <th>TOV</th>
                     <th>OTI 1</th>
                     <th>OTI 2</th>
                     <th>OTI 3</th>
-                    <th class="col-etr">Target (ETR)</th>
-                    <th style="width: 50px;"></th>
+                    <th class="col-target">ETR (Target)</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
-        <div id="emptyMsg" style="text-align: center; padding: 40px; color: #9ca3af;">
-            List is empty. Start typing above!
-        </div>
     </div>
 
-    <div class="footer-actions">
-        <span id="countDisplay">0 Students</span>
-        <div>
-            <button class="btn-del" style="font-size: 1rem; margin-right: 15px;" onclick="clearAll()">Clear All</button>
-            <button class="btn-dl" onclick="downloadCSV()">Download Excel (CSV)</button>
-        </div>
-    </div>
 </div>
 
 <script>
-    let students = [];
+    let rawData = []; // Stores the raw rows
+    let headers = []; // Stores "Name", "BM", "BI", etc.
     let increment = 10;
-    const inputField = document.getElementById('magicInput');
-    const logDiv = document.getElementById('log');
 
-    // 1. Listen for "Enter" key in the input box
-    inputField.addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            processInput();
+    function setInc(val, btn) {
+        increment = val;
+        document.querySelectorAll('.inc-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if(document.getElementById('resultSection').style.display === 'block') {
+            generateHeadcount(); // Live update if table is showing
         }
-    });
-
-    // 2. Strategy Logic
-    function setStrat(val, btn) {
-        increment = parseInt(val) || 0;
-        if(btn) {
-            document.querySelectorAll('.btn-strat').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('customStrat').value = increment;
-        }
-        render();
     }
 
-    // 3. Process the Text (The Magic Part)
-    function processInput() {
-        const raw = inputField.value;
-        if (!raw.trim()) return;
+    function readData() {
+        const text = document.getElementById('pasteArea').value.trim();
+        if(!text) return alert("Please paste some data first!");
 
-        // Check if it's multiple lines (Paste) or single line
-        const lines = raw.split(/\n/); // Split by enter key (for pastes)
-        let addedCount = 0;
+        const lines = text.split('\n');
+        
+        // 1. Detect Headers (First Row)
+        // Try Tab split (Excel/Sheets default) first, then comma
+        let firstLine = lines[0].trim();
+        let delimiter = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
+        
+        headers = firstLine.split(delimiter).map(h => h.trim());
+        
+        if (headers.length < 2) return alert("I couldn't detect columns. Make sure you copied at least Name and one Mark column.");
 
-        lines.forEach(line => {
-            line = line.trim();
-            if (!line) return;
+        // 2. Populate Dropdowns
+        const nameSelect = document.getElementById('nameCol');
+        const markSelect = document.getElementById('markCol');
+        nameSelect.innerHTML = ''; 
+        markSelect.innerHTML = '';
 
-            // Logic: Split by space. Last item is Mark. All previous are Name.
-            // Works for "Ali 80", "Ali Bin Abu 80", "Ali Bin Abu 80.5"
-            // Also supports Tab or Comma just in case.
-            
-            const parts = line.split(/[\t,\s]+/); // Split by any whitespace or comma
-            
-            if (parts.length >= 2) {
-                const markStr = parts.pop(); // Remove last item (Mark)
-                const nameStr = parts.join(" "); // Join the rest (Name)
-                const mark = parseFloat(markStr);
+        headers.forEach((h, index) => {
+            let option = `<option value="${index}">${h}</option>`;
+            nameSelect.innerHTML += option;
+            markSelect.innerHTML += option;
+        });
 
-                if (nameStr && !isNaN(mark)) {
-                    // Remove leading numbering like "1. Ali"
-                    const cleanName = nameStr.replace(/^\d+[\.\)]\s*/, '');
-                    
-                    students.push({
-                        id: Date.now() + Math.random(),
-                        name: cleanName,
-                        tov: mark
-                    });
-                    addedCount++;
-                }
+        // Smart Auto-Select (Try to guess)
+        headers.forEach((h, index) => {
+            let lower = h.toLowerCase();
+            if(lower.includes('name') || lower.includes('nama')) nameSelect.value = index;
+            if(lower.includes('mark') || lower.includes('tov')) markSelect.value = index;
+        });
+
+        // Store remaining lines for processing
+        rawData = lines.slice(1);
+
+        // Show Next Step
+        document.getElementById('columnPicker').style.display = 'block';
+    }
+
+    function generateHeadcount() {
+        const nameIndex = parseInt(document.getElementById('nameCol').value);
+        const markIndex = parseInt(document.getElementById('markCol').value);
+        const subjectName = document.getElementById('markCol').options[markIndex].text;
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        let count = 0;
+
+        rawData.forEach(line => {
+            // Split line using the same delimiter logic
+            let delimiter = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : ' ');
+            // Regex to handle multiple spaces if manual typing, but simple split for Tab
+            let parts;
+            if (delimiter === ' ') parts = line.trim().split(/\s+/);
+            else parts = line.split(delimiter);
+
+            // Safety check: Row must be long enough
+            if (parts.length <= Math.max(nameIndex, markIndex)) return;
+
+            let name = parts[nameIndex].trim();
+            let markStr = parts[markIndex].trim();
+            let tov = parseFloat(markStr);
+
+            if (name && !isNaN(tov)) {
+                count++;
+                
+                // Headcount Logic
+                let etr = tov + increment;
+                if(etr > 100) etr = 100;
+                let step = (etr - tov) / 4;
+
+                let row = `
+                    <tr>
+                        <td>${count}</td>
+                        <td>${name}</td>
+                        <td>${tov}</td>
+                        <td>${fmt(tov + step)}</td>
+                        <td>${fmt(tov + step*2)}</td>
+                        <td>${fmt(tov + step*3)}</td>
+                        <td class="col-target">${fmt(etr)}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
             }
         });
 
-        if (addedCount > 0) {
-            render();
-            inputField.value = ''; // Clear box
-            showLog(`Added ${addedCount} student(s) successfully!`);
-        } else {
-            showLog("Error: Could not understand input. Use format 'Name Mark'");
-            setTimeout(() => logDiv.style.color = 'red', 0);
-        }
-    }
-
-    function showLog(msg) {
-        logDiv.innerText = msg;
-        logDiv.style.color = 'var(--green)';
-        setTimeout(() => { logDiv.innerText = ''; }, 3000);
-    }
-
-    // 4. Render Table
-    function render() {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        
-        if(students.length > 0) {
-            document.getElementById('emptyMsg').style.display = 'none';
-        } else {
-            document.getElementById('emptyMsg').style.display = 'block';
-        }
-
-        document.getElementById('countDisplay').innerText = students.length + " Students";
-
-        students.forEach((s, i) => {
-            // Calculate
-            let etr = s.tov + increment;
-            if (etr > 100) etr = 100;
-
-            const growth = etr - s.tov;
-            const step = growth / 4;
-
-            const html = `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${s.name}</td>
-                    <td class="col-mark">${s.tov}</td>
-                    <td>${fmt(s.tov + step)}</td>
-                    <td>${fmt(s.tov + step*2)}</td>
-                    <td>${fmt(s.tov + step*3)}</td>
-                    <td class="col-etr">${fmt(etr)}</td>
-                    <td><button class="btn-del" onclick="remove(${s.id})">&times;</button></td>
-                </tr>
-            `;
-            tbody.innerHTML += html;
-        });
+        document.getElementById('subjectTitle').innerText = "Results for: " + subjectName;
+        document.getElementById('resultSection').style.display = 'block';
     }
 
     function fmt(num) {
         return Number.isInteger(num) ? num : num.toFixed(2);
-    }
-
-    function remove(id) {
-        students = students.filter(s => s.id !== id);
-        render();
-    }
-
-    function clearAll() {
-        if(confirm("Clear current list?")) {
-            students = [];
-            render();
-        }
-    }
-
-    function downloadCSV() {
-        if(students.length === 0) return alert("Nothing to download");
-        let csv = "data:text/csv;charset=utf-8,Name,TOV,OTI1,OTI2,OTI3,ETR\n";
-        students.forEach(s => {
-            let etr = Math.min(s.tov + increment, 100);
-            let step = (etr - s.tov) / 4;
-            csv += `${s.name},${s.tov},${fmt(s.tov+step)},${fmt(s.tov+step*2)},${fmt(s.tov+step*3)},${fmt(etr)}\n`;
-        });
-        const link = document.createElement("a");
-        link.href = encodeURI(csv);
-        link.download = "headcount_data.csv";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     }
 </script>
 
