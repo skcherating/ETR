@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,7 +43,17 @@
         #columnPicker { display: none; background: #ecfdf5; border-color: #6ee7b7; }
         .picker-grid { display: flex; gap: 20px; align-items: flex-end; margin-top: 10px; flex-wrap: wrap; }
         .picker-group { display: flex; flex-direction: column; gap: 5px; }
-        select { padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 200px; }
+        select { padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 200px; font-size: 0.95rem; }
+
+        /* TEACHER/ADMIN SELECTOR */
+        .signature-controls {
+            background: #fff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 20px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+        }
+        .sig-section h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 0.9rem; text-transform: uppercase; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+        .input-group label { font-size: 0.85rem; color: #6b7280; font-weight: 600; }
+        .input-group input, .input-group select { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; width: 100%; font-size: 0.9rem; }
 
         /* BUTTONS */
         .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; font-size: 1rem; }
@@ -61,36 +71,15 @@
 
         /* === PRINT OPTIMIZATION (A4 & 10pt) === */
         @media print {
-            @page {
-                size: A4;
-                margin: 1.5cm;
-            }
-
-            body {
-                background: white;
-                font-family: Arial, Helvetica, sans-serif;
-                font-size: 10pt; /* Changed to 10pt */
-                color: black;
-                padding: 0;
-                margin: 0;
-            }
-
-            .container {
-                box-shadow: none; margin: 0; padding: 0; max-width: 100%; width: 100%;
-            }
+            @page { size: A4; margin: 1.5cm; }
+            body { background: white; font-family: Arial, sans-serif; font-size: 10pt; color: black; padding: 0; margin: 0; }
+            .container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; width: 100%; }
 
             /* Hide UI Elements */
-            .step-box, .strategy-panel, .btn, .btn-shuffle, .header-actions, #columnPicker {
-                display: none !important;
-            }
+            .step-box, .strategy-panel, .btn, .btn-shuffle, .header-actions, #columnPicker, .signature-controls { display: none !important; }
 
             /* Print Header */
-            header {
-                border-bottom: 2px solid black;
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-                justify-content: center;
-            }
+            header { border-bottom: 2px solid black; margin-bottom: 15px; padding-bottom: 10px; justify-content: center; }
             h1 { color: black; font-size: 16pt; text-transform: uppercase; }
             .brand-subtitle { color: #444; }
 
@@ -98,21 +87,8 @@
             #resultSection { display: block !important; }
             h3 { font-size: 12pt; margin-bottom: 10px; border: none !important; padding: 0 !important; }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                border: 1px solid black;
-                border-radius: 0;
-                font-size: 10pt; /* Changed to 10pt */
-            }
-
-            th, td {
-                border: 1px solid black;
-                color: black !important;
-                padding: 4px 6px; /* Tighter padding */
-                font-size: 10pt; /* Changed to 10pt */
-            }
-
+            table { width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 10pt; }
+            th, td { border: 1px solid black; color: black !important; padding: 4px 6px; font-size: 10pt; }
             th { background-color: #f0f0f0 !important; font-weight: bold; }
             .col-target { background: none !important; color: black !important; border-left: 1px solid black; }
             .col-gain { background: none !important; color: black !important; }
@@ -120,32 +96,12 @@
             
             /* MALAY SIGNATURE FOOTER */
             .print-footer { 
-                display: flex !important; 
-                margin-top: 50px; 
-                justify-content: space-between; 
-                page-break-inside: avoid;
-                width: 100%;
+                display: flex !important; margin-top: 50px; justify-content: space-between; page-break-inside: avoid; width: 100%;
             }
-            
-            .sig-block {
-                width: 45%;
-            }
-            
-            .sig-title {
-                font-weight: bold;
-                margin-bottom: 40px; /* Space for signature */
-            }
-            
-            .sig-line { 
-                border-top: 1px solid black; 
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-            
-            .sig-text {
-                font-size: 10pt;
-                line-height: 1.5;
-            }
+            .sig-block { width: 45%; }
+            .sig-title { font-weight: bold; margin-bottom: 40px; }
+            .sig-line { border-top: 1px solid black; margin-top: 5px; margin-bottom: 5px; }
+            .sig-text { font-size: 10pt; line-height: 1.5; text-transform: uppercase; }
         }
         .print-footer { display: none; }
     </style>
@@ -205,6 +161,55 @@
     </div>
 
     <div id="resultSection" style="display:none;">
+        
+        <div class="signature-controls">
+            <div class="sig-section">
+                <h4>Disediakan Oleh (Guru)</h4>
+                <div class="input-group">
+                    <label>Nama Guru:</label>
+                    <input list="teacherList" id="teacherInput" placeholder="Pilih nama guru..." onchange="updateSignature()">
+                    <datalist id="teacherList"></datalist>
+                </div>
+                <div class="input-group">
+                    <label>Jawatan:</label>
+                    <select id="jawatanInput" onchange="updateSignature()">
+                        <option value="GURU MATA PELAJARAN" selected>GURU MATA PELAJARAN</option>
+                        
+                        <optgroup label="KETUA PANITIA (TERAS)">
+                            <option value="KETUA PANITIA BAHASA MELAYU">KETUA PANITIA BAHASA MELAYU</option>
+                            <option value="KETUA PANITIA BAHASA INGGERIS">KETUA PANITIA BAHASA INGGERIS</option>
+                            <option value="KETUA PANITIA MATEMATIK">KETUA PANITIA MATEMATIK</option>
+                            <option value="KETUA PANITIA SAINS">KETUA PANITIA SAINS</option>
+                            <option value="KETUA PANITIA PENDIDIKAN ISLAM">KETUA PANITIA PENDIDIKAN ISLAM</option>
+                            <option value="KETUA PANITIA SEJARAH">KETUA PANITIA SEJARAH</option>
+                        </optgroup>
+
+                        <optgroup label="KETUA PANITIA (ELEKTIF)">
+                            <option value="KETUA PANITIA RBT">KETUA PANITIA RBT</option>
+                            <option value="KETUA PANITIA PSV">KETUA PANITIA PSV</option>
+                            <option value="KETUA PANITIA PENDIDIKAN MUZIK">KETUA PANITIA PENDIDIKAN MUZIK</option>
+                            <option value="KETUA PANITIA PJPK">KETUA PANITIA PJPK</option>
+                            <option value="KETUA PANITIA BAHASA ARAB">KETUA PANITIA BAHASA ARAB</option>
+                            <option value="KETUA PANITIA PENDIDIKAN MORAL">KETUA PANITIA PENDIDIKAN MORAL</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sig-section">
+                <h4>Disahkan Oleh (Pentadbir)</h4>
+                <div class="input-group">
+                    <label>Nama Pentadbir:</label>
+                    <input list="adminList" id="adminInput" placeholder="Pilih nama pentadbir..." onchange="autoFillAdmin()">
+                    <datalist id="adminList"></datalist>
+                </div>
+                <div class="input-group">
+                    <label>Jawatan:</label>
+                    <input type="text" id="adminJawatanInput" value="GURU BESAR" oninput="updateSignature()">
+                </div>
+            </div>
+        </div>
+
         <h3 id="subjectTitle" style="margin-bottom:15px; color:#374151; border-left: 5px solid var(--primary); padding-left: 10px;"></h3>
         <table id="dataTable">
             <thead>
@@ -227,22 +232,86 @@
                 <div class="sig-title">Disediakan oleh,</div>
                 <br><br><br>
                 <div class="sig-line"></div>
-                <div class="sig-text">Nama: ..............................................................</div>
-                <div class="sig-text">Jawatan: ...........................................................</div>
+                <div class="sig-text">Nama: <span id="printName">..............................................................</span></div>
+                <div class="sig-text">Jawatan: <span id="printJawatan">...........................................................</span></div>
             </div>
 
             <div class="sig-block">
                 <div class="sig-title">Disahkan oleh,</div>
                 <br><br><br>
                 <div class="sig-line"></div>
-                <div class="sig-text">Nama: ..............................................................</div>
-                <div class="sig-text">Jawatan: ...........................................................</div>
+                <div class="sig-text">Nama: <span id="printAdminName">..............................................................</span></div>
+                <div class="sig-text">Jawatan: <span id="printAdminJawatan">...........................................................</span></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // === 1. DATA CONFIGURATION ===
+    const teachers = [
+        "AMIRAH BINTI CHE AZUHA", "AZLAN BIN DAUD", "AZLINA BINTI HANAPI", "AMANI BINTI AWANG QAMARULDEEN",
+        "ANWAR SHAFIQ BIN JAMALUDIN", "ANIS SYAZWANI BINTI MAT ISA", "BAHJATU SHOLIHAH BINTI RAMAN",
+        "FAZILAH BINTI MUDA", "HANIS AYUNI BINTI HADI", "MAKTAR BIN MOHAMED", "MOHD AFIZU BIN ADENAN",
+        "MUHAMAD HAKIMI BIN AMER", "MUHAMMAD SAUFI FIRDAUS BIN SABUDIN", "NURAZIZAH BINTI OMAR",
+        "NOOR IDAYU BINTI ISMAIL", "NOOR AIN BINTI MOHD YUSOFF", "NOR HUDA DHAMIRAH BINTI ISA",
+        "NUR IDAYU BINTI ABDULL ROZAK", "NOR NAZAHIYAH BINTI NASARUDIN", "NOR SHAZIRA BINTI AZIZ",
+        "NOR SYAZALIAH BINTI MAT RADZI", "NURIN IZZAH BINTI ROSMAN", "NUR FATIHATULHUSNA BINTI YA'ACOB",
+        "NURUL ADILLAH BINTI ZAKARIA", "NURUL IZZATI BINTI MUHAMMAD NAZIR", "NUR ZAKIAH BINTI ZAINUDDIN",
+        "RAJIAH BINTI HAJI MUHAMMAD", "RAMLAH BINTI HASSAN", "RAZIAH BINTI WAHAB", "RAUDZAH BINTI HAJI KAMALUDIN",
+        "RASHIDAH BINTI ZULKIFLI", "ROSHANIDA BINTI ROHANUDDIN", "SITI ZURAIHA BINTI MAPOL",
+        "SUHAIDA BINTI SIDEK", "SUHAIMI BIN ISMAIL", "SUZIMARLIANA BINTI IBRAHIM", "SYAIMA' BINTI ABDUL HALIM@BAKAR",
+        "UMMI FARAH BINTI ALIAS", "WAN SITI NOR ADILAH BINTI WAN OTHMAN", "WAN NOOR UMMI BINTI W.RAMLI",
+        "ZURAYA BINTI OTHMAN", "ZIRATUL ASYIKIN BINTI MUSA", "ZAILATUL ROZAIDI BIN ZAKARIA"
+    ];
+
+    const admins = [
+        { name: "ASRI BIN MOHAMED", pos: "GURU BESAR" },
+        { name: "TUAN KAMARIAH BINTI TUAN SARIF", pos: "PENOLONG KANAN PENTADBIRAN" },
+        { name: "ZAINON BINTI HJ JUFRI", pos: "PENOLONG KANAN HAL EHWAL MURID" },
+        { name: "ASYRAF BIN ROSLAN", pos: "PENOLONG KANAN KO-KURIKULUM" }
+    ];
+
+    // === 2. INITIALIZATION ===
+    const teacherDatalist = document.getElementById('teacherList');
+    teachers.forEach(name => {
+        let option = document.createElement('option');
+        option.value = name;
+        teacherDatalist.appendChild(option);
+    });
+
+    const adminDatalist = document.getElementById('adminList');
+    admins.forEach(admin => {
+        let option = document.createElement('option');
+        option.value = admin.name;
+        adminDatalist.appendChild(option);
+    });
+
+    // === 3. SIGNATURE LOGIC ===
+    function autoFillAdmin() {
+        const selectedName = document.getElementById('adminInput').value;
+        const adminObj = admins.find(a => a.name === selectedName);
+        if (adminObj) {
+            document.getElementById('adminJawatanInput').value = adminObj.pos;
+        }
+        updateSignature();
+    }
+
+    function updateSignature() {
+        // Teacher
+        const tName = document.getElementById('teacherInput').value;
+        const tJaw = document.getElementById('jawatanInput').value;
+        document.getElementById('printName').textContent = tName ? tName : "..............................................................";
+        document.getElementById('printJawatan').textContent = tJaw;
+
+        // Admin
+        const aName = document.getElementById('adminInput').value;
+        const aJaw = document.getElementById('adminJawatanInput').value;
+        document.getElementById('printAdminName').textContent = aName ? aName : "..............................................................";
+        document.getElementById('printAdminJawatan').textContent = aJaw ? aJaw : "...........................................................";
+    }
+
+    // === 4. CORE APP LOGIC ===
     let rawData = [];
     let headers = [];
     let isDataLoaded = false;
@@ -261,12 +330,12 @@
 
     function readData() {
         const text = document.getElementById('pasteArea').value.trim();
-        if(!text) return alert("Please paste data first.");
+        if(!text) return alert("Sila 'Paste' data dahulu.");
         const lines = text.split('\n');
         let firstLine = lines[0].trim();
         let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
         headers = firstLine.split(delim).map(h => h.trim());
-        if(headers.length < 2) return alert("Error: Need at least 2 columns (Name & Mark).");
+        if(headers.length < 2) return alert("Ralat: Perlu sekurang-kurangnya 2 lajur (Nama & Markah).");
 
         const nameSel = document.getElementById('nameCol');
         const markSel = document.getElementById('markCol');
@@ -337,15 +406,16 @@
             }
         });
 
-        document.getElementById('subjectTitle').innerText = "Headcount Analysis: " + subject;
+        document.getElementById('subjectTitle').innerText = "Analisis Headcount: " + subject;
         document.getElementById('resultSection').style.display = 'block';
         isDataLoaded = true;
+        updateSignature(); // Init signature
     }
 
     function downloadExcel() {
-        if (!processedData.length) { alert("Please calculate targets before downloading!"); return; }
+        if (!processedData.length) { alert("Sila kira headcount dahulu!"); return; }
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "No,Student Name,TOV,OTI 1,OTI 2,OTI 3,ETR,Projected Gain\n";
+        csvContent += "No,Nama Murid,TOV,OTI 1,OTI 2,OTI 3,ETR,Peningkatan\n";
         processedData.forEach((row, index) => {
             let safeName = row.name.includes(',') ? `"${row.name}"` : row.name;
             csvContent += `${index + 1},${safeName},${row.tov},${row.oti1},${row.oti2},${row.oti3},${row.etr},${row.gain}\n`;
@@ -354,7 +424,7 @@
         const subject = document.getElementById('markCol').options[markIdx] ? document.getElementById('markCol').options[markIdx].text : "Headcount";
         const link = document.createElement("a");
         link.setAttribute("href", encodeURI(csvContent));
-        link.setAttribute("download", `Headcount_Analysis_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`);
+        link.setAttribute("download", `Analisis_Headcount_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
