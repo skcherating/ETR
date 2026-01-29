@@ -57,7 +57,7 @@
 
         /* Paste Area */
         textarea {
-            width: 100%; height: 150px; padding: 15px; border: 1px solid var(--border); border-radius: 8px; font-family: monospace; font-size: 0.9rem; resize: vertical;
+            width: 100%; height: 200px; padding: 15px; border: 1px solid var(--border); border-radius: 8px; font-family: monospace; font-size: 0.95rem; resize: vertical; line-height: 1.5;
         }
         .paste-guide { font-size: 0.85rem; color: var(--secondary); margin-bottom: 5px; }
 
@@ -112,8 +112,11 @@
         </div>
 
         <div id="tab-paste" class="tab-content active">
-            <p class="paste-guide"><strong>Tip:</strong> You can copy two columns (Name, TOV) directly from Excel and paste them here.</p>
-            <textarea id="pasteArea" placeholder="Example format:&#10;Ali Bin Abu    45&#10;Siti Aminah    62&#10;Tan Ah Kow     78"></textarea>
+            <p class="paste-guide">
+                <strong>How to type:</strong> Just type the Name, then Space, then the Mark.<br>
+                <em>Example:</em> Ali Bin Abu 80
+            </p>
+            <textarea id="pasteArea" placeholder="Ali Bin Abu 45&#10;Siti Aminah 62&#10;Tan Ah Kow 78"></textarea>
             <div class="action-row">
                 <button class="btn-main" onclick="processPastedData()">Calculate & Generate</button>
                 <button class="btn-clear" onclick="clearData()">Clear All</button>
@@ -164,7 +167,6 @@
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         
         document.getElementById('tab-' + tabId).classList.add('active');
-        // Find button that called this (rough match)
         const btnIndex = tabId === 'paste' ? 0 : 1;
         document.querySelectorAll('.tab-btn')[btnIndex].classList.add('active');
     }
@@ -174,7 +176,7 @@
         document.getElementById('customInc').value = increment;
         document.querySelectorAll('.inc-btn').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
-        if(students.length > 0) renderTable(); // Live update
+        if(students.length > 0) renderTable(); 
     }
 
     function updateCustom(val) {
@@ -183,7 +185,7 @@
         if(students.length > 0) renderTable();
     }
 
-    // --- Data Processing ---
+    // --- Data Processing (Updated for Space Logic) ---
     function processPastedData() {
         const raw = document.getElementById('pasteArea').value;
         if(!raw.trim()) { alert("Please paste some data first."); return; }
@@ -201,8 +203,8 @@
             const text = e.target.result;
             const lines = text.split('\n');
             parseLines(lines);
-            input.value = ''; // reset
-            switchTab('paste'); // Switch view to show data
+            input.value = ''; 
+            switchTab('paste'); 
         };
         reader.readAsText(file);
     }
@@ -214,48 +216,49 @@
             line = line.trim();
             if(!line) return;
 
-            // Detect delimiter: Tab (Excel paste) or Comma (CSV)
-            let parts;
+            let name = "";
+            let tovStr = "";
+
+            // LOGIC 1: Check for Tab (Excel)
             if (line.includes('\t')) {
-                parts = line.split('\t');
-            } else if (line.includes(',')) {
-                parts = line.split(',');
-            } else {
-                // Fallback: split by multiple spaces
-                parts = line.split(/\s{2,}/); 
+                const parts = line.split('\t');
+                tovStr = parts[parts.length - 1]; // Last item
+                name = parts[0]; 
+            }
+            // LOGIC 2: Check for Comma (CSV)
+            else if (line.includes(',')) {
+                const parts = line.split(',');
+                tovStr = parts[parts.length - 1];
+                name = parts[0];
+            }
+            // LOGIC 3: Space (Manual Typing)
+            else {
+                // Split by spaces
+                const parts = line.split(/\s+/); // Splits "Ali Bin Abu 60" -> ["Ali", "Bin", "Abu", "60"]
+                
+                if (parts.length >= 2) {
+                    tovStr = parts.pop(); // Removes "60" from the end and stores it
+                    name = parts.join(" "); // Joins "Ali", "Bin", "Abu" back together
+                }
             }
 
-            // Clean up parts
-            parts = parts.map(p => p.trim()).filter(p => p !== '');
-
-            // We need at least Name and TOV
-            if (parts.length >= 2) {
-                // Assume Last column is Marks, First is Name
-                // If 2 columns: Name, Mark
-                // If 3 columns (No, Name, Mark): We take 2 and 3
+            // Validation and Add
+            let tov = parseFloat(tovStr);
+            if (!isNaN(tov)) {
+                // Remove numbering from name if present (e.g., "1. Ali")
+                name = name.replace(/^\d+[\.\)]\s*/, '');
                 
-                let name = parts[0];
-                let tovStr = parts[parts.length - 1]; // Take the last item as mark
-
-                // If user pasted "1. Name Mark", remove the leading number
-                if(parts.length > 2 && !isNaN(parts[0])) {
-                     name = parts[1];
-                }
-
-                let tov = parseFloat(tovStr);
-
-                if (!isNaN(tov)) {
-                    tempStudents.push({ name: name, tov: tov });
-                }
+                tempStudents.push({ name: name, tov: tov });
             }
         });
 
         if (tempStudents.length > 0) {
             students = tempStudents;
             renderTable();
-            alert(`Successfully loaded ${students.length} students!`);
-        } else {
-            alert("Could not recognize data. Please ensure format is 'Name [tab] Mark'");
+            // Don't alert on every keystroke, only button press usually, but here it's fine.
+            if(students.length > 0) {
+                 // Clear any error states if we had them
+            }
         }
     }
 
@@ -265,9 +268,8 @@
         tbody.innerHTML = '';
 
         students.forEach((s, index) => {
-            // Calculation
             let etr = s.tov + increment;
-            if(etr > 100) etr = 100; // Cap at 100
+            if(etr > 100) etr = 100; 
 
             const totalGrowth = etr - s.tov;
             const step = totalGrowth / 4;
@@ -305,7 +307,6 @@
         document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color: #94a3b8;">No data loaded yet.</td></tr>';
     }
 
-    // --- Exports ---
     function downloadTemplate() {
         const csv = "data:text/csv;charset=utf-8,Student Name,TOV Mark\nAli Bin Abu,45\nSiti Aminah,60";
         const link = document.createElement("a");
