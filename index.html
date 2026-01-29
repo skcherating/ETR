@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher's Easy Headcount Calculator (TOV/ETR)</title>
+    <title>Headcount Calculator (Batch Upload)</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -15,422 +15,368 @@
             --border: #e5e7eb;
             --danger: #ef4444;
             --success: #10b981;
+            --warning: #f59e0b;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text-dark);
-            line-height: 1.6;
-            padding: 20px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: var(--bg); color: var(--text-dark); padding: 20px; }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             background: var(--white);
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
 
-        header {
+        header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
+        h1 { color: var(--primary); margin-bottom: 5px; }
+
+        /* Batch Upload Section */
+        .upload-section {
+            background: #eff6ff;
+            border: 2px dashed #bfdbfe;
+            padding: 25px;
+            border-radius: 8px;
             text-align: center;
             margin-bottom: 30px;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 20px;
         }
 
-        h1 {
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .btn-upload {
+            border: 2px solid var(--primary);
             color: var(--primary);
-            font-size: 2rem;
-            margin-bottom: 10px;
+            background-color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
         }
 
-        p.subtitle {
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .template-link {
+            display: block;
+            margin-top: 10px;
             color: var(--text-light);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            text-decoration: underline;
+            cursor: pointer;
         }
 
-        /* Input Section */
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-light);
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1; border-bottom: 1px solid var(--border);
+        }
+        .divider span { padding: 0 10px; font-size: 0.85rem; }
+
+        /* Manual Input */
         .input-grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr auto;
             gap: 15px;
             align-items: end;
-            margin-bottom: 25px;
             background: #f8fafc;
             padding: 20px;
             border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--text-dark);
-        }
-
-        input {
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        button.btn-add {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: background 0.2s;
-            height: 42px;
-        }
-
-        button.btn-add:hover {
-            background-color: var(--primary-hover);
-        }
-
-        /* Table Section */
-        .table-responsive {
-            overflow-x: auto;
             margin-bottom: 20px;
-        }
-
-        table {
-            width: 1000px; /* Minimum width to ensure readability */
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
-        }
-
-        th, td {
-            text-align: left;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            background-color: #f9fafb;
-            font-weight: 600;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.05em;
-        }
-
-        tr:hover {
-            background-color: #f9fafb;
-        }
-
-        /* Highlight Columns */
-        .col-tov { background-color: #eff6ff; font-weight: 600; color: #1e40af; }
-        .col-etr { background-color: #ecfdf5; font-weight: 600; color: #065f46; }
-        
-        /* Action Buttons */
-        .actions-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        .btn-secondary {
-            background-color: var(--white);
             border: 1px solid var(--border);
-            color: var(--text-dark);
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
         }
 
-        .btn-secondary:hover {
-            background-color: #f3f4f6;
-            border-color: #d1d5db;
-        }
+        label { font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;}
+        input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+        
+        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: 0.2s; }
+        .btn-add { background: var(--primary); color: white; height: 42px; }
+        .btn-add:hover { background: var(--primary-hover); }
 
-        .btn-danger {
-            color: var(--danger);
-            border-color: #fecaca;
-        }
+        /* Table */
+        .table-responsive { overflow-x: auto; max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { position: sticky; top: 0; background: #f9fafb; z-index: 10; padding: 12px; text-align: left; font-size: 0.85rem; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        
+        .col-tov { background-color: #eff6ff; color: #1e40af; font-weight: 600; }
+        .col-etr { background-color: #ecfdf5; color: #065f46; font-weight: 600; }
+        .col-oti { color: #555; }
 
-        .btn-danger:hover {
-            background-color: #fef2f2;
-            border-color: var(--danger);
-        }
+        .btn-delete { color: var(--danger); background: none; font-size: 1.2rem; padding: 0 5px; }
 
-        .btn-export {
-            background-color: var(--success);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
+        /* Footer */
+        .actions-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .btn-export { background: var(--success); color: white; }
+        .btn-export:hover { background: #059669; }
+        .btn-clear { background: var(--white); border: 1px solid var(--danger); color: var(--danger); }
+        .btn-clear:hover { background: #fef2f2; }
 
-        .btn-export:hover {
-            background-color: #059669;
-        }
-
-        .btn-delete {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0 5px;
-        }
-
-        .btn-delete:hover {
-            color: #b91c1c;
-        }
-
-        .stats {
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .input-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            .btn-add {
-                width: 100%;
-            }
-            .actions-bar {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .btn-export, .btn-secondary {
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Teacher's Headcount Calculator</h1>
-            <p class="subtitle">Easily calculate OTI 1, OTI 2, and OTI 3 based on TOV and ETR.</p>
-        </header>
+<div class="container">
+    <header>
+        <h1>Headcount Calculator (Batch Upload)</h1>
+        <p style="color: #666;">Upload your class list or add students manually.</p>
+    </header>
 
-        <div class="input-grid">
-            <div class="form-group">
-                <label for="studentName">Student Name</label>
-                <input type="text" id="studentName" placeholder="e.g., Ali Bin Abu" autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label for="tov">TOV (Current)</label>
-                <input type="number" id="tov" placeholder="0-100" min="0" max="100">
-            </div>
-            <div class="form-group">
-                <label for="etr">ETR (Target)</label>
-                <input type="number" id="etr" placeholder="0-100" min="0" max="100">
-            </div>
-            <button class="btn-add" onclick="addStudent()">Add Student</button>
+    <div class="upload-section">
+        <h3>📂 Option 1: Batch Upload</h3>
+        <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">Upload a CSV file with columns: <strong>Name, TOV, ETR</strong></p>
+        
+        <div class="upload-btn-wrapper">
+            <button class="btn-upload">Choose CSV File</button>
+            <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileUpload(this)">
         </div>
-
-        <div class="table-responsive">
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th style="width: 30%;">Name</th>
-                        <th class="col-tov">TOV</th>
-                        <th>OTI 1</th>
-                        <th>OTI 2</th>
-                        <th>OTI 3</th>
-                        <th class="col-etr">ETR</th>
-                        <th style="width: 50px;">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    </tbody>
-            </table>
-        </div>
-
-        <div id="emptyMessage" style="text-align: center; padding: 20px; color: var(--text-light);">
-            No students added yet. Fill in the form above to start.
-        </div>
-
-        <div class="actions-bar">
-            <div class="stats" id="studentCount">Total Students: 0</div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-secondary btn-danger" onclick="clearAll()">Clear All</button>
-                <button class="btn-export" onclick="exportToCSV()">Download Excel (CSV)</button>
-            </div>
-        </div>
+        
+        <br>
+        <span class="template-link" onclick="downloadTemplate()">Download Template File</span>
     </div>
 
-    <script>
-        // Store student data in an array
-        let students = [];
+    <div class="divider"><span>OR</span></div>
 
-        const studentNameInput = document.getElementById('studentName');
-        const tovInput = document.getElementById('tov');
-        const etrInput = document.getElementById('etr');
-        const tableBody = document.getElementById('tableBody');
-        const emptyMessage = document.getElementById('emptyMessage');
-        const studentCountLabel = document.getElementById('studentCount');
+    <div class="input-grid">
+        <div>
+            <label>Student Name</label>
+            <input type="text" id="studentName" placeholder="Name">
+        </div>
+        <div>
+            <label>TOV</label>
+            <input type="number" id="tov" placeholder="0-100">
+        </div>
+        <div>
+            <label>ETR</label>
+            <input type="number" id="etr" placeholder="0-100">
+        </div>
+        <button class="btn-add" onclick="addManualStudent()">Add</button>
+    </div>
 
-        // Allow "Enter" key to add student
-        etrInput.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                addStudent();
-            }
-        });
+    <div class="table-responsive">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th class="col-tov">TOV</th>
+                    <th>OTI 1</th>
+                    <th>OTI 2</th>
+                    <th>OTI 3</th>
+                    <th class="col-etr">ETR</th>
+                    <th style="width: 50px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+    </div>
+    
+    <div id="emptyMessage" style="text-align: center; padding: 30px; color: #9ca3af;">
+        No data yet. Upload a file or add a student manually.
+    </div>
 
-        function addStudent() {
-            const name = studentNameInput.value.trim();
-            const tov = parseFloat(tovInput.value);
-            const etr = parseFloat(etrInput.value);
+    <div class="actions-bar">
+        <span id="countDisplay" style="color: #6b7280; font-weight: 500;">0 Students</span>
+        <div style="gap: 10px; display: flex;">
+            <button class="btn-clear" onclick="clearAll()">Clear All</button>
+            <button class="btn-export" onclick="exportResults()">Download Results (CSV)</button>
+        </div>
+    </div>
+</div>
 
-            // Validation
-            if (!name) {
-                alert("Please enter a student name.");
-                return;
-            }
-            if (isNaN(tov) || tov < 0 || tov > 100) {
-                alert("Please enter a valid TOV mark (0-100).");
-                return;
-            }
-            if (isNaN(etr) || etr < 0 || etr > 100) {
-                alert("Please enter a valid ETR mark (0-100).");
-                return;
-            }
+<script>
+    let students = [];
 
-            // Calculation Logic
-            // Formula: Increment = (ETR - TOV) / 4
-            const increment = (etr - tov) / 4;
+    // --- 1. CORE LOGIC (Headcount Formula) ---
+    function calculateOTI(name, tov, etr) {
+        tov = parseFloat(tov);
+        etr = parseFloat(etr);
+
+        if (isNaN(tov) || isNaN(etr)) return null;
+
+        // Formula: Increment = (ETR - TOV) / 4
+        const increment = (etr - tov) / 4;
+
+        return {
+            id: Date.now() + Math.random(), // Unique ID
+            name: name,
+            tov: tov,
+            oti1: (tov + increment).toFixed(2),
+            oti2: (tov + (increment * 2)).toFixed(2),
+            oti3: (tov + (increment * 3)).toFixed(2),
+            etr: etr
+        };
+    }
+
+    // --- 2. BATCH UPLOAD HANDLER ---
+    function handleFileUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            processCSV(text);
+        };
+        reader.readAsText(file);
+        input.value = ''; // Reset input so same file can be selected again if needed
+    }
+
+    function processCSV(csvText) {
+        const lines = csvText.split('\n');
+        let addedCount = 0;
+
+        // Start from index 1 to skip header row
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            // Split by comma (handles simple CSVs)
+            const cols = line.split(',');
             
-            const oti1 = tov + increment;
-            const oti2 = tov + (increment * 2);
-            const oti3 = tov + (increment * 3);
+            // Expected Format: Name, TOV, ETR (cols[0], cols[1], cols[2])
+            if (cols.length >= 3) {
+                const name = cols[0].trim();
+                const tov = cols[1].trim();
+                const etr = cols[2].trim();
 
-            const newStudent = {
-                id: Date.now(),
-                name: name,
-                tov: tov,
-                oti1: oti1.toFixed(2), // Round to 2 decimal places
-                oti2: oti2.toFixed(2),
-                oti3: oti3.toFixed(2),
-                etr: etr
-            };
-
-            students.push(newStudent);
+                const studentObj = calculateOTI(name, tov, etr);
+                if (studentObj) {
+                    students.push(studentObj);
+                    addedCount++;
+                }
+            }
+        }
+        
+        if (addedCount > 0) {
             renderTable();
-            clearInputs();
+            alert(`Successfully added ${addedCount} students!`);
+        } else {
+            alert("Could not read data. Please ensure CSV format is: Name, TOV, ETR");
+        }
+    }
+
+    // --- 3. MANUAL ADD ---
+    function addManualStudent() {
+        const name = document.getElementById('studentName').value;
+        const tov = document.getElementById('tov').value;
+        const etr = document.getElementById('etr').value;
+
+        if (!name || !tov || !etr) {
+            alert("Please fill in all fields");
+            return;
         }
 
-        function deleteStudent(id) {
-            students = students.filter(student => student.id !== id);
+        const student = calculateOTI(name, tov, etr);
+        students.push(student);
+        
+        // Clear inputs
+        document.getElementById('studentName').value = '';
+        document.getElementById('tov').value = '';
+        document.getElementById('etr').value = '';
+        
+        renderTable();
+    }
+
+    // --- 4. RENDER & UTILS ---
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        const emptyMsg = document.getElementById('emptyMessage');
+        const countDisplay = document.getElementById('countDisplay');
+        
+        tbody.innerHTML = '';
+
+        if (students.length === 0) {
+            emptyMsg.style.display = 'block';
+            countDisplay.innerText = "0 Students";
+            return;
+        }
+
+        emptyMsg.style.display = 'none';
+        countDisplay.innerText = `${students.length} Students`;
+
+        students.forEach(s => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${s.name}</td>
+                <td class="col-tov">${s.tov}</td>
+                <td class="col-oti">${formatNum(s.oti1)}</td>
+                <td class="col-oti">${formatNum(s.oti2)}</td>
+                <td class="col-oti">${formatNum(s.oti3)}</td>
+                <td class="col-etr">${s.etr}</td>
+                <td style="text-align:center;">
+                    <button class="btn-delete" onclick="deleteStudent(${s.id})">&times;</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function formatNum(num) {
+        return parseFloat(num) % 1 === 0 ? parseInt(num) : num;
+    }
+
+    function deleteStudent(id) {
+        students = students.filter(s => s.id !== id);
+        renderTable();
+    }
+
+    function clearAll() {
+        if(confirm("Clear all data?")) {
+            students = [];
             renderTable();
         }
+    }
 
-        function clearAll() {
-            if (confirm("Are you sure you want to delete all student data?")) {
-                students = [];
-                renderTable();
-            }
+    // --- 5. EXPORT & TEMPLATE ---
+    function downloadTemplate() {
+        const csvContent = "data:text/csv;charset=utf-8,Name,TOV,ETR\nStudent A,40,60\nStudent B,55,80";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "headcount_template.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function exportResults() {
+        if (students.length === 0) {
+            alert("No data to export.");
+            return;
         }
+        let csv = "data:text/csv;charset=utf-8,Name,TOV,OTI 1,OTI 2,OTI 3,ETR\n";
+        students.forEach(s => {
+            csv += `${s.name},${s.tov},${s.oti1},${s.oti2},${s.oti3},${s.etr}\n`;
+        });
+        const encodedUri = encodeURI(csv);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "headcount_results.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
 
-        function clearInputs() {
-            studentNameInput.value = '';
-            tovInput.value = '';
-            etrInput.value = '';
-            studentNameInput.focus();
-        }
-
-        function renderTable() {
-            tableBody.innerHTML = '';
-
-            if (students.length === 0) {
-                emptyMessage.style.display = 'block';
-            } else {
-                emptyMessage.style.display = 'none';
-                
-                students.forEach(student => {
-                    const row = document.createElement('tr');
-                    
-                    row.innerHTML = `
-                        <td>${student.name}</td>
-                        <td class="col-tov">${student.tov}</td>
-                        <td>${formatMark(student.oti1)}</td>
-                        <td>${formatMark(student.oti2)}</td>
-                        <td>${formatMark(student.oti3)}</td>
-                        <td class="col-etr">${student.etr}</td>
-                        <td style="text-align: center;">
-                            <button class="btn-delete" onclick="deleteStudent(${student.id})" title="Remove">&times;</button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            }
-            studentCountLabel.textContent = `Total Students: ${students.length}`;
-        }
-
-        // Helper to remove .00 if not needed, but keep decimals if they exist
-        function formatMark(numStr) {
-            let num = parseFloat(numStr);
-            // If it's a whole number, return it without decimals. Otherwise keep 2.
-            return Number.isInteger(num) ? num : num.toFixed(2);
-        }
-
-        function exportToCSV() {
-            if (students.length === 0) {
-                alert("No data to export!");
-                return;
-            }
-
-            // CSV Header
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Student Name,TOV,OTI 1,OTI 2,OTI 3,ETR\n";
-
-            // CSV Rows
-            students.forEach(student => {
-                let row = `${student.name},${student.tov},${student.oti1},${student.oti2},${student.oti3},${student.etr}`;
-                csvContent += row + "\n";
-            });
-
-            // Download Trigger
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "headcount_data.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
 </body>
 </html>
