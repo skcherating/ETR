@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Master: Smart Targeting</title>
+    <title>Headcount Master: Smart Targeting (Fixed)</title>
     <style>
         :root { --primary: #4f46e5; --bg: #f3f4f6; --white: #fff; --text: #1f2937; --border: #d1d5db; --success: #059669; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
@@ -11,16 +11,28 @@
         
         h1 { color: var(--primary); margin-top: 0; font-size: 1.5rem; }
 
-        /* STRATEGY BAR (New Design) */
+        /* STRATEGY PANEL */
         .strategy-panel {
-            background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 15px; margin-bottom: 20px;
-            display: flex; gap: 30px; align-items: center; flex-wrap: wrap;
+            background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 20px; margin-bottom: 20px;
         }
-        .strat-group { display: flex; align-items: center; gap: 10px; }
-        .strat-label { font-weight: bold; color: #3730a3; font-size: 0.9rem; text-transform: uppercase; }
+        .strat-row { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .strat-row:last-child { margin-bottom: 0; }
+
+        label { font-weight: 600; cursor: pointer; color: #3730a3; }
         
-        input[type="radio"] { transform: scale(1.2); cursor: pointer; }
-        input[type="number"] { width: 60px; padding: 5px; border: 1px solid #9ca3af; border-radius: 4px; text-align: center; font-weight: bold; }
+        input[type="radio"] { transform: scale(1.2); cursor: pointer; margin-right: 8px; }
+        
+        input[type="number"] { 
+            width: 70px; padding: 8px; border: 1px solid #9ca3af; border-radius: 4px; 
+            text-align: center; font-weight: bold; font-size: 1rem;
+        }
+
+        .btn-shuffle {
+            background: #f59e0b; color: white; border: none; padding: 8px 15px; 
+            border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem;
+            margin-left: 10px; display: none; /* Hidden by default */
+        }
+        .btn-shuffle:hover { background: #d97706; }
 
         /* Step Boxes */
         .step-box { border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; background: #f9fafb; }
@@ -45,7 +57,7 @@
         th { text-align: left; padding: 12px; background: #e5e7eb; border-bottom: 2px solid #9ca3af; }
         td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
         .col-target { background: #f0fdf4; color: #166534; font-weight: bold; border-left: 2px solid #e5e7eb; }
-        .col-gain { color: #059669; font-size: 0.85rem; }
+        .col-gain { color: #059669; font-weight: bold; font-size: 0.9rem; background: #ecfdf5; }
 
         /* Print Mode */
         @media print {
@@ -67,21 +79,24 @@
     </div>
 
     <div class="strategy-panel">
-        <div class="strat-label">Target Strategy:</div>
+        <div style="margin-bottom:10px; font-size:0.9rem; text-transform:uppercase; color:#6b7280; font-weight:bold;">Target Strategy</div>
 
-        <div class="strat-group">
-            <input type="radio" name="strategy" id="stratFixed" value="fixed" checked onclick="toggleStrat()">
+        <div class="strat-row">
+            <input type="radio" name="strategy" id="stratFixed" value="fixed" checked onchange="updateLive()">
             <label for="stratFixed">Fixed Increase:</label>
-            <input type="number" id="fixedVal" value="10"> marks
+            <input type="number" id="fixedVal" value="10" oninput="updateLive()"> 
+            <span>marks for everyone.</span>
         </div>
 
-        <div style="border-left: 1px solid #a5b4fc; height: 30px; margin: 0 10px;"></div>
-
-        <div class="strat-group">
-            <input type="radio" name="strategy" id="stratRandom" value="random" onclick="toggleStrat()">
+        <div class="strat-row">
+            <input type="radio" name="strategy" id="stratRandom" value="random" onchange="updateLive()">
             <label for="stratRandom">Random Range:</label>
-            <input type="number" id="randMin" value="5" disabled> to 
-            <input type="number" id="randMax" value="12" disabled> marks
+            <span>Between</span>
+            <input type="number" id="randMin" value="5" disabled oninput="updateLive()"> 
+            <span>and</span>
+            <input type="number" id="randMax" value="12" disabled oninput="updateLive()"> 
+            <span>marks.</span>
+            <button class="btn-shuffle" id="btnShuffle" onclick="forceReShuffle()">🎲 Shuffle / Re-Roll</button>
         </div>
     </div>
 
@@ -120,7 +135,7 @@
                     <th>OTI 2</th>
                     <th>OTI 3</th>
                     <th class="col-target">ETR</th>
-                    <th style="width: 10%;">Gain</th>
+                    <th class="col-gain" style="width: 10%;">Gain</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -131,30 +146,42 @@
 <script>
     let rawData = [];
     let headers = [];
+    let isDataLoaded = false;
 
-    // Toggle Inputs based on Radio Button
-    function toggleStrat() {
+    // 1. Live Update Logic
+    function updateLive() {
+        // Toggle Input Availability
         const isFixed = document.getElementById('stratFixed').checked;
         document.getElementById('fixedVal').disabled = !isFixed;
         document.getElementById('randMin').disabled = isFixed;
         document.getElementById('randMax').disabled = isFixed;
+        
+        // Show/Hide Shuffle Button
+        document.getElementById('btnShuffle').style.display = isFixed ? 'none' : 'inline-block';
+
+        // Only re-calculate if we actually have data displayed
+        if(isDataLoaded) {
+            generateHeadcount();
+        }
     }
 
-    // Step 1: Read & Parse Data
+    // 2. Force Shuffle (for Random Mode)
+    function forceReShuffle() {
+        if(isDataLoaded) generateHeadcount();
+    }
+
+    // 3. Read Data
     function readData() {
         const text = document.getElementById('pasteArea').value.trim();
         if(!text) return alert("Please paste data first.");
 
         const lines = text.split('\n');
-        
-        // Detect delimiter (Tab for Excel, Comma for CSV)
         let firstLine = lines[0].trim();
         let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
         
         headers = firstLine.split(delim).map(h => h.trim());
         if(headers.length < 2) return alert("Error: Need at least 2 columns (Name & Mark).");
 
-        // Populate Selectors
         const nameSel = document.getElementById('nameCol');
         const markSel = document.getElementById('markCol');
         nameSel.innerHTML = ''; markSel.innerHTML = '';
@@ -165,28 +192,33 @@
             markSel.innerHTML += opt;
         });
 
-        // Smart Guessing
+        // Smart Select
         headers.forEach((h, i) => {
             let low = h.toLowerCase();
             if(low.includes('name') || low.includes('nama')) nameSel.value = i;
             if(low.includes('mark') || low.includes('tov')) markSel.value = i;
         });
 
-        rawData = lines.slice(1); // Remove header row
+        rawData = lines.slice(1); 
         document.getElementById('columnPicker').style.display = 'block';
     }
 
-    // Step 2: Generate Results
+    // 4. Generate Results
     function generateHeadcount() {
         const nameIdx = parseInt(document.getElementById('nameCol').value);
         const markIdx = parseInt(document.getElementById('markCol').value);
         const subject = document.getElementById('markCol').options[markIdx].text;
         
-        // Strategy Logic
+        // Strategy Values
         const isFixed = document.getElementById('stratFixed').checked;
         const fixedVal = parseInt(document.getElementById('fixedVal').value) || 10;
-        const minVal = parseInt(document.getElementById('randMin').value) || 1;
-        const maxVal = parseInt(document.getElementById('randMax').value) || 5;
+        let minVal = parseInt(document.getElementById('randMin').value) || 1;
+        let maxVal = parseInt(document.getElementById('randMax').value) || 10;
+
+        // Validation: Ensure Min < Max
+        if (minVal > maxVal) {
+            let temp = minVal; minVal = maxVal; maxVal = temp;
+        }
 
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
@@ -204,19 +236,25 @@
             if(name && !isNaN(tov)) {
                 count++;
                 
-                // Determine Increment for THIS student
+                // --- CORE LOGIC ---
                 let inc = 0;
                 if(isFixed) {
                     inc = fixedVal;
                 } else {
-                    // Random Formula: Math.random() * (max - min + 1) + min
+                    // Random Integer Formula
                     inc = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
                 }
+                // ------------------
 
-                // Calc Headcount
                 let etr = tov + inc;
-                if(etr > 100) etr = 100; // Cap at 100
-                let step = (etr - tov) / 4;
+                if(etr > 100) etr = 100;
+                if(etr < 0) etr = 0; // Safety
+                
+                // Recalculate OTI steps
+                // OTI step = (ETR - TOV) / 4
+                // Note: The total growth is (ETR - TOV), not just 'inc' because of the 100 cap.
+                let realGrowth = etr - tov;
+                let step = realGrowth / 4;
 
                 let row = `
                     <tr>
@@ -236,6 +274,7 @@
 
         document.getElementById('subjectTitle').innerText = "Target Analysis for: " + subject;
         document.getElementById('resultSection').style.display = 'block';
+        isDataLoaded = true;
     }
 
     function fmt(num) { return Number.isInteger(num) ? num : num.toFixed(2); }
