@@ -3,296 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher's Smart Headcount App</title>
+    <title>Fast Headcount Calculator</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #64748b;
-            --bg: #f8fafc;
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
             --white: #ffffff;
-            --border: #e2e8f0;
-            --success: #10b981;
+            --text: #1f2937;
+            --border: #e5e7eb;
+            --green: #10b981;
         }
-
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #1e293b; margin: 0; padding: 20px; }
-        * { box-sizing: border-box; }
-
-        .container { max-width: 1200px; margin: 0 auto; background: var(--white); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
-
-        /* Header & Strategy */
-        header { background: var(--primary); color: white; padding: 25px; text-align: center; }
-        h1 { margin: 0 0 10px 0; font-size: 1.8rem; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 1000px; margin: 0 auto; background: var(--white); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; }
         
-        .strategy-bar {
-            background: #eff6ff;
+        /* Header */
+        header { background: var(--primary); padding: 20px; color: white; text-align: center; }
+        h1 { margin: 0; font-size: 1.5rem; }
+        .strategy-controls { margin-top: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+        .btn-strat { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
+        .btn-strat.active { background: white; color: var(--primary); font-weight: bold; }
+        
+        /* Magic Input Section */
+        .input-section { padding: 30px; border-bottom: 1px solid var(--border); background: #fafafa; }
+        .input-label { display: block; margin-bottom: 10px; font-weight: 600; color: #4b5563; }
+        
+        .magic-input-wrapper { display: flex; gap: 10px; }
+        #magicInput {
+            flex: 1;
             padding: 15px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            font-size: 1.1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            transition: 0.2s;
         }
-        .strategy-bar label { font-weight: 700; color: var(--primary-dark); text-transform: uppercase; font-size: 0.85rem; }
+        #magicInput:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         
-        .inc-btn {
-            background: white; border: 1px solid #bfdbfe; color: var(--primary); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s;
-        }
-        .inc-btn.active, .inc-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 0 25px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .btn-add:hover { background: #4338ca; }
+
+        .helper-text { font-size: 0.85rem; color: #6b7280; margin-top: 8px; }
         
-        .custom-inc { width: 70px; padding: 8px; border: 1px solid #bfdbfe; border-radius: 6px; text-align: center; font-weight: bold; color: var(--primary); }
-
-        /* Input Area (Tabs) */
-        .input-section { padding: 30px; border-bottom: 1px solid var(--border); }
-        
-        .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid var(--border); }
-        .tab-btn {
-            padding: 10px 20px; background: none; border: none; font-size: 1rem; color: var(--secondary); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px;
-        }
-        .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); font-weight: 700; }
-
-        .tab-content { display: none; animation: fadeIn 0.3s; }
-        .tab-content.active { display: block; }
-
-        /* Paste Area */
-        textarea {
-            width: 100%; height: 200px; padding: 15px; border: 1px solid var(--border); border-radius: 8px; font-family: monospace; font-size: 0.95rem; resize: vertical; line-height: 1.5;
-        }
-        .paste-guide { font-size: 0.85rem; color: var(--secondary); margin-bottom: 5px; }
-
-        /* File Upload Area */
-        .drop-zone {
-            border: 2px dashed #cbd5e1; border-radius: 8px; padding: 40px; text-align: center; background: #f1f5f9; cursor: pointer; transition: 0.2s;
-        }
-        .drop-zone:hover { border-color: var(--primary); background: #eff6ff; }
-
-        /* Action Buttons */
-        .action-row { margin-top: 20px; display: flex; gap: 10px; }
-        .btn-main { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .btn-main:hover { background: #059669; }
-        .btn-clear { background: white; border: 1px solid #ef4444; color: #ef4444; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        /* Action Log (Feedback) */
+        #log { font-size: 0.9rem; color: var(--green); margin-top: 10px; height: 20px; font-weight: 600; }
 
         /* Table */
-        .table-wrapper { overflow-x: auto; max-height: 600px; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.85rem; color: var(--secondary); border-bottom: 2px solid var(--border); position: sticky; top: 0; }
-        td { padding: 12px 15px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        .table-container { padding: 0; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f9fafb; padding: 12px 15px; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #6b7280; border-bottom: 1px solid var(--border); }
+        td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
         
-        .col-tov { background: #eff6ff; font-weight: 600; color: var(--primary-dark); }
-        .col-etr { background: #f0fdf4; font-weight: 700; color: #15803d; }
-        .badge-gain { font-size: 0.75rem; background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+        .col-mark { font-weight: bold; color: var(--primary); background: #eef2ff; }
+        .col-etr { font-weight: bold; color: #047857; background: #ecfdf5; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .btn-del { color: #ef4444; border: none; background: none; cursor: pointer; font-size: 1.2rem; }
+        
+        .footer-actions { padding: 20px; text-align: right; background: #f9fafb; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .btn-dl { background: #059669; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; cursor: pointer; border: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Smart Headcount Calculator</h1>
-        <p>Estimate ETR and OTIs instantly using a strategic increment.</p>
+        <h1>Fast Headcount Calculator</h1>
+        <div class="strategy-controls">
+            <span>Target Increment:</span>
+            <button class="btn-strat" onclick="setStrat(5, this)">+5</button>
+            <button class="btn-strat active" onclick="setStrat(10, this)">+10</button>
+            <button class="btn-strat" onclick="setStrat(15, this)">+15</button>
+            <input type="number" id="customStrat" value="10" oninput="setStrat(this.value)" style="width: 50px; padding: 3px; border-radius: 4px; border: none; text-align: center;">
+        </div>
     </header>
 
-    <div class="strategy-bar">
-        <label>Strategic Increment:</label>
-        <button class="inc-btn" onclick="setStrategy(5, this)">+5 (Safe)</button>
-        <button class="inc-btn active" onclick="setStrategy(10, this)">+10 (Standard)</button>
-        <button class="inc-btn" onclick="setStrategy(15, this)">+15 (High)</button>
-        <div style="display:flex; align-items:center; gap:5px; margin-left:10px;">
-            <span style="font-size:0.85rem;">Custom:</span>
-            <input type="number" id="customInc" class="custom-inc" value="10" oninput="updateCustom(this.value)">
-        </div>
-    </div>
-
     <div class="input-section">
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('paste')">📋 Copy & Paste</button>
-            <button class="tab-btn" onclick="switchTab('upload')">📂 Upload Excel/CSV</button>
+        <label class="input-label">📝 Smart Entry (Space separated)</label>
+        <div class="magic-input-wrapper">
+            <input type="text" id="magicInput" placeholder="e.g. Ali Bin Abu 80" autocomplete="off">
+            <button class="btn-add" onclick="processInput()">Add</button>
         </div>
-
-        <div id="tab-paste" class="tab-content active">
-            <p class="paste-guide">
-                <strong>How to type:</strong> Just type the Name, then Space, then the Mark.<br>
-                <em>Example:</em> Ali Bin Abu 80
-            </p>
-            <textarea id="pasteArea" placeholder="Ali Bin Abu 45&#10;Siti Aminah 62&#10;Tan Ah Kow 78"></textarea>
-            <div class="action-row">
-                <button class="btn-main" onclick="processPastedData()">Calculate & Generate</button>
-                <button class="btn-clear" onclick="clearData()">Clear All</button>
-            </div>
+        <div class="helper-text">
+            <strong>Tip:</strong> Just type the Name, press <strong>Space</strong>, then the Mark. Hit <strong>Enter</strong> to add. <br>
+            You can also paste a whole list (Name Mark) from Excel/WhatsApp here!
         </div>
-
-        <div id="tab-upload" class="tab-content">
-            <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-                <p style="font-size: 1.2rem; font-weight: bold; color: var(--secondary);">Click to Select File</p>
-                <p style="color: #94a3b8;">Supports CSV format (Name, TOV)</p>
-                <input type="file" id="fileInput" accept=".csv" style="display: none;" onchange="handleFile(this)">
-            </div>
-            <p style="text-align: center; font-size: 0.9rem; margin-top: 10px; color: var(--primary); cursor: pointer; text-decoration: underline;" onclick="downloadTemplate()">Download Template File</p>
-        </div>
+        <div id="log"></div>
     </div>
 
-    <div class="table-wrapper">
-        <table id="resultTable">
+    <div class="table-container">
+        <table id="dataTable">
             <thead>
                 <tr>
-                    <th style="width: 5%;">#</th>
-                    <th style="width: 30%;">Student Name</th>
-                    <th class="col-tov">TOV (Current)</th>
+                    <th style="width: 50px;">#</th>
+                    <th>Student Name</th>
+                    <th class="col-mark">TOV</th>
                     <th>OTI 1</th>
                     <th>OTI 2</th>
                     <th>OTI 3</th>
-                    <th class="col-etr">ETR (Target)</th>
+                    <th class="col-etr">Target (ETR)</th>
+                    <th style="width: 50px;"></th>
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <tr><td colspan="7" style="text-align:center; padding: 40px; color: #94a3b8;">No data loaded yet.</td></tr>
-            </tbody>
+                </tbody>
         </table>
+        <div id="emptyMsg" style="text-align: center; padding: 40px; color: #9ca3af;">
+            List is empty. Start typing above!
+        </div>
     </div>
-    
-    <div style="padding: 20px; text-align: right; background: #f8fafc; border-top: 1px solid var(--border);">
-        <button class="btn-main" style="background-color: #475569;" onclick="exportToCSV()">Download Results</button>
+
+    <div class="footer-actions">
+        <span id="countDisplay">0 Students</span>
+        <div>
+            <button class="btn-del" style="font-size: 1rem; margin-right: 15px;" onclick="clearAll()">Clear All</button>
+            <button class="btn-dl" onclick="downloadCSV()">Download Excel (CSV)</button>
+        </div>
     </div>
 </div>
 
 <script>
     let students = [];
     let increment = 10;
+    const inputField = document.getElementById('magicInput');
+    const logDiv = document.getElementById('log');
 
-    // --- UI Logic ---
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById('tab-' + tabId).classList.add('active');
-        const btnIndex = tabId === 'paste' ? 0 : 1;
-        document.querySelectorAll('.tab-btn')[btnIndex].classList.add('active');
-    }
+    // 1. Listen for "Enter" key in the input box
+    inputField.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            processInput();
+        }
+    });
 
-    function setStrategy(val, btn) {
-        increment = parseInt(val);
-        document.getElementById('customInc').value = increment;
-        document.querySelectorAll('.inc-btn').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-        if(students.length > 0) renderTable(); 
-    }
-
-    function updateCustom(val) {
+    // 2. Strategy Logic
+    function setStrat(val, btn) {
         increment = parseInt(val) || 0;
-        document.querySelectorAll('.inc-btn').forEach(b => b.classList.remove('active'));
-        if(students.length > 0) renderTable();
+        if(btn) {
+            document.querySelectorAll('.btn-strat').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('customStrat').value = increment;
+        }
+        render();
     }
 
-    // --- Data Processing (Updated for Space Logic) ---
-    function processPastedData() {
-        const raw = document.getElementById('pasteArea').value;
-        if(!raw.trim()) { alert("Please paste some data first."); return; }
-        
-        const lines = raw.split('\n');
-        parseLines(lines);
-    }
+    // 3. Process the Text (The Magic Part)
+    function processInput() {
+        const raw = inputField.value;
+        if (!raw.trim()) return;
 
-    function handleFile(input) {
-        const file = input.files[0];
-        if(!file) return;
+        // Check if it's multiple lines (Paste) or single line
+        const lines = raw.split(/\n/); // Split by enter key (for pastes)
+        let addedCount = 0;
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const text = e.target.result;
-            const lines = text.split('\n');
-            parseLines(lines);
-            input.value = ''; 
-            switchTab('paste'); 
-        };
-        reader.readAsText(file);
-    }
-
-    function parseLines(lines) {
-        let tempStudents = [];
-        
         lines.forEach(line => {
             line = line.trim();
-            if(!line) return;
+            if (!line) return;
 
-            let name = "";
-            let tovStr = "";
+            // Logic: Split by space. Last item is Mark. All previous are Name.
+            // Works for "Ali 80", "Ali Bin Abu 80", "Ali Bin Abu 80.5"
+            // Also supports Tab or Comma just in case.
+            
+            const parts = line.split(/[\t,\s]+/); // Split by any whitespace or comma
+            
+            if (parts.length >= 2) {
+                const markStr = parts.pop(); // Remove last item (Mark)
+                const nameStr = parts.join(" "); // Join the rest (Name)
+                const mark = parseFloat(markStr);
 
-            // LOGIC 1: Check for Tab (Excel)
-            if (line.includes('\t')) {
-                const parts = line.split('\t');
-                tovStr = parts[parts.length - 1]; // Last item
-                name = parts[0]; 
-            }
-            // LOGIC 2: Check for Comma (CSV)
-            else if (line.includes(',')) {
-                const parts = line.split(',');
-                tovStr = parts[parts.length - 1];
-                name = parts[0];
-            }
-            // LOGIC 3: Space (Manual Typing)
-            else {
-                // Split by spaces
-                const parts = line.split(/\s+/); // Splits "Ali Bin Abu 60" -> ["Ali", "Bin", "Abu", "60"]
-                
-                if (parts.length >= 2) {
-                    tovStr = parts.pop(); // Removes "60" from the end and stores it
-                    name = parts.join(" "); // Joins "Ali", "Bin", "Abu" back together
+                if (nameStr && !isNaN(mark)) {
+                    // Remove leading numbering like "1. Ali"
+                    const cleanName = nameStr.replace(/^\d+[\.\)]\s*/, '');
+                    
+                    students.push({
+                        id: Date.now() + Math.random(),
+                        name: cleanName,
+                        tov: mark
+                    });
+                    addedCount++;
                 }
-            }
-
-            // Validation and Add
-            let tov = parseFloat(tovStr);
-            if (!isNaN(tov)) {
-                // Remove numbering from name if present (e.g., "1. Ali")
-                name = name.replace(/^\d+[\.\)]\s*/, '');
-                
-                tempStudents.push({ name: name, tov: tov });
             }
         });
 
-        if (tempStudents.length > 0) {
-            students = tempStudents;
-            renderTable();
-            // Don't alert on every keystroke, only button press usually, but here it's fine.
-            if(students.length > 0) {
-                 // Clear any error states if we had them
-            }
+        if (addedCount > 0) {
+            render();
+            inputField.value = ''; // Clear box
+            showLog(`Added ${addedCount} student(s) successfully!`);
+        } else {
+            showLog("Error: Could not understand input. Use format 'Name Mark'");
+            setTimeout(() => logDiv.style.color = 'red', 0);
         }
     }
 
-    // --- Calculation & Rendering ---
-    function renderTable() {
+    function showLog(msg) {
+        logDiv.innerText = msg;
+        logDiv.style.color = 'var(--green)';
+        setTimeout(() => { logDiv.innerText = ''; }, 3000);
+    }
+
+    // 4. Render Table
+    function render() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
+        
+        if(students.length > 0) {
+            document.getElementById('emptyMsg').style.display = 'none';
+        } else {
+            document.getElementById('emptyMsg').style.display = 'block';
+        }
 
-        students.forEach((s, index) => {
+        document.getElementById('countDisplay').innerText = students.length + " Students";
+
+        students.forEach((s, i) => {
+            // Calculate
             let etr = s.tov + increment;
-            if(etr > 100) etr = 100; 
+            if (etr > 100) etr = 100;
 
-            const totalGrowth = etr - s.tov;
-            const step = totalGrowth / 4;
+            const growth = etr - s.tov;
+            const step = growth / 4;
 
-            const oti1 = s.tov + step;
-            const oti2 = s.tov + (step * 2);
-            const oti3 = s.tov + (step * 3);
-
-            const row = `
+            const html = `
                 <tr>
-                    <td>${index + 1}</td>
+                    <td>${i + 1}</td>
                     <td>${s.name}</td>
-                    <td class="col-tov">${s.tov}</td>
-                    <td>${fmt(oti1)}</td>
-                    <td>${fmt(oti2)}</td>
-                    <td>${fmt(oti3)}</td>
-                    <td class="col-etr">
-                        ${fmt(etr)}
-                        <span class="badge-gain">+${fmt(totalGrowth)}</span>
-                    </td>
+                    <td class="col-mark">${s.tov}</td>
+                    <td>${fmt(s.tov + step)}</td>
+                    <td>${fmt(s.tov + step*2)}</td>
+                    <td>${fmt(s.tov + step*3)}</td>
+                    <td class="col-etr">${fmt(etr)}</td>
+                    <td><button class="btn-del" onclick="remove(${s.id})">&times;</button></td>
                 </tr>
             `;
-            tbody.innerHTML += row;
+            tbody.innerHTML += html;
         });
     }
 
@@ -300,36 +238,29 @@
         return Number.isInteger(num) ? num : num.toFixed(2);
     }
 
-    function clearData() {
-        students = [];
-        document.getElementById('pasteArea').value = '';
-        renderTable();
-        document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color: #94a3b8;">No data loaded yet.</td></tr>';
+    function remove(id) {
+        students = students.filter(s => s.id !== id);
+        render();
     }
 
-    function downloadTemplate() {
-        const csv = "data:text/csv;charset=utf-8,Student Name,TOV Mark\nAli Bin Abu,45\nSiti Aminah,60";
-        const link = document.createElement("a");
-        link.href = encodeURI(csv);
-        link.download = "headcount_template.csv";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    function clearAll() {
+        if(confirm("Clear current list?")) {
+            students = [];
+            render();
+        }
     }
 
-    function exportToCSV() {
-        if(students.length === 0) { alert("No data to export"); return; }
-        
-        let csv = "data:text/csv;charset=utf-8,Name,TOV,OTI 1,OTI 2,OTI 3,ETR\n";
+    function downloadCSV() {
+        if(students.length === 0) return alert("Nothing to download");
+        let csv = "data:text/csv;charset=utf-8,Name,TOV,OTI1,OTI2,OTI3,ETR\n";
         students.forEach(s => {
             let etr = Math.min(s.tov + increment, 100);
             let step = (etr - s.tov) / 4;
             csv += `${s.name},${s.tov},${fmt(s.tov+step)},${fmt(s.tov+step*2)},${fmt(s.tov+step*3)},${fmt(etr)}\n`;
         });
-
         const link = document.createElement("a");
         link.href = encodeURI(csv);
-        link.download = "headcount_complete.csv";
+        link.download = "headcount_data.csv";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
