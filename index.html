@@ -6,7 +6,7 @@
     <title>Headcount Like a Pro by Nexus</title>
     <style>
         :root { 
-            --primary: #4f46e5; /* Nexus Blue */
+            --primary: #4f46e5; 
             --bg: #f3f4f6; 
             --white: #ffffff; 
             --text: #1f2937; 
@@ -14,100 +14,135 @@
             --success: #059669; 
             --accent: #818cf8;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        body { font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
         
-        /* HEADER BRANDING */
+        /* HEADER */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; }
         h1 { color: var(--primary); margin: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
         .brand-subtitle { font-size: 1rem; color: #6b7280; font-weight: 400; margin-left: 5px; }
-
         .header-actions { display: flex; gap: 10px; }
 
         /* STRATEGY PANEL */
-        .strategy-panel {
-            background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 20px; margin-bottom: 25px;
-        }
+        .strategy-panel { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 20px; margin-bottom: 25px; }
         .strat-header { margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; color: #6366f1; font-weight: 800; letter-spacing: 0.5px; }
-        
         .strat-row { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
         .strat-row:last-child { margin-bottom: 0; }
-
         label { font-weight: 600; cursor: pointer; color: #312e81; }
-        
         input[type="radio"] { transform: scale(1.2); cursor: pointer; margin-right: 8px; accent-color: var(--primary); }
-        
-        input[type="number"] { 
-            width: 70px; padding: 8px; border: 2px solid #c7d2fe; border-radius: 6px; 
-            text-align: center; font-weight: bold; font-size: 1rem; color: var(--primary);
-            transition: 0.2s;
-        }
-        input[type="number"]:focus { outline: none; border-color: var(--primary); }
+        input[type="number"] { width: 70px; padding: 8px; border: 2px solid #c7d2fe; border-radius: 6px; text-align: center; font-weight: bold; font-size: 1rem; color: var(--primary); }
         input[type="number"]:disabled { background: #e5e7eb; border-color: #d1d5db; color: #9ca3af; }
+        .btn-shuffle { background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 10px; display: none; }
 
-        .btn-shuffle {
-            background: #f59e0b; color: white; border: none; padding: 8px 16px; 
-            border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem;
-            margin-left: 10px; display: none; box-shadow: 0 2px 5px rgba(245, 158, 11, 0.3);
-        }
-        .btn-shuffle:hover { background: #d97706; transform: translateY(-1px); }
-
-        /* STEP BOXES */
+        /* INPUTS */
         .step-box { border: 1px solid var(--border); border-radius: 10px; padding: 25px; margin-bottom: 25px; background: #f9fafb; }
-        .step-title { font-weight: 700; margin-bottom: 12px; color: var(--text); display: block; font-size: 1.1rem; }
+        .step-title { font-weight: 700; margin-bottom: 12px; display: block; font-size: 1.1rem; }
+        textarea { width: 100%; height: 120px; padding: 15px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; }
         
-        textarea { 
-            width: 100%; height: 120px; padding: 15px; border-radius: 8px; border: 1px solid #9ca3af; 
-            font-family: monospace; font-size: 0.9rem; resize: vertical;
-        }
-        textarea:focus { outline: none; border-color: var(--primary); ring: 2px solid var(--accent); }
-
         /* COLUMN PICKER */
         #columnPicker { display: none; background: #ecfdf5; border-color: #6ee7b7; }
         .picker-grid { display: flex; gap: 20px; align-items: flex-end; margin-top: 10px; flex-wrap: wrap; }
         .picker-group { display: flex; flex-direction: column; gap: 5px; }
-        select { padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 200px; font-size: 1rem; }
+        select { padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 200px; }
 
         /* BUTTONS */
-        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; transition: all 0.2s; font-size: 1rem; }
-        .btn-blue { background: var(--primary); box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); }
-        .btn-blue:hover { background: #4338ca; transform: translateY(-1px); }
-        
-        .btn-green { background: var(--success); box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); }
-        .btn-green:hover { background: #047857; transform: translateY(-1px); }
-        
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; font-size: 1rem; }
+        .btn-blue { background: var(--primary); }
+        .btn-green { background: var(--success); }
         .btn-dark { background: #374151; padding: 10px 20px; font-size: 0.9rem; }
-        .btn-dark:hover { background: #1f2937; }
+        .btn-excel { background: #059669; padding: 10px 20px; font-size: 0.9rem; }
 
-        .btn-excel { background: #059669; padding: 10px 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .btn-excel:hover { background: #047857; }
-
-        /* TABLE */
+        /* TABLE (Screen) */
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         th { text-align: left; padding: 15px; background: #f3f4f6; border-bottom: 2px solid #e5e7eb; font-weight: 700; color: #4b5563; }
         td { padding: 12px 15px; border-bottom: 1px solid #f3f4f6; }
-        tr:last-child td { border-bottom: none; }
-        
         .col-target { background: #f0fdf4; color: #166534; font-weight: 700; border-left: 1px solid #e5e7eb; }
-        .col-gain { color: #059669; font-weight: 700; font-size: 0.9rem; background: #ecfdf5; text-align: center; }
+        .col-gain { color: #059669; font-weight: 700; background: #ecfdf5; text-align: center; }
 
-        /* PRINT MODE */
+        /* === PRINT OPTIMIZATION (A4 & 12pt) === */
         @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; margin: 0; max-width: 100%; padding: 0; }
-            .step-box, .strategy-panel, .btn, .btn-shuffle, .header-actions { display: none !important; }
-            header { border-bottom: 2px solid black; margin-bottom: 20px; }
-            h1 { color: black; font-size: 24pt; }
-            .brand-subtitle { color: black; }
+            @page {
+                size: A4;
+                margin: 1.5cm; /* Standard Margin */
+            }
+
+            body {
+                background: white;
+                font-family: Arial, Helvetica, sans-serif; /* Clean font for print */
+                font-size: 12pt;
+                color: black;
+                padding: 0;
+                margin: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            /* Hide UI Elements */
+            .step-box, .strategy-panel, .btn, .btn-shuffle, .header-actions, #columnPicker {
+                display: none !important;
+            }
+
+            /* Print Header */
+            header {
+                border-bottom: 2px solid black;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                justify-content: center;
+            }
+            h1 {
+                color: black;
+                font-size: 18pt; /* Slightly larger title */
+                text-transform: uppercase;
+            }
+            .brand-subtitle { color: #444; }
+
+            /* Print Table */
+            #resultSection { display: block !important; }
+            h3 { font-size: 14pt; margin-bottom: 10px; border: none !important; padding: 0 !important; }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                border: 1px solid black;
+                border-radius: 0;
+                font-size: 12pt; /* Strictly 12pt */
+            }
+
+            th, td {
+                border: 1px solid black;
+                color: black !important;
+                padding: 5px 8px; /* Tighter padding to fit A4 width */
+                font-size: 12pt; /* Strictly 12pt */
+            }
+
+            th { background-color: #f0f0f0 !important; font-weight: bold; }
             
-            table { border: 1px solid black; width: 100%; border-radius: 0; }
-            th, td { border: 1px solid black; color: black !important; padding: 8px; }
+            /* Remove screen colors */
             .col-target { background: none !important; color: black !important; border-left: 1px solid black; }
             .col-gain { background: none !important; color: black !important; }
+
+            /* Ensure lines don't break awkwardly */
+            tr { page-break-inside: avoid; }
             
-            /* Signature Footer for Print */
-            .print-footer { display: block !important; margin-top: 50px; display: flex; justify-content: space-between; }
-            .sig-line { border-top: 1px solid black; width: 200px; padding-top: 5px; font-size: 10pt; }
+            /* Signature Footer */
+            .print-footer { 
+                display: flex !important; 
+                margin-top: 50px; 
+                justify-content: space-between; 
+                page-break-inside: avoid;
+            }
+            .sig-line { 
+                border-top: 1px solid black; 
+                width: 250px; 
+                padding-top: 5px; 
+                font-size: 11pt; 
+            }
         }
         .print-footer { display: none; }
     </style>
@@ -125,14 +160,12 @@
 
     <div class="strategy-panel">
         <div class="strat-header">Target Setting Strategy</div>
-
         <div class="strat-row">
             <input type="radio" name="strategy" id="stratFixed" value="fixed" checked onchange="updateLive()">
             <label for="stratFixed">Fixed Increase:</label>
             <input type="number" id="fixedVal" value="10" oninput="updateLive()"> 
-            <span>marks for everyone.</span>
+            <span>marks.</span>
         </div>
-
         <div class="strat-row">
             <input type="radio" name="strategy" id="stratRandom" value="random" onchange="updateLive()">
             <label for="stratRandom">Random Range:</label>
@@ -146,7 +179,7 @@
     </div>
 
     <div class="step-box" id="step1">
-        <span class="step-title">Step 1: Paste Data (Excel / Google Sheets)</span>
+        <span class="step-title">Step 1: Paste Data (Excel / Sheets)</span>
         <textarea id="pasteArea" placeholder="Paste your entire table here (Must include Headers like 'Name', 'Math', etc.)..."></textarea>
         <br><br>
         <button class="btn btn-blue" onclick="readData()">Analyze Columns</button>
@@ -154,7 +187,7 @@
 
     <div class="step-box" id="columnPicker">
         <span class="step-title">Step 2: Select Columns</span>
-        <p style="margin:0 0 15px 0; color: #6b7280;">Which subject do you want to process today?</p>
+        <p style="margin:0 0 15px 0; color: #6b7280;">Which subject are we analyzing?</p>
         <div class="picker-grid">
             <div class="picker-group">
                 <label>Name Column:</label>
@@ -173,14 +206,14 @@
         <table id="dataTable">
             <thead>
                 <tr>
-                    <th style="width: 50px;">#</th>
+                    <th style="width: 5%;">#</th>
                     <th>Student Name</th>
                     <th>TOV</th>
-                    <th>OTI 1</th>
-                    <th>OTI 2</th>
-                    <th>OTI 3</th>
+                    <th>OTI1</th>
+                    <th>OTI2</th>
+                    <th>OTI3</th>
                     <th class="col-target">ETR</th>
-                    <th class="col-gain" style="width: 80px;">Gain</th>
+                    <th class="col-gain" style="width: 10%;">Gain</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -197,81 +230,64 @@
     let rawData = [];
     let headers = [];
     let isDataLoaded = false;
-    let processedData = []; // Store calculated data for Export
+    let processedData = [];
 
-    // 1. Live Update Logic
     function updateLive() {
         const isFixed = document.getElementById('stratFixed').checked;
         document.getElementById('fixedVal').disabled = !isFixed;
         document.getElementById('randMin').disabled = isFixed;
         document.getElementById('randMax').disabled = isFixed;
         document.getElementById('btnShuffle').style.display = isFixed ? 'none' : 'inline-block';
-
         if(isDataLoaded) generateHeadcount();
     }
 
-    function forceReShuffle() {
-        if(isDataLoaded) generateHeadcount();
-    }
+    function forceReShuffle() { if(isDataLoaded) generateHeadcount(); }
 
-    // 2. Read Data
     function readData() {
         const text = document.getElementById('pasteArea').value.trim();
         if(!text) return alert("Please paste data first.");
-
         const lines = text.split('\n');
         let firstLine = lines[0].trim();
         let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
-        
         headers = firstLine.split(delim).map(h => h.trim());
         if(headers.length < 2) return alert("Error: Need at least 2 columns (Name & Mark).");
 
         const nameSel = document.getElementById('nameCol');
         const markSel = document.getElementById('markCol');
         nameSel.innerHTML = ''; markSel.innerHTML = '';
-
         headers.forEach((h, i) => {
             let opt = `<option value="${i}">${h}</option>`;
             nameSel.innerHTML += opt;
             markSel.innerHTML += opt;
         });
-
-        // Smart Select
         headers.forEach((h, i) => {
             let low = h.toLowerCase();
             if(low.includes('name') || low.includes('nama')) nameSel.value = i;
             if(low.includes('mark') || low.includes('tov')) markSel.value = i;
         });
-
         rawData = lines.slice(1); 
         document.getElementById('columnPicker').style.display = 'block';
     }
 
-    // 3. Generate Results
     function generateHeadcount() {
         const nameIdx = parseInt(document.getElementById('nameCol').value);
         const markIdx = parseInt(document.getElementById('markCol').value);
         const subject = document.getElementById('markCol').options[markIdx].text;
         
-        // Strategy Values
         const isFixed = document.getElementById('stratFixed').checked;
         const fixedVal = parseInt(document.getElementById('fixedVal').value) || 10;
         let minVal = parseInt(document.getElementById('randMin').value) || 1;
         let maxVal = parseInt(document.getElementById('randMax').value) || 10;
-
         if (minVal > maxVal) { let temp = minVal; minVal = maxVal; maxVal = temp; }
 
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
-        
-        // Reset Export Data
         processedData = [];
         let count = 0;
 
         rawData.forEach(line => {
             let delim = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : ' ');
             let parts = (delim === ' ') ? line.trim().split(/\s+/) : line.split(delim);
-
             if(parts.length <= Math.max(nameIdx, markIdx)) return;
 
             let name = parts[nameIdx].trim();
@@ -279,47 +295,28 @@
 
             if(name && !isNaN(tov)) {
                 count++;
-                
-                // --- CORE LOGIC ---
                 let inc = isFixed ? fixedVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-
                 let etr = tov + inc;
-                if(etr > 100) etr = 100;
-                if(etr < 0) etr = 0; 
+                if(etr > 100) etr = 100; if(etr < 0) etr = 0; 
                 
-                let realGrowth = etr - tov;
-                let step = realGrowth / 4;
-
-                // Format values
+                let step = (etr - tov) / 4;
                 let oti1 = fmt(tov + step);
                 let oti2 = fmt(tov + step*2);
                 let oti3 = fmt(tov + step*3);
                 let etrFmt = fmt(etr);
 
-                // Save to processed array for Excel Export
-                processedData.push({
-                    name: name,
-                    tov: tov,
-                    oti1: oti1,
-                    oti2: oti2,
-                    oti3: oti3,
-                    etr: etrFmt,
-                    gain: inc
-                });
+                processedData.push({ name: name, tov: tov, oti1: oti1, oti2: oti2, oti3: oti3, etr: etrFmt, gain: inc });
 
-                // Build HTML Table Row
-                let row = `
-                    <tr>
-                        <td>${count}</td>
-                        <td>${name}</td>
-                        <td>${tov}</td>
-                        <td>${oti1}</td>
-                        <td>${oti2}</td>
-                        <td>${oti3}</td>
-                        <td class="col-target">${etrFmt}</td>
-                        <td class="col-gain">+${inc}</td>
-                    </tr>
-                `;
+                let row = `<tr>
+                    <td>${count}</td>
+                    <td>${name}</td>
+                    <td>${tov}</td>
+                    <td>${oti1}</td>
+                    <td>${oti2}</td>
+                    <td>${oti3}</td>
+                    <td class="col-target">${etrFmt}</td>
+                    <td class="col-gain">+${inc}</td>
+                </tr>`;
                 tbody.innerHTML += row;
             }
         });
@@ -329,33 +326,19 @@
         isDataLoaded = true;
     }
 
-    // 4. Download Excel Function
     function downloadExcel() {
-        if (!processedData.length) {
-            alert("Please calculate targets before downloading!");
-            return;
-        }
-
+        if (!processedData.length) { alert("Please calculate targets before downloading!"); return; }
         let csvContent = "data:text/csv;charset=utf-8,";
         csvContent += "No,Student Name,TOV,OTI 1,OTI 2,OTI 3,ETR,Projected Gain\n";
-
         processedData.forEach((row, index) => {
-            // Handle names with commas by wrapping in quotes
             let safeName = row.name.includes(',') ? `"${row.name}"` : row.name;
-            let csvRow = `${index + 1},${safeName},${row.tov},${row.oti1},${row.oti2},${row.oti3},${row.etr},${row.gain}`;
-            csvContent += csvRow + "\n";
+            csvContent += `${index + 1},${safeName},${row.tov},${row.oti1},${row.oti2},${row.oti3},${row.etr},${row.gain}\n`;
         });
-
-        // Determine filename
         const markIdx = parseInt(document.getElementById('markCol').value);
         const subject = document.getElementById('markCol').options[markIdx] ? document.getElementById('markCol').options[markIdx].text : "Headcount";
-        const fileName = `Headcount_Analysis_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`;
-
-        // Trigger Download
-        const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", fileName);
+        link.setAttribute("href", encodeURI(csvContent));
+        link.setAttribute("download", `Headcount_Analysis_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
