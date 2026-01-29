@@ -1,163 +1,220 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Performance Analytics</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;ETR/TOV Calculator&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"&gt;&lt;/script&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body class="bg-gray-100 min-h-screen p-8"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="text-2xl font-bold mb-4 text-blue-600"&gt;🎓 Student Target Calculator&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-gray-600 mb-6"&gt;Upload an Excel file (.xlsx) with columns &lt;b&gt;Name&lt;/b&gt; and &lt;b&gt;Mark&lt;/b&gt;.&lt;/p&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-6"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="block mb-2 text-sm font-medium text-gray-900"&gt;Upload Class List&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="file" id="upload" accept=".xlsx, .xls" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="processFile()" id="btn" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>Upload &amp; Calculate</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="loading" class="hidden mt-4 text-center text-gray-500"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>Processing... Please wait.</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="resultsArea" class="hidden mt-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-xl font-bold mb-2"&gt;Calculated Results&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="overflow-x-auto"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;table class="w-full text-sm text-left text-gray-500"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;thead class="text-xs text-gray-700 uppercase bg-gray-50"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th class="py-3 px-6"&gt;Student Name&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th class="py-3 px-6"&gt;TOV (Current)&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;th class="py-3 px-6 text-green-600"&gt;ETR (Target)&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/thead&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;tbody id="tableBody"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/tbody&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/table&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// PASTE YOUR GOOGLE SCRIPT WEB APP URL HERE</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzx632t02XzF_nnhGekEqCGOYLucszO1LQnd7CNLl7OCwl1g-Ngq4cZDjw-U3LKgTRU/exec";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>async function processFile() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const fileInput = document.getElementById('upload');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const file = fileInput.files[0];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (!file) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>alert("Please select a file first!");</p>
-<p class="p1"><span class="Apple-converted-space">                </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('loading').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('btn').disabled = true;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// 1. Read the Excel File</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const reader = new FileReader();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>reader.onload = function(e) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const data = new Uint8Array(e.target.result);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const workbook = XLSX.read(data, {type: 'array'});</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>// Get first sheet</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const firstSheetName = workbook.SheetNames[0];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const worksheet = workbook.Sheets[firstSheetName];</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>// Convert to JSON</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const rawData = XLSX.utils.sheet_to_json(worksheet);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>// 2. Format Data for Backend (Assumes columns are named roughly "Name" and "Mark")</p>
-<p class="p1"><span class="Apple-converted-space">                </span>// We map the excel columns to a standard format</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const formattedStudents = rawData.map(row =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>// Try to find the mark column by looking for keywords, or default to 2nd column</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const keys = Object.keys(row);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const nameKey = keys[0]; // Assuming Name is first column</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const markKey = keys.find(k =&gt; k.toLowerCase().includes('mark') || k.toLowerCase().includes('score') || k.toLowerCase().includes('tov')) || keys[1];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>return {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>name: row[nameKey],</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>tov: row[markKey]</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>};</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>// 3. Send to Google Sheet Backend</p>
-<p class="p1"><span class="Apple-converted-space">                </span>sendToGoogleSheet(formattedStudents);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>};</p>
-<p class="p1"><span class="Apple-converted-space">            </span>reader.readAsArrayBuffer(file);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>async function sendToGoogleSheet(data) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>// We use 'no-cors' mode because Google Scripts can have CORS issues,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>// but standard POST usually works if "Anyone" has access.<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>// However, fetch with redirect 'follow' is standard for GAS.</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const response = await fetch(SCRIPT_URL, {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>method: 'POST',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>mode: 'cors',<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>headers: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>'Content-Type': 'text/plain;charset=utf-8',<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>body: JSON.stringify({ students: data })</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const result = await response.json();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (result.status === 'success') {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>displayResults(result.data);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>alert("Error: " + result.message);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>} catch (error) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>console.error(error);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>alert("Failed to connect to Google Sheets. Check console.");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} finally {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('loading').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('btn').disabled = false;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function displayResults(data) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const tbody = document.getElementById('tableBody');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>tbody.innerHTML = ""; // Clear old data</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>data.forEach(row =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const tr = document.createElement('tr');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>tr.className = "bg-white border-b";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>tr.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td class="py-4 px-6 font-medium text-gray-900"&gt;${row.name}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td class="py-4 px-6"&gt;${row.tov}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;td class="py-4 px-6 font-bold text-green-600"&gt;${row.etr}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>tbody.appendChild(tr);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('resultsArea').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="bg-blue-600 text-white p-4 shadow-lg">
+        <div class="container mx-auto font-bold text-xl">
+            📊 Student ETR/TOV Analyzer
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6 max-w-4xl">
+        
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 mb-6">
+            <h2 class="text-xl font-bold mb-4">1. Upload Class List</h2>
+            <p class="text-sm text-slate-500 mb-4">Upload an Excel file (.xlsx). The app will auto-detect "Name" and "Mark" columns.</p>
+            
+            <div class="flex gap-4">
+                <input type="file" id="uploadInput" accept=".xlsx, .xls" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                <button onclick="processUpload()" id="processBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition">
+                    Analyze
+                </button>
+            </div>
+            <div id="loader" class="hidden mt-4 text-blue-600 font-medium animate-pulse">
+                ⚙️ Processing data and calculating targets...
+            </div>
+        </div>
+
+        <div id="resultsSection" class="hidden">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                    <p class="text-xs text-gray-500 uppercase">Students Analyzed</p>
+                    <p class="text-2xl font-bold" id="totalStudents">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                    <p class="text-xs text-gray-500 uppercase">Avg. Current TOV</p>
+                    <p class="text-2xl font-bold" id="avgTov">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-indigo-500">
+                    <p class="text-xs text-gray-500 uppercase">Avg. Target ETR</p>
+                    <p class="text-2xl font-bold" id="avgEtr">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+                <h3 class="font-bold text-gray-700 mb-4">Performance Gap Analysis</h3>
+                <canvas id="growthChart" height="100"></canvas>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left text-sm text-gray-600">
+                    <thead class="bg-gray-100 uppercase text-xs font-bold text-gray-700">
+                        <tr>
+                            <th class="px-6 py-3">Student Name</th>
+                            <th class="px-6 py-3">TOV (Current)</th>
+                            <th class="px-6 py-3">ETR (Target)</th>
+                            <th class="px-6 py-3">Growth Required</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-gray-200">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // Your specific Google Script URL has been added here:
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby6HRl6uyRamaIS4I47Ivujmo1YqA9Mwb4M0YBgNHFbYosqMI5awny4rQOLKEL2M4UWlA/exec"; 
+
+        async function processUpload() {
+            const fileInput = document.getElementById('uploadInput');
+            if (!fileInput.files.length) return alert("Please select a file!");
+
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('processBtn').disabled = true;
+
+            // 1. Read Excel File using SheetJS
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                // 2. Extract Name and Marks (Simple Heuristic)
+                // Assumes Row 0 is headers. Finds columns with "Name" and "Mark"
+                if (jsonData.length === 0) {
+                     alert("File appears empty.");
+                     resetUI();
+                     return;
+                }
+
+                const headers = jsonData[0].map(h => String(h).toLowerCase());
+                
+                // Flexible column finding logic
+                const nameIdx = headers.findIndex(h => h.includes("name") || h.includes("nama") || h.includes("student") || h.includes("murid"));
+                const markIdx = headers.findIndex(h => h.includes("mark") || h.includes("tov") || h.includes("grade") || h.includes("score"));
+
+                if (nameIdx === -1 || markIdx === -1) {
+                    alert("Could not find 'Name' or 'Mark' columns. Please ensure your Excel file has headers like 'Student Name' and 'TOV Mark'.");
+                    resetUI();
+                    return;
+                }
+
+                const students = jsonData.slice(1).map(row => ({
+                    name: row[nameIdx],
+                    mark: row[markIdx]
+                })).filter(s => s.name); // Remove empty rows
+
+                // 3. Send to Google Backend
+                await sendToBackend(students);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function sendToBackend(studentList) {
+            try {
+                // Sending data to your specific Google Script
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ students: studentList })
+                });
+                
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    renderDashboard(result.data);
+                } else {
+                    alert("Error from server: " + result.message);
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("We sent the data, but the browser blocked the response (CORS). Please check your Google Sheet—the calculations are likely already done and saved there!");
+            } finally {
+                resetUI();
+            }
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('resultsSection').classList.remove('hidden');
+            
+            // 1. Update Cards
+            document.getElementById('totalStudents').innerText = data.length;
+            const avgTov = data.reduce((sum, s) => sum + s.tov, 0) / data.length;
+            const avgEtr = data.reduce((sum, s) => sum + s.etr, 0) / data.length;
+            
+            document.getElementById('avgTov').innerText = avgTov.toFixed(1);
+            document.getElementById('avgEtr').innerText = avgEtr.toFixed(1);
+
+            // 2. Update Table
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            data.forEach(s => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 font-medium text-gray-900">${s.name}</td>
+                        <td class="px-6 py-4 text-gray-500">${s.tov}</td>
+                        <td class="px-6 py-4 font-bold text-blue-600">${s.etr}</td>
+                        <td class="px-6 py-4 text-green-600">+${s.gap}</td>
+                    </tr>
+                `;
+            });
+
+            // 3. Update Chart
+            renderChart(data);
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            // Destroy old chart if exists
+            if(window.myChart) window.myChart.destroy();
+
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(s => s.name),
+                    datasets: [
+                        {
+                            label: 'Current TOV',
+                            data: data.map(s => s.tov),
+                            backgroundColor: '#94a3b8'
+                        },
+                        {
+                            label: 'Target ETR',
+                            data: data.map(s => s.etr),
+                            backgroundColor: '#2563eb'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+
+        function resetUI() {
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('processBtn').disabled = false;
+        }
+    </script>
 </body>
 </html>
