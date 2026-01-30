@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Like a Pro by Nexus</title>
+    <title>Headcount Pro V9: Smart Match</title>
     <style>
         :root { 
             --primary: #4f46e5; 
@@ -12,7 +12,7 @@
             --text: #1f2937; 
             --border: #d1d5db; 
             --success: #059669; 
-            --accent: #818cf8;
+            --warning: #f59e0b;
         }
         body { font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
@@ -34,13 +34,15 @@
         input[type="number"]:disabled { background: #e5e7eb; border-color: #d1d5db; color: #9ca3af; }
         .btn-shuffle { background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 10px; display: none; }
 
-        /* INPUTS */
-        .step-box { border: 1px solid var(--border); border-radius: 10px; padding: 25px; margin-bottom: 25px; background: #f9fafb; }
-        .step-title { font-weight: 700; margin-bottom: 12px; display: block; font-size: 1.1rem; }
-        textarea { width: 100%; height: 120px; padding: 15px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; }
-        
+        /* INPUTS - DUAL PANE */
+        .data-entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .step-box { border: 1px solid var(--border); border-radius: 10px; padding: 20px; background: #f9fafb; display: flex; flex-direction: column; }
+        .step-title { font-weight: 700; margin-bottom: 10px; display: block; font-size: 1rem; color: var(--primary); }
+        .step-desc { font-size: 0.85rem; color: #666; margin-bottom: 10px; }
+        textarea { width: 100%; height: 150px; padding: 10px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; font-size: 0.85rem; flex-grow: 1; }
+
         /* COLUMN PICKER */
-        #columnPicker { display: none; background: #ecfdf5; border-color: #6ee7b7; }
+        #columnPicker { display: none; background: #ecfdf5; border-color: #6ee7b7; padding: 20px; border-radius: 10px; border: 1px solid #6ee7b7; margin-bottom: 25px; }
         .picker-grid { display: flex; gap: 20px; align-items: flex-end; margin-top: 10px; flex-wrap: wrap; }
         .picker-group { display: flex; flex-direction: column; gap: 5px; }
         select { padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 200px; font-size: 0.95rem; }
@@ -57,50 +59,35 @@
 
         /* BUTTONS */
         .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; font-size: 1rem; }
-        .btn-blue { background: var(--primary); }
+        .btn-blue { background: var(--primary); width: 100%; margin-top: 10px; }
         .btn-green { background: var(--success); }
         .btn-dark { background: #374151; padding: 10px 20px; font-size: 0.9rem; }
         .btn-excel { background: #059669; padding: 10px 20px; font-size: 0.9rem; }
 
-        /* TABLE (Screen) */
+        /* TABLE */
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         th { text-align: left; padding: 15px; background: #f3f4f6; border-bottom: 2px solid #e5e7eb; font-weight: 700; color: #4b5563; }
         td { padding: 12px 15px; border-bottom: 1px solid #f3f4f6; }
         .col-target { background: #f0fdf4; color: #166534; font-weight: 700; border-left: 1px solid #e5e7eb; }
         .col-gain { color: #059669; font-weight: 700; background: #ecfdf5; text-align: center; }
 
-        /* === PRINT OPTIMIZATION (A4 & 10pt) === */
+        /* PRINT OPTIMIZATION (A4 & 10pt) */
         @media print {
             @page { size: A4; margin: 1.5cm; }
             body { background: white; font-family: Arial, sans-serif; font-size: 10pt; color: black; padding: 0; margin: 0; }
             .container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; width: 100%; }
-
-            /* Hide UI Elements */
-            .step-box, .strategy-panel, .btn, .btn-shuffle, .header-actions, #columnPicker, .signature-controls { display: none !important; }
-            
-            /* HIDE GAIN COLUMN IN PRINT */
+            .data-entry-grid, .strategy-panel, .btn, .btn-shuffle, .header-actions, #columnPicker, .signature-controls { display: none !important; }
             .col-gain { display: none !important; }
-
-            /* Print Header */
             header { border-bottom: 2px solid black; margin-bottom: 15px; padding-bottom: 10px; justify-content: center; }
             h1 { color: black; font-size: 16pt; text-transform: uppercase; }
-            .brand-subtitle { color: #444; }
-
-            /* Print Table */
             #resultSection { display: block !important; }
             h3 { font-size: 12pt; margin-bottom: 10px; border: none !important; padding: 0 !important; }
-
             table { width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 10pt; }
             th, td { border: 1px solid black; color: black !important; padding: 4px 6px; font-size: 10pt; }
             th { background-color: #f0f0f0 !important; font-weight: bold; }
             .col-target { background: none !important; color: black !important; border-left: 1px solid black; }
-            
             tr { page-break-inside: avoid; }
-            
-            /* MALAY SIGNATURE FOOTER */
-            .print-footer { 
-                display: flex !important; margin-top: 50px; justify-content: space-between; page-break-inside: avoid; width: 100%;
-            }
+            .print-footer { display: flex !important; margin-top: 50px; justify-content: space-between; page-break-inside: avoid; width: 100%; }
             .sig-block { width: 45%; }
             .sig-title { font-weight: bold; margin-bottom: 40px; }
             .sig-line { border-top: 1px solid black; margin-top: 5px; margin-bottom: 5px; }
@@ -113,53 +100,62 @@
 
 <div class="container">
     <header>
-        <h1>Headcount Like a Pro <span class="brand-subtitle">by Nexus</span></h1>
+        <h1>Headcount Pro <span class="brand-subtitle">Smart Match v9</span></h1>
         <div class="header-actions">
-            <button class="btn btn-excel" onclick="downloadExcel()">📥 Download Excel</button>
-            <button class="btn btn-dark" onclick="window.print()">🖨️ Print / PDF</button>
+            <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
+            <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
         </div>
     </header>
 
     <div class="strategy-panel">
-        <div class="strat-header">Target Setting Strategy</div>
+        <div class="strat-header">Strategi TOV ke ETR</div>
         <div class="strat-row">
             <input type="radio" name="strategy" id="stratFixed" value="fixed" checked onchange="updateLive()">
-            <label for="stratFixed">Fixed Increase:</label>
+            <label for="stratFixed">Kenaikan Tetap:</label>
             <input type="number" id="fixedVal" value="10" oninput="updateLive()"> 
-            <span>marks.</span>
+            <span>markah.</span>
         </div>
         <div class="strat-row">
             <input type="radio" name="strategy" id="stratRandom" value="random" onchange="updateLive()">
-            <label for="stratRandom">Random Range:</label>
-            <span>Between</span>
+            <label for="stratRandom">Kenaikan Rawak (Julat):</label>
+            <span>Antara</span>
             <input type="number" id="randMin" value="5" disabled oninput="updateLive()"> 
-            <span>and</span>
+            <span>hingga</span>
             <input type="number" id="randMax" value="12" disabled oninput="updateLive()"> 
-            <span>marks.</span>
-            <button class="btn-shuffle" id="btnShuffle" onclick="forceReShuffle()">🎲 Shuffle / Re-Roll</button>
+            <span>markah.</span>
+            <button class="btn-shuffle" id="btnShuffle" onclick="forceReShuffle()">🎲 Shuffle</button>
         </div>
     </div>
 
-    <div class="step-box" id="step1">
-        <span class="step-title">Step 1: Paste Data (Excel / Sheets)</span>
-        <textarea id="pasteArea" placeholder="Paste your entire table here (Must include Headers like 'Name', 'Math', etc.)..."></textarea>
-        <br><br>
-        <button class="btn btn-blue" onclick="readData()">Analyze Columns</button>
-    </div>
+    <div class="data-entry-grid">
+        <div class="step-box" style="border-color: #4f46e5; background: #eef2ff;">
+            <span class="step-title">1. Senarai Nama Master (Terkini)</span>
+            <span class="step-desc">Paste senarai nama murid ikut susunan kelas 2026 di sini.</span>
+            <textarea id="masterListArea" placeholder="Contoh:&#10;1. ABU BIN ALl&#10;2. SITI AMINAH&#10;..."></textarea>
+        </div>
 
-    <div class="step-box" id="columnPicker">
-        <span class="step-title">Step 2: Select Columns</span>
-        <p style="margin:0 0 15px 0; color: #6b7280;">Which subject are we analyzing?</p>
+        <div class="step-box">
+            <span class="step-title">2. Data Markah (Excel Lama)</span>
+            <span class="step-desc">Paste data markah dari sheet lama. Tak perlu susun, sistem akan cari nama.</span>
+            <textarea id="rawMarkArea" placeholder="Paste jadual Excel di sini (Nama, BM, BI, dll)..."></textarea>
+        </div>
+    </div>
+    
+    <button class="btn btn-blue" onclick="processData()" style="margin-bottom: 20px;">🔍 Match & Analyze Data</button>
+
+    <div id="columnPicker">
+        <span class="step-title">3. Pilih Kolum Data Markah</span>
+        <p style="margin:0 0 15px 0; color: #6b7280;">Sila tentukan kolum mana dalam Data Markah (Box 2) yang mewakili Nama dan Subjek.</p>
         <div class="picker-grid">
             <div class="picker-group">
-                <label>Name Column:</label>
+                <label>Kolum Nama (dalam Data Markah):</label>
                 <select id="nameCol"></select>
             </div>
             <div class="picker-group">
-                <label>Subject (TOV) Column:</label>
+                <label>Kolum Subjek (TOV):</label>
                 <select id="markCol"></select>
             </div>
-            <button class="btn btn-green" onclick="generateHeadcount()">Calculate Targets</button>
+            <button class="btn btn-green" onclick="generateHeadcount()">Jana Headcount</button>
         </div>
     </div>
 
@@ -167,17 +163,16 @@
         
         <div class="signature-controls">
             <div class="sig-section">
-                <h4>Disediakan Oleh (Guru)</h4>
+                <h4>Disediakan Oleh</h4>
                 <div class="input-group">
                     <label>Nama Guru:</label>
-                    <input list="teacherList" id="teacherInput" placeholder="Pilih nama guru..." onchange="updateSignature()">
+                    <input list="teacherList" id="teacherInput" placeholder="Pilih nama..." onchange="updateSignature()">
                     <datalist id="teacherList"></datalist>
                 </div>
                 <div class="input-group">
                     <label>Jawatan:</label>
                     <select id="jawatanInput" onchange="updateSignature()">
                         <option value="" disabled selected>Pilih Jawatan...</option>
-                        
                         <optgroup label="GURU MATA PELAJARAN (TERAS)">
                             <option value="GURU MATA PELAJARAN BAHASA MELAYU">GURU MATA PELAJARAN BAHASA MELAYU</option>
                             <option value="GURU MATA PELAJARAN BAHASA INGGERIS">GURU MATA PELAJARAN BAHASA INGGERIS</option>
@@ -186,42 +181,20 @@
                             <option value="GURU MATA PELAJARAN PENDIDIKAN ISLAM">GURU MATA PELAJARAN PENDIDIKAN ISLAM</option>
                             <option value="GURU MATA PELAJARAN SEJARAH">GURU MATA PELAJARAN SEJARAH</option>
                         </optgroup>
-
-                        <optgroup label="GURU MATA PELAJARAN (ELEKTIF)">
-                            <option value="GURU MATA PELAJARAN RBT">GURU MATA PELAJARAN RBT</option>
-                            <option value="GURU MATA PELAJARAN PSV">GURU MATA PELAJARAN PSV</option>
-                            <option value="GURU MATA PELAJARAN PENDIDIKAN MUZIK">GURU MATA PELAJARAN PENDIDIKAN MUZIK</option>
-                            <option value="GURU MATA PELAJARAN PJPK">GURU MATA PELAJARAN PJPK</option>
-                            <option value="GURU MATA PELAJARAN BAHASA ARAB">GURU MATA PELAJARAN BAHASA ARAB</option>
-                            <option value="GURU MATA PELAJARAN PENDIDIKAN MORAL">GURU MATA PELAJARAN PENDIDIKAN MORAL</option>
-                        </optgroup>
-                        
-                        <optgroup label="KETUA PANITIA (TERAS)">
+                        <optgroup label="KETUA PANITIA">
                             <option value="KETUA PANITIA BAHASA MELAYU">KETUA PANITIA BAHASA MELAYU</option>
-                            <option value="KETUA PANITIA BAHASA INGGERIS">KETUA PANITIA BAHASA INGGERIS</option>
                             <option value="KETUA PANITIA MATEMATIK">KETUA PANITIA MATEMATIK</option>
                             <option value="KETUA PANITIA SAINS">KETUA PANITIA SAINS</option>
-                            <option value="KETUA PANITIA PENDIDIKAN ISLAM">KETUA PANITIA PENDIDIKAN ISLAM</option>
-                            <option value="KETUA PANITIA SEJARAH">KETUA PANITIA SEJARAH</option>
-                        </optgroup>
-
-                        <optgroup label="KETUA PANITIA (ELEKTIF)">
-                            <option value="KETUA PANITIA RBT">KETUA PANITIA RBT</option>
-                            <option value="KETUA PANITIA PSV">KETUA PANITIA PSV</option>
-                            <option value="KETUA PANITIA PENDIDIKAN MUZIK">KETUA PANITIA PENDIDIKAN MUZIK</option>
-                            <option value="KETUA PANITIA PJPK">KETUA PANITIA PJPK</option>
-                            <option value="KETUA PANITIA BAHASA ARAB">KETUA PANITIA BAHASA ARAB</option>
-                            <option value="KETUA PANITIA PENDIDIKAN MORAL">KETUA PANITIA PENDIDIKAN MORAL</option>
+                            <option value="KETUA PANITIA BAHASA INGGERIS">KETUA PANITIA BAHASA INGGERIS</option>
                         </optgroup>
                     </select>
                 </div>
             </div>
-
             <div class="sig-section">
-                <h4>Disahkan Oleh (Pentadbir)</h4>
+                <h4>Disahkan Oleh</h4>
                 <div class="input-group">
                     <label>Nama Pentadbir:</label>
-                    <input list="adminList" id="adminInput" placeholder="Pilih nama pentadbir..." onchange="autoFillAdmin()">
+                    <input list="adminList" id="adminInput" placeholder="Pilih..." onchange="autoFillAdmin()">
                     <datalist id="adminList"></datalist>
                 </div>
                 <div class="input-group">
@@ -235,8 +208,8 @@
         <table id="dataTable">
             <thead>
                 <tr>
-                    <th style="width: 5%;">#</th>
-                    <th>Student Name</th>
+                    <th style="width: 5%;">No</th>
+                    <th>Nama Murid</th>
                     <th>TOV</th>
                     <th>OTI1</th>
                     <th>OTI2</th>
@@ -256,7 +229,6 @@
                 <div class="sig-text">Nama: <span id="printName">..............................................................</span></div>
                 <div class="sig-text">Jawatan: <span id="printJawatan">...........................................................</span></div>
             </div>
-
             <div class="sig-block">
                 <div class="sig-title">Disahkan oleh,</div>
                 <br><br><br>
@@ -269,7 +241,7 @@
 </div>
 
 <script>
-    // === 1. DATA CONFIGURATION ===
+    // === DATA CONFIGURATION ===
     const teachers = [
         "AMIRAH BINTI CHE AZUHA", "AZLAN BIN DAUD", "AZLINA BINTI HANAPI", "AMANI BINTI AWANG QAMARULDEEN",
         "ANWAR SHAFIQ BIN JAMALUDIN", "ANIS SYAZWANI BINTI MAT ISA", "BAHJATU SHOLIHAH BINTI RAMAN",
@@ -285,7 +257,6 @@
         "UMMI FARAH BINTI ALIAS", "WAN SITI NOR ADILAH BINTI WAN OTHMAN", "WAN NOOR UMMI BINTI W.RAMLI",
         "ZURAYA BINTI OTHMAN", "ZIRATUL ASYIKIN BINTI MUSA", "ZAILATUL ROZAIDI BIN ZAKARIA"
     ];
-
     const admins = [
         { name: "ASRI BIN MOHAMED", pos: "GURU BESAR" },
         { name: "TUAN KAMARIAH BINTI TUAN SARIF", pos: "PENOLONG KANAN PENTADBIRAN" },
@@ -293,48 +264,30 @@
         { name: "ASYRAF BIN ROSLAN", pos: "PENOLONG KANAN KO-KURIKULUM" }
     ];
 
-    // === 2. INITIALIZATION ===
+    // Populate Lists
     const teacherDatalist = document.getElementById('teacherList');
-    teachers.forEach(name => {
-        let option = document.createElement('option');
-        option.value = name;
-        teacherDatalist.appendChild(option);
-    });
-
+    teachers.forEach(n => { let o = document.createElement('option'); o.value = n; teacherDatalist.appendChild(o); });
     const adminDatalist = document.getElementById('adminList');
-    admins.forEach(admin => {
-        let option = document.createElement('option');
-        option.value = admin.name;
-        adminDatalist.appendChild(option);
-    });
+    admins.forEach(a => { let o = document.createElement('option'); o.value = a.name; adminDatalist.appendChild(o); });
 
-    // === 3. SIGNATURE LOGIC ===
     function autoFillAdmin() {
-        const selectedName = document.getElementById('adminInput').value;
-        const adminObj = admins.find(a => a.name === selectedName);
-        if (adminObj) {
-            document.getElementById('adminJawatanInput').value = adminObj.pos;
-        }
+        const selected = document.getElementById('adminInput').value;
+        const obj = admins.find(a => a.name === selected);
+        if (obj) document.getElementById('adminJawatanInput').value = obj.pos;
         updateSignature();
     }
-
     function updateSignature() {
-        // Teacher
-        const tName = document.getElementById('teacherInput').value;
-        const tJaw = document.getElementById('jawatanInput').value;
-        document.getElementById('printName').textContent = tName ? tName : "..............................................................";
-        document.getElementById('printJawatan').textContent = tJaw ? tJaw : "...........................................................";
-
-        // Admin
-        const aName = document.getElementById('adminInput').value;
-        const aJaw = document.getElementById('adminJawatanInput').value;
-        document.getElementById('printAdminName').textContent = aName ? aName : "..............................................................";
-        document.getElementById('printAdminJawatan').textContent = aJaw ? aJaw : "...........................................................";
+        document.getElementById('printName').textContent = document.getElementById('teacherInput').value || "..............................................................";
+        document.getElementById('printJawatan').textContent = document.getElementById('jawatanInput').value || "...........................................................";
+        document.getElementById('printAdminName').textContent = document.getElementById('adminInput').value || "..............................................................";
+        document.getElementById('printAdminJawatan').textContent = document.getElementById('adminJawatanInput').value || "...........................................................";
     }
 
-    // === 4. CORE APP LOGIC ===
-    let rawData = [];
-    let headers = [];
+    // === SMART MATCH LOGIC ===
+    let masterList = [];
+    let rawDataMap = {}; // Will store { "ALI BIN ABU": 80, "SITI": 90 }
+    let rawHeaders = [];
+    let rawRows = []; // To keep raw rows accessible for indexing
     let isDataLoaded = false;
     let processedData = [];
 
@@ -349,82 +302,114 @@
 
     function forceReShuffle() { if(isDataLoaded) generateHeadcount(); }
 
-    function readData() {
-        const text = document.getElementById('pasteArea').value.trim();
-        if(!text) return alert("Sila 'Paste' data dahulu.");
-        const lines = text.split('\n');
+    // Step 1: Process Inputs
+    function processData() {
+        const masterText = document.getElementById('masterListArea').value.trim();
+        const rawText = document.getElementById('rawMarkArea').value.trim();
+
+        if(!masterText || !rawText) return alert("Sila isi kedua-dua kotak Master List dan Data Markah.");
+
+        // 1. Process Master List
+        masterList = masterText.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .map(line => line.replace(/^\d+[\.\)]\s*/, '')); // Remove numbering "1. "
+
+        // 2. Process Raw Data for Columns
+        const lines = rawText.split('\n');
         let firstLine = lines[0].trim();
         let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
-        headers = firstLine.split(delim).map(h => h.trim());
-        if(headers.length < 2) return alert("Ralat: Perlu sekurang-kurangnya 2 lajur (Nama & Markah).");
+        
+        rawHeaders = firstLine.split(delim).map(h => h.trim());
+        rawRows = lines.slice(1);
 
+        if(rawHeaders.length < 2) return alert("Data Markah mesti ada sekurang-kurangnya 2 lajur.");
+
+        // Setup Pickers
         const nameSel = document.getElementById('nameCol');
         const markSel = document.getElementById('markCol');
         nameSel.innerHTML = ''; markSel.innerHTML = '';
-        headers.forEach((h, i) => {
-            let opt = `<option value="${i}">${h}</option>`;
-            nameSel.innerHTML += opt;
-            markSel.innerHTML += opt;
+        
+        rawHeaders.forEach((h, i) => {
+            let o = `<option value="${i}">${h}</option>`;
+            nameSel.innerHTML += o;
+            markSel.innerHTML += o;
         });
-        headers.forEach((h, i) => {
+
+        // Smart Guess
+        rawHeaders.forEach((h, i) => {
             let low = h.toLowerCase();
             if(low.includes('name') || low.includes('nama')) nameSel.value = i;
             if(low.includes('mark') || low.includes('tov')) markSel.value = i;
         });
-        rawData = lines.slice(1); 
+
         document.getElementById('columnPicker').style.display = 'block';
     }
 
+    // Step 2: Generate Map & Table
     function generateHeadcount() {
         const nameIdx = parseInt(document.getElementById('nameCol').value);
         const markIdx = parseInt(document.getElementById('markCol').value);
         const subject = document.getElementById('markCol').options[markIdx].text;
         
-        const isFixed = document.getElementById('stratFixed').checked;
-        const fixedVal = parseInt(document.getElementById('fixedVal').value) || 10;
-        let minVal = parseInt(document.getElementById('randMin').value) || 1;
-        let maxVal = parseInt(document.getElementById('randMax').value) || 10;
-        if (minVal > maxVal) { let temp = minVal; minVal = maxVal; maxVal = temp; }
+        // 1. Build Map from Raw Data
+        // Key: Normalized Name (Upper, Trimmed), Value: Mark
+        rawDataMap = {};
+        rawRows.forEach(line => {
+            let delim = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : ' ');
+            let parts = (delim === ' ') ? line.trim().split(/\s+/) : line.split(delim);
+            if(parts.length > Math.max(nameIdx, markIdx)) {
+                let n = parts[nameIdx].trim().toUpperCase();
+                let m = parseFloat(parts[markIdx].trim());
+                if(n && !isNaN(m)) {
+                    rawDataMap[n] = m;
+                }
+            }
+        });
 
+        // 2. Build Table based on MASTER LIST
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         processedData = [];
+        
+        // Strat Params
+        const isFixed = document.getElementById('stratFixed').checked;
+        const fixedVal = parseInt(document.getElementById('fixedVal').value) || 10;
+        let minVal = parseInt(document.getElementById('randMin').value) || 5;
+        let maxVal = parseInt(document.getElementById('randMax').value) || 12;
+        if (minVal > maxVal) { let temp = minVal; minVal = maxVal; maxVal = temp; }
+
         let count = 0;
+        masterList.forEach(masterName => {
+            count++;
+            // Lookup Mark
+            let key = masterName.toUpperCase();
+            let tov = rawDataMap[key] !== undefined ? rawDataMap[key] : 0; // Default 0 if not found
+            
+            // Calculate
+            let inc = isFixed ? fixedVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+            let etr = tov + inc;
+            if(etr > 100) etr = 100;
+            
+            let step = (etr - tov) / 4;
+            let oti1 = fmt(tov + step);
+            let oti2 = fmt(tov + step*2);
+            let oti3 = fmt(tov + step*3);
+            let etrFmt = fmt(etr);
 
-        rawData.forEach(line => {
-            let delim = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : ' ');
-            let parts = (delim === ' ') ? line.trim().split(/\s+/) : line.split(delim);
-            if(parts.length <= Math.max(nameIdx, markIdx)) return;
+            processedData.push({name: masterName, tov: tov, oti1, oti2, oti3, etr: etrFmt, gain: inc});
 
-            let name = parts[nameIdx].trim();
-            let tov = parseFloat(parts[markIdx].trim());
-
-            if(name && !isNaN(tov)) {
-                count++;
-                let inc = isFixed ? fixedVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-                let etr = tov + inc;
-                if(etr > 100) etr = 100; if(etr < 0) etr = 0; 
-                
-                let step = (etr - tov) / 4;
-                let oti1 = fmt(tov + step);
-                let oti2 = fmt(tov + step*2);
-                let oti3 = fmt(tov + step*3);
-                let etrFmt = fmt(etr);
-
-                processedData.push({ name: name, tov: tov, oti1: oti1, oti2: oti2, oti3: oti3, etr: etrFmt, gain: inc });
-
-                let row = `<tr>
-                    <td>${count}</td>
-                    <td>${name}</td>
-                    <td>${tov}</td>
-                    <td>${oti1}</td>
-                    <td>${oti2}</td>
-                    <td>${oti3}</td>
-                    <td class="col-target">${etrFmt}</td>
-                    <td class="col-gain">+${inc}</td>
-                </tr>`;
-                tbody.innerHTML += row;
-            }
+            let row = `<tr>
+                <td>${count}</td>
+                <td>${masterName}</td>
+                <td>${tov}</td>
+                <td>${oti1}</td>
+                <td>${oti2}</td>
+                <td>${oti3}</td>
+                <td class="col-target">${etrFmt}</td>
+                <td class="col-gain">+${inc}</td>
+            </tr>`;
+            tbody.innerHTML += row;
         });
 
         document.getElementById('subjectTitle').innerText = "Analisis Headcount: " + subject;
@@ -434,24 +419,22 @@
     }
 
     function downloadExcel() {
-        if (!processedData.length) { alert("Sila kira headcount dahulu!"); return; }
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "No,Nama Murid,TOV,OTI 1,OTI 2,OTI 3,ETR,Peningkatan\n";
-        processedData.forEach((row, index) => {
-            let safeName = row.name.includes(',') ? `"${row.name}"` : row.name;
-            csvContent += `${index + 1},${safeName},${row.tov},${row.oti1},${row.oti2},${row.oti3},${row.etr},${row.gain}\n`;
+        if (!processedData.length) return alert("Tiada data.");
+        let csv = "data:text/csv;charset=utf-8,No,Nama Murid,TOV,OTI 1,OTI 2,OTI 3,ETR,Peningkatan\n";
+        processedData.forEach((row, i) => {
+            let n = row.name.includes(',') ? `"${row.name}"` : row.name;
+            csv += `${i+1},${n},${row.tov},${row.oti1},${row.oti2},${row.oti3},${row.etr},${row.gain}\n`;
         });
         const markIdx = parseInt(document.getElementById('markCol').value);
         const subject = document.getElementById('markCol').options[markIdx] ? document.getElementById('markCol').options[markIdx].text : "Headcount";
         const link = document.createElement("a");
-        link.setAttribute("href", encodeURI(csvContent));
-        link.setAttribute("download", `Analisis_Headcount_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`);
+        link.href = encodeURI(csv);
+        link.download = `Analisis_Headcount_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
-
-    function fmt(num) { return Number.isInteger(num) ? num : num.toFixed(2); }
+    function fmt(n) { return Number.isInteger(n) ? n : n.toFixed(2); }
 </script>
 
 </body>
