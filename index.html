@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Pro v13: Hybrid Input</title>
+    <title>Headcount Pro v14: Final Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
@@ -42,22 +42,22 @@
         .step-desc { font-size: 0.85rem; color: #666; margin-bottom: 15px; }
         textarea { width: 100%; height: 200px; padding: 10px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; font-size: 0.85rem; flex-grow: 1; }
 
-        /* TABS (PENTING UNTUK HYBRID) */
-        .tab-container { display: flex; gap: 5px; margin-bottom: 15px; background: #e5e7eb; padding: 5px; border-radius: 8px; }
-        .tab-btn { 
-            flex: 1; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: #666; background: transparent; transition: 0.2s;
-        }
-        .tab-btn:hover { background: rgba(255,255,255,0.5); }
-        .tab-btn.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        
-        .tab-content { display: none; height: 100%; flex-direction: column; }
-        .tab-content.active { display: flex; }
+        /* MODE SWITCHER (RADIO BUTTONS) */
+        .mode-switcher { display: flex; gap: 20px; margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; }
+        .mode-option { display: flex; align-items: center; cursor: pointer; }
+        .mode-option input { margin-right: 8px; }
+
+        /* SOURCE PANELS */
+        .source-panel { display: none; } /* Hidden by default */
+        .source-panel.active { display: block; animation: fadeIn 0.3s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* UPLOAD STYLES */
         .upload-controls { display: flex; gap: 10px; margin-bottom: 10px; }
         .btn-add-file { background: #4f46e5; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
         .btn-clear-files { background: #fff; border: 1px solid #ef4444; color: #ef4444; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-        .file-list-container { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; flex-grow: 1; min-height: 150px; overflow-y: auto; }
+        .file-list-container { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; min-height: 100px; max-height: 200px; overflow-y: auto; margin-top: 10px; }
         .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-bottom: 1px solid #f3f4f6; font-size: 0.85rem; }
         .file-item:last-child { border-bottom: none; }
         .btn-remove-file { background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; }
@@ -122,7 +122,7 @@
 
 <div class="container">
     <header>
-        <h1>Headcount Pro <span class="brand-subtitle">v13 Hybrid</span></h1>
+        <h1>Headcount Pro <span class="brand-subtitle">v14 Fix</span></h1>
         <div class="header-actions">
             <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
             <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
@@ -159,25 +159,30 @@
         <div class="step-box">
             <span class="step-title">2. Sumber Data Markah</span>
             
-            <div class="tab-container">
-                <button class="tab-btn active" onclick="switchTab('upload')">📂 Upload Fail</button>
-                <button class="tab-btn" onclick="switchTab('paste')">📋 Paste Manual</button>
+            <div class="mode-switcher">
+                <label class="mode-option">
+                    <input type="radio" name="sourceMode" value="upload" checked onclick="toggleSource('upload')">
+                    <b>📂 Upload Fail Excel</b> (Boleh banyak fail)
+                </label>
+                <label class="mode-option">
+                    <input type="radio" name="sourceMode" value="paste" onclick="toggleSource('paste')">
+                    <b>📋 Paste Manual</b> (Data dari Excel)
+                </label>
             </div>
 
-            <div id="tab-upload" class="tab-content active">
-                <span class="step-desc">Gunakan ini jika markah berada dalam fail Excel. Boleh tambah banyak fail.</span>
+            <div id="panel-upload" class="source-panel active">
                 <div class="upload-controls">
                     <button class="btn-add-file" onclick="document.getElementById('fileInput').click()"><span>➕</span> Tambah Fail</button>
-                    <button class="btn-clear-files" onclick="clearFiles()">Padam Semua</button>
+                    <button class="btn-clear-files" onclick="clearFiles()">Reset</button>
                     <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" multiple onchange="handleFileSelect(this)">
                 </div>
                 <div class="file-list-container" id="fileQueue">
-                    <div style="text-align:center; color:#999; padding-top:40px;">Tiada fail dipilih.</div>
+                    <div style="text-align:center; color:#999; padding-top:20px;">Tiada fail dipilih.</div>
                 </div>
             </div>
 
-            <div id="tab-paste" class="tab-content">
-                <span class="step-desc">Gunakan ini jika anda ingin copy & paste terus dari Excel (Nama & Markah).</span>
+            <div id="panel-paste" class="source-panel">
+                <span class="step-desc">Paste data markah dari Excel (Nama & Markah) di sini:</span>
                 <textarea id="rawMarkArea" placeholder="Paste data Excel di sini..."></textarea>
             </div>
         </div>
@@ -332,20 +337,18 @@
         document.getElementById('printAdminJawatan').textContent = document.getElementById('adminJawatanInput').value || "...........................................................";
     }
 
-    // === UI SWITCHING ===
+    // === UI SWITCHING (RADIO) ===
     let activeSource = 'upload'; // Default
 
-    function switchTab(mode) {
+    function toggleSource(mode) {
         activeSource = mode;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('panel-upload').classList.remove('active');
+        document.getElementById('panel-paste').classList.remove('active');
         
         if (mode === 'upload') {
-            document.querySelector("button[onclick=\"switchTab('upload')\"]").classList.add('active');
-            document.getElementById('tab-upload').classList.add('active');
+            document.getElementById('panel-upload').classList.add('active');
         } else {
-            document.querySelector("button[onclick=\"switchTab('paste')\"]").classList.add('active');
-            document.getElementById('tab-paste').classList.add('active');
+            document.getElementById('panel-paste').classList.add('active');
         }
     }
 
@@ -382,7 +385,7 @@
         queueDiv.innerHTML = '';
 
         if (allWorkbookData.length === 0) {
-            queueDiv.innerHTML = '<div style="text-align:center; color:#999; padding-top:40px;">Tiada fail dipilih.</div>';
+            queueDiv.innerHTML = '<div style="text-align:center; color:#999; padding-top:20px;">Tiada fail dipilih.</div>';
             return;
         }
 
