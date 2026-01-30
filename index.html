@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Pro v10: Ultimate Smart Match</title>
+    <title>Headcount Pro v11: Multi-Source</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
@@ -51,7 +51,8 @@
         .upload-area:hover { background: #e0e7ff; border-color: var(--primary); }
         .upload-icon { font-size: 2rem; margin-bottom: 10px; }
         #fileInput { display: none; }
-        .file-name { margin-top: 10px; font-weight: bold; color: var(--success); font-size: 0.9rem; }
+        .file-status { margin-top: 10px; font-weight: bold; color: var(--success); font-size: 0.9rem; }
+        .file-list { font-size: 0.8rem; color: #666; margin-top: 5px; max-height: 60px; overflow-y: auto; width: 100%; }
 
         /* TABS for Step 2 */
         .tab-container { display: flex; gap: 10px; margin-bottom: 10px; }
@@ -120,7 +121,7 @@
 
 <div class="container">
     <header>
-        <h1>Headcount Pro <span class="brand-subtitle">v10 Ultimate</span></h1>
+        <h1>Headcount Pro <span class="brand-subtitle">v11 Multi-Source</span></h1>
         <div class="header-actions">
             <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
             <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
@@ -158,17 +159,18 @@
             <span class="step-title">2. Sumber Data Markah</span>
             
             <div class="tab-container">
-                <button class="tab-btn active" onclick="switchTab('upload')">📂 Upload Excel</button>
+                <button class="tab-btn active" onclick="switchTab('upload')">📂 Upload Banyak Fail</button>
                 <button class="tab-btn" onclick="switchTab('paste')">📋 Paste Manual</button>
             </div>
 
             <div id="tab-upload" class="tab-content active">
-                <span class="step-desc">Upload fail Excel (.xlsx) atau CSV yang mengandungi markah semua kelas.</span>
+                <span class="step-desc">Boleh pilih <strong>banyak fail</strong> serentak.</span>
                 <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                     <div class="upload-icon">📂</div>
-                    <div>Klik untuk pilih fail Excel</div>
-                    <div id="fileNameDisplay" class="file-name"></div>
-                    <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" onchange="handleFile(this)">
+                    <div>Klik untuk pilih fail-fail Excel</div>
+                    <div id="fileStatus" class="file-status"></div>
+                    <div id="fileList" class="file-list"></div>
+                    <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" multiple onchange="handleFiles(this)">
                 </div>
             </div>
 
@@ -302,7 +304,6 @@
         { name: "ASYRAF BIN ROSLAN", pos: "PENOLONG KANAN KO-KURIKULUM" }
     ];
 
-    // Populate Lists
     const teacherDatalist = document.getElementById('teacherList');
     teachers.forEach(n => { let o = document.createElement('option'); o.value = n; teacherDatalist.appendChild(o); });
     const adminDatalist = document.getElementById('adminList');
@@ -322,7 +323,7 @@
     }
 
     // === UI SWITCHING ===
-    let activeSource = 'upload'; // 'upload' or 'paste'
+    let activeSource = 'upload'; 
 
     function switchTab(mode) {
         activeSource = mode;
@@ -338,28 +339,56 @@
         }
     }
 
-    // === FILE HANDLING ===
-    let uploadedData = null;
+    // === MULTI-FILE HANDLING ===
+    let uploadedData = []; // This will store aggregated rows from ALL files
 
-    function handleFile(input) {
-        const file = input.files[0];
-        if(!file) return;
+    function handleFiles(input) {
+        const files = input.files;
+        if(files.length === 0) return;
 
-        document.getElementById('fileNameDisplay').textContent = "Fail: " + file.name;
+        document.getElementById('fileStatus').textContent = `${files.length} fail dipilih. Sedang memproses...`;
+        document.getElementById('fileList').innerHTML = '';
         
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, {type: 'array'});
-            
-            // Assume first sheet
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            
-            // Convert to JSON (Array of Arrays)
-            uploadedData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-        };
-        reader.readAsArrayBuffer(file);
+        uploadedData = []; // Reset storage
+        let filesProcessed = 0;
+
+        // Loop through all files
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // Read first sheet
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                
+                // Get JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                // Merge Logic:
+                // If it's the first file processed, keep header.
+                // If subsequent files, try to skip header if it matches (simple heuristic)
+                if (uploadedData.length === 0) {
+                    uploadedData = jsonData;
+                } else {
+                    // Append only data rows (skip first row usually header)
+                    // We assume all files have same structure for simplicity, or we just dump everything and filter later
+                    uploadedData = uploadedData.concat(jsonData.slice(1));
+                }
+
+                // Update UI
+                const li = document.createElement('div');
+                li.textContent = "✅ " + file.name;
+                document.getElementById('fileList').appendChild(li);
+
+                filesProcessed++;
+                if (filesProcessed === files.length) {
+                    document.getElementById('fileStatus').textContent = "Selesai! " + files.length + " fail telah digabungkan.";
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
     }
 
 
@@ -382,7 +411,6 @@
 
     function forceReShuffle() { if(isDataLoaded) generateHeadcount(); }
 
-    // Step 1: Process Inputs
     function processData() {
         const masterText = document.getElementById('masterListArea').value.trim();
         
@@ -394,25 +422,22 @@
             .filter(line => line.length > 0)
             .map(line => line.replace(/^\d+[\.\)]\s*/, '')); 
 
-        // 2. Get Raw Data (From File or Paste)
+        // 2. Get Raw Data
         if (activeSource === 'upload') {
-            if (!uploadedData) return alert("Sila upload fail Excel dahulu.");
-            rawRows = uploadedData; // Already array of arrays
-            // Check if valid
-            if (rawRows.length < 2) return alert("Fail Excel kosong atau tidak sah.");
-            rawHeaders = rawRows[0];
-            rawRows = rawRows.slice(1); // Remove header
+            if (uploadedData.length === 0) return alert("Sila upload sekurang-kurangnya satu fail Excel.");
+            rawRows = uploadedData;
+            
+            // Basic validation
+            if (rawRows.length < 2) return alert("Data kosong atau tidak sah.");
+            rawHeaders = rawRows[0]; // Assume first row of first file is header
+            rawRows = rawRows.slice(1);
         } else {
-            // Paste Mode
             const rawText = document.getElementById('rawMarkArea').value.trim();
             if(!rawText) return alert("Sila paste data markah.");
-            
             const lines = rawText.split('\n');
             let firstLine = lines[0].trim();
             let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
-            
             rawHeaders = firstLine.split(delim).map(h => h.trim());
-            
             rawRows = lines.slice(1).map(line => {
                 let parts = (delim === ' ') ? line.trim().split(/\s+/) : line.split(delim);
                 return parts;
@@ -433,7 +458,6 @@
             markSel.innerHTML += o;
         });
 
-        // Smart Guess
         rawHeaders.forEach((h, i) => {
             if (!h) return;
             let low = h.toString().toLowerCase();
@@ -444,16 +468,15 @@
         document.getElementById('columnPicker').style.display = 'block';
     }
 
-    // Step 2: Generate Map & Table
     function generateHeadcount() {
         const nameIdx = parseInt(document.getElementById('nameCol').value);
         const markIdx = parseInt(document.getElementById('markCol').value);
         const subject = document.getElementById('markCol').options[markIdx].text;
         
-        // 1. Build Map from Raw Data
+        // Build Map (Normalized Name -> Mark)
         rawDataMap = {};
         rawRows.forEach(row => {
-            if(row.length > Math.max(nameIdx, markIdx)) {
+            if(row && row.length > Math.max(nameIdx, markIdx)) {
                 let nVal = row[nameIdx];
                 let mVal = row[markIdx];
                 
@@ -467,7 +490,7 @@
             }
         });
 
-        // 2. Build Table
+        // Build Table
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         processedData = [];
