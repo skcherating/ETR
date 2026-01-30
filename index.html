@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Pro V9: Smart Match</title>
+    <title>Headcount Pro v10: Ultimate Smart Match</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
             --primary: #4f46e5; 
@@ -34,12 +35,31 @@
         input[type="number"]:disabled { background: #e5e7eb; border-color: #d1d5db; color: #9ca3af; }
         .btn-shuffle { background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 10px; display: none; }
 
-        /* INPUTS - DUAL PANE */
+        /* DATA ENTRY SECTION */
         .data-entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
         .step-box { border: 1px solid var(--border); border-radius: 10px; padding: 20px; background: #f9fafb; display: flex; flex-direction: column; }
         .step-title { font-weight: 700; margin-bottom: 10px; display: block; font-size: 1rem; color: var(--primary); }
-        .step-desc { font-size: 0.85rem; color: #666; margin-bottom: 10px; }
+        .step-desc { font-size: 0.85rem; color: #666; margin-bottom: 15px; }
         textarea { width: 100%; height: 150px; padding: 10px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; font-size: 0.85rem; flex-grow: 1; }
+
+        /* UPLOAD BOX STYLES */
+        .upload-area {
+            border: 2px dashed #a5b4fc; background: #eef2ff; border-radius: 8px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 30px; text-align: center; cursor: pointer; transition: 0.2s; height: 100%;
+        }
+        .upload-area:hover { background: #e0e7ff; border-color: var(--primary); }
+        .upload-icon { font-size: 2rem; margin-bottom: 10px; }
+        #fileInput { display: none; }
+        .file-name { margin-top: 10px; font-weight: bold; color: var(--success); font-size: 0.9rem; }
+
+        /* TABS for Step 2 */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 10px; }
+        .tab-btn { background: #e5e7eb; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-content { display: none; height: 100%; }
+        .tab-content.active { display: block; }
+
 
         /* COLUMN PICKER */
         #columnPicker { display: none; background: #ecfdf5; border-color: #6ee7b7; padding: 20px; border-radius: 10px; border: 1px solid #6ee7b7; margin-bottom: 25px; }
@@ -100,7 +120,7 @@
 
 <div class="container">
     <header>
-        <h1>Headcount Pro <span class="brand-subtitle">Smart Match v9</span></h1>
+        <h1>Headcount Pro <span class="brand-subtitle">v10 Ultimate</span></h1>
         <div class="header-actions">
             <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
             <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
@@ -135,24 +155,42 @@
         </div>
 
         <div class="step-box">
-            <span class="step-title">2. Data Markah (Excel Lama)</span>
-            <span class="step-desc">Paste data markah dari sheet lama. Tak perlu susun, sistem akan cari nama.</span>
-            <textarea id="rawMarkArea" placeholder="Paste jadual Excel di sini (Nama, BM, BI, dll)..."></textarea>
+            <span class="step-title">2. Sumber Data Markah</span>
+            
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('upload')">📂 Upload Excel</button>
+                <button class="tab-btn" onclick="switchTab('paste')">📋 Paste Manual</button>
+            </div>
+
+            <div id="tab-upload" class="tab-content active">
+                <span class="step-desc">Upload fail Excel (.xlsx) atau CSV yang mengandungi markah semua kelas.</span>
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📂</div>
+                    <div>Klik untuk pilih fail Excel</div>
+                    <div id="fileNameDisplay" class="file-name"></div>
+                    <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" onchange="handleFile(this)">
+                </div>
+            </div>
+
+            <div id="tab-paste" class="tab-content">
+                <span class="step-desc">Atau paste data dari pelbagai kelas di sini (campur pun tak apa).</span>
+                <textarea id="rawMarkArea" placeholder="Paste data markah di sini..."></textarea>
+            </div>
         </div>
     </div>
     
     <button class="btn btn-blue" onclick="processData()" style="margin-bottom: 20px;">🔍 Match & Analyze Data</button>
 
     <div id="columnPicker">
-        <span class="step-title">3. Pilih Kolum Data Markah</span>
-        <p style="margin:0 0 15px 0; color: #6b7280;">Sila tentukan kolum mana dalam Data Markah (Box 2) yang mewakili Nama dan Subjek.</p>
+        <span class="step-title">3. Pilih Kolum Data</span>
+        <p style="margin:0 0 15px 0; color: #6b7280;">Sila tentukan kolum mana mewakili Nama dan Markah Subjek.</p>
         <div class="picker-grid">
             <div class="picker-group">
-                <label>Kolum Nama (dalam Data Markah):</label>
+                <label>Kolum Nama:</label>
                 <select id="nameCol"></select>
             </div>
             <div class="picker-group">
-                <label>Kolum Subjek (TOV):</label>
+                <label>Kolum Markah (TOV):</label>
                 <select id="markCol"></select>
             </div>
             <button class="btn btn-green" onclick="generateHeadcount()">Jana Headcount</button>
@@ -283,11 +321,53 @@
         document.getElementById('printAdminJawatan').textContent = document.getElementById('adminJawatanInput').value || "...........................................................";
     }
 
+    // === UI SWITCHING ===
+    let activeSource = 'upload'; // 'upload' or 'paste'
+
+    function switchTab(mode) {
+        activeSource = mode;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        if (mode === 'upload') {
+            document.querySelector("button[onclick=\"switchTab('upload')\"]").classList.add('active');
+            document.getElementById('tab-upload').classList.add('active');
+        } else {
+            document.querySelector("button[onclick=\"switchTab('paste')\"]").classList.add('active');
+            document.getElementById('tab-paste').classList.add('active');
+        }
+    }
+
+    // === FILE HANDLING ===
+    let uploadedData = null;
+
+    function handleFile(input) {
+        const file = input.files[0];
+        if(!file) return;
+
+        document.getElementById('fileNameDisplay').textContent = "Fail: " + file.name;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            
+            // Assume first sheet
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            
+            // Convert to JSON (Array of Arrays)
+            uploadedData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+
     // === SMART MATCH LOGIC ===
     let masterList = [];
-    let rawDataMap = {}; // Will store { "ALI BIN ABU": 80, "SITI": 90 }
+    let rawDataMap = {}; 
     let rawHeaders = [];
-    let rawRows = []; // To keep raw rows accessible for indexing
+    let rawRows = []; 
     let isDataLoaded = false;
     let processedData = [];
 
@@ -305,23 +385,39 @@
     // Step 1: Process Inputs
     function processData() {
         const masterText = document.getElementById('masterListArea').value.trim();
-        const rawText = document.getElementById('rawMarkArea').value.trim();
-
-        if(!masterText || !rawText) return alert("Sila isi kedua-dua kotak Master List dan Data Markah.");
-
+        
+        if(!masterText) return alert("Sila isi Master List dahulu.");
+        
         // 1. Process Master List
         masterList = masterText.split('\n')
             .map(line => line.trim())
             .filter(line => line.length > 0)
-            .map(line => line.replace(/^\d+[\.\)]\s*/, '')); // Remove numbering "1. "
+            .map(line => line.replace(/^\d+[\.\)]\s*/, '')); 
 
-        // 2. Process Raw Data for Columns
-        const lines = rawText.split('\n');
-        let firstLine = lines[0].trim();
-        let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
-        
-        rawHeaders = firstLine.split(delim).map(h => h.trim());
-        rawRows = lines.slice(1);
+        // 2. Get Raw Data (From File or Paste)
+        if (activeSource === 'upload') {
+            if (!uploadedData) return alert("Sila upload fail Excel dahulu.");
+            rawRows = uploadedData; // Already array of arrays
+            // Check if valid
+            if (rawRows.length < 2) return alert("Fail Excel kosong atau tidak sah.");
+            rawHeaders = rawRows[0];
+            rawRows = rawRows.slice(1); // Remove header
+        } else {
+            // Paste Mode
+            const rawText = document.getElementById('rawMarkArea').value.trim();
+            if(!rawText) return alert("Sila paste data markah.");
+            
+            const lines = rawText.split('\n');
+            let firstLine = lines[0].trim();
+            let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
+            
+            rawHeaders = firstLine.split(delim).map(h => h.trim());
+            
+            rawRows = lines.slice(1).map(line => {
+                let parts = (delim === ' ') ? line.trim().split(/\s+/) : line.split(delim);
+                return parts;
+            });
+        }
 
         if(rawHeaders.length < 2) return alert("Data Markah mesti ada sekurang-kurangnya 2 lajur.");
 
@@ -331,16 +427,18 @@
         nameSel.innerHTML = ''; markSel.innerHTML = '';
         
         rawHeaders.forEach((h, i) => {
-            let o = `<option value="${i}">${h}</option>`;
+            let safeH = h || `Column ${i+1}`;
+            let o = `<option value="${i}">${safeH}</option>`;
             nameSel.innerHTML += o;
             markSel.innerHTML += o;
         });
 
         // Smart Guess
         rawHeaders.forEach((h, i) => {
-            let low = h.toLowerCase();
+            if (!h) return;
+            let low = h.toString().toLowerCase();
             if(low.includes('name') || low.includes('nama')) nameSel.value = i;
-            if(low.includes('mark') || low.includes('tov')) markSel.value = i;
+            if(low.includes('mark') || low.includes('tov') || low.includes('gred')) markSel.value = i;
         });
 
         document.getElementById('columnPicker').style.display = 'block';
@@ -353,26 +451,27 @@
         const subject = document.getElementById('markCol').options[markIdx].text;
         
         // 1. Build Map from Raw Data
-        // Key: Normalized Name (Upper, Trimmed), Value: Mark
         rawDataMap = {};
-        rawRows.forEach(line => {
-            let delim = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : ' ');
-            let parts = (delim === ' ') ? line.trim().split(/\s+/) : line.split(delim);
-            if(parts.length > Math.max(nameIdx, markIdx)) {
-                let n = parts[nameIdx].trim().toUpperCase();
-                let m = parseFloat(parts[markIdx].trim());
-                if(n && !isNaN(m)) {
-                    rawDataMap[n] = m;
+        rawRows.forEach(row => {
+            if(row.length > Math.max(nameIdx, markIdx)) {
+                let nVal = row[nameIdx];
+                let mVal = row[markIdx];
+                
+                if (nVal !== undefined) {
+                    let n = nVal.toString().trim().toUpperCase();
+                    let m = parseFloat(mVal);
+                    if(n && !isNaN(m)) {
+                        rawDataMap[n] = m;
+                    }
                 }
             }
         });
 
-        // 2. Build Table based on MASTER LIST
+        // 2. Build Table
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         processedData = [];
         
-        // Strat Params
         const isFixed = document.getElementById('stratFixed').checked;
         const fixedVal = parseInt(document.getElementById('fixedVal').value) || 10;
         let minVal = parseInt(document.getElementById('randMin').value) || 5;
@@ -382,11 +481,9 @@
         let count = 0;
         masterList.forEach(masterName => {
             count++;
-            // Lookup Mark
             let key = masterName.toUpperCase();
-            let tov = rawDataMap[key] !== undefined ? rawDataMap[key] : 0; // Default 0 if not found
+            let tov = rawDataMap[key] !== undefined ? rawDataMap[key] : 0; 
             
-            // Calculate
             let inc = isFixed ? fixedVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
             let etr = tov + inc;
             if(etr > 100) etr = 100;
