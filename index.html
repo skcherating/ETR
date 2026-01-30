@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Pro v11: Multi-Source</title>
+    <title>Headcount Pro v12: Multi-Upload Manager</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
@@ -13,7 +13,7 @@
             --text: #1f2937; 
             --border: #d1d5db; 
             --success: #059669; 
-            --warning: #f59e0b;
+            --danger: #ef4444;
         }
         body { font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
         .container { max-width: 1100px; margin: 0 auto; background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
@@ -40,27 +40,28 @@
         .step-box { border: 1px solid var(--border); border-radius: 10px; padding: 20px; background: #f9fafb; display: flex; flex-direction: column; }
         .step-title { font-weight: 700; margin-bottom: 10px; display: block; font-size: 1rem; color: var(--primary); }
         .step-desc { font-size: 0.85rem; color: #666; margin-bottom: 15px; }
-        textarea { width: 100%; height: 150px; padding: 10px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; font-size: 0.85rem; flex-grow: 1; }
+        textarea { width: 100%; height: 200px; padding: 10px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; font-size: 0.85rem; flex-grow: 1; }
 
-        /* UPLOAD BOX STYLES */
-        .upload-area {
-            border: 2px dashed #a5b4fc; background: #eef2ff; border-radius: 8px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 30px; text-align: center; cursor: pointer; transition: 0.2s; height: 100%;
+        /* UPLOAD MANAGER STYLES */
+        .upload-controls { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-add-file { background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .btn-add-file:hover { background: #4338ca; }
+        .btn-clear-files { background: #fff; border: 1px solid #ef4444; color: #ef4444; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+        .file-list-container { 
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; 
+            min-height: 150px; max-height: 250px; overflow-y: auto; 
         }
-        .upload-area:hover { background: #e0e7ff; border-color: var(--primary); }
-        .upload-icon { font-size: 2rem; margin-bottom: 10px; }
-        #fileInput { display: none; }
-        .file-status { margin-top: 10px; font-weight: bold; color: var(--success); font-size: 0.9rem; }
-        .file-list { font-size: 0.8rem; color: #666; margin-top: 5px; max-height: 60px; overflow-y: auto; width: 100%; }
-
-        /* TABS for Step 2 */
-        .tab-container { display: flex; gap: 10px; margin-bottom: 10px; }
-        .tab-btn { background: #e5e7eb; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        .tab-content { display: none; height: 100%; }
-        .tab-content.active { display: block; }
-
+        .file-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem;
+        }
+        .file-item:last-child { border-bottom: none; }
+        .file-name { display: flex; align-items: center; gap: 8px; }
+        .file-icon { color: #059669; }
+        .btn-remove-file { background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+        .btn-remove-file:hover { color: #b91c1c; }
+        .empty-list-msg { text-align: center; color: #9ca3af; font-style: italic; padding-top: 50px; }
 
         /* COLUMN PICKER */
         #columnPicker { display: none; background: #ecfdf5; border-color: #6ee7b7; padding: 20px; border-radius: 10px; border: 1px solid #6ee7b7; margin-bottom: 25px; }
@@ -68,7 +69,7 @@
         .picker-group { display: flex; flex-direction: column; gap: 5px; }
         select { padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 200px; font-size: 0.95rem; }
 
-        /* TEACHER/ADMIN SELECTOR */
+        /* SIGNATURE */
         .signature-controls {
             background: #fff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 20px;
             display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
@@ -92,7 +93,7 @@
         .col-target { background: #f0fdf4; color: #166534; font-weight: 700; border-left: 1px solid #e5e7eb; }
         .col-gain { color: #059669; font-weight: 700; background: #ecfdf5; text-align: center; }
 
-        /* PRINT OPTIMIZATION (A4 & 10pt) */
+        /* PRINT */
         @media print {
             @page { size: A4; margin: 1.5cm; }
             body { background: white; font-family: Arial, sans-serif; font-size: 10pt; color: black; padding: 0; margin: 0; }
@@ -121,7 +122,7 @@
 
 <div class="container">
     <header>
-        <h1>Headcount Pro <span class="brand-subtitle">v11 Multi-Source</span></h1>
+        <h1>Headcount Pro <span class="brand-subtitle">v12 Manager</span></h1>
         <div class="header-actions">
             <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
             <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
@@ -156,28 +157,21 @@
         </div>
 
         <div class="step-box">
-            <span class="step-title">2. Sumber Data Markah</span>
+            <span class="step-title">2. Sumber Data Markah (Upload Banyak Fail)</span>
+            <span class="step-desc">Upload fail kelas satu per satu. Sistem akan gabungkan semua.</span>
             
-            <div class="tab-container">
-                <button class="tab-btn active" onclick="switchTab('upload')">📂 Upload Banyak Fail</button>
-                <button class="tab-btn" onclick="switchTab('paste')">📋 Paste Manual</button>
+            <div class="upload-controls">
+                <button class="btn-add-file" onclick="document.getElementById('fileInput').click()">
+                    <span>➕</span> Tambah Fail Excel
+                </button>
+                <button class="btn-clear-files" onclick="clearFiles()">Reset</button>
+                <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" multiple onchange="handleFileSelect(this)">
             </div>
 
-            <div id="tab-upload" class="tab-content active">
-                <span class="step-desc">Boleh pilih <strong>banyak fail</strong> serentak.</span>
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <div class="upload-icon">📂</div>
-                    <div>Klik untuk pilih fail-fail Excel</div>
-                    <div id="fileStatus" class="file-status"></div>
-                    <div id="fileList" class="file-list"></div>
-                    <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" multiple onchange="handleFiles(this)">
-                </div>
+            <div class="file-list-container" id="fileQueue">
+                <div class="empty-list-msg">Tiada fail ditambah lagi.</div>
             </div>
 
-            <div id="tab-paste" class="tab-content">
-                <span class="step-desc">Atau paste data dari pelbagai kelas di sini (campur pun tak apa).</span>
-                <textarea id="rawMarkArea" placeholder="Paste data markah di sini..."></textarea>
-            </div>
         </div>
     </div>
     
@@ -322,81 +316,80 @@
         document.getElementById('printAdminJawatan').textContent = document.getElementById('adminJawatanInput').value || "...........................................................";
     }
 
-    // === UI SWITCHING ===
-    let activeSource = 'upload'; 
+    // === MULTI-FILE QUEUE SYSTEM ===
+    let allWorkbookData = []; // Array of objects: { name: "filename", data: [rows] }
 
-    function switchTab(mode) {
-        activeSource = mode;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        if (mode === 'upload') {
-            document.querySelector("button[onclick=\"switchTab('upload')\"]").classList.add('active');
-            document.getElementById('tab-upload').classList.add('active');
-        } else {
-            document.querySelector("button[onclick=\"switchTab('paste')\"]").classList.add('active');
-            document.getElementById('tab-paste').classList.add('active');
-        }
-    }
-
-    // === MULTI-FILE HANDLING ===
-    let uploadedData = []; // This will store aggregated rows from ALL files
-
-    function handleFiles(input) {
+    function handleFileSelect(input) {
         const files = input.files;
-        if(files.length === 0) return;
+        if (files.length === 0) return;
 
-        document.getElementById('fileStatus').textContent = `${files.length} fail dipilih. Sedang memproses...`;
-        document.getElementById('fileList').innerHTML = '';
-        
-        uploadedData = []; // Reset storage
-        let filesProcessed = 0;
-
-        // Loop through all files
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, {type: 'array'});
-                
-                // Read first sheet
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                
-                // Get JSON
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+                // Add to global store
+                allWorkbookData.push({
+                    id: Date.now() + Math.random(),
+                    name: file.name,
+                    rows: jsonData
+                });
                 
-                // Merge Logic:
-                // If it's the first file processed, keep header.
-                // If subsequent files, try to skip header if it matches (simple heuristic)
-                if (uploadedData.length === 0) {
-                    uploadedData = jsonData;
-                } else {
-                    // Append only data rows (skip first row usually header)
-                    // We assume all files have same structure for simplicity, or we just dump everything and filter later
-                    uploadedData = uploadedData.concat(jsonData.slice(1));
-                }
-
-                // Update UI
-                const li = document.createElement('div');
-                li.textContent = "✅ " + file.name;
-                document.getElementById('fileList').appendChild(li);
-
-                filesProcessed++;
-                if (filesProcessed === files.length) {
-                    document.getElementById('fileStatus').textContent = "Selesai! " + files.length + " fail telah digabungkan.";
-                }
+                renderFileQueue();
             };
             reader.readAsArrayBuffer(file);
         });
+        
+        // Reset input so same file can be selected again if needed
+        input.value = '';
+    }
+
+    function renderFileQueue() {
+        const queueDiv = document.getElementById('fileQueue');
+        queueDiv.innerHTML = '';
+
+        if (allWorkbookData.length === 0) {
+            queueDiv.innerHTML = '<div class="empty-list-msg">Tiada fail ditambah lagi.</div>';
+            return;
+        }
+
+        allWorkbookData.forEach((fileObj, index) => {
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            div.innerHTML = `
+                <div class="file-name">
+                    <span class="file-icon">📄</span> 
+                    <b>${index + 1}.</b> ${fileObj.name} 
+                    <span style="color:#666; font-size:0.8rem; margin-left:5px;">(${fileObj.rows.length} baris)</span>
+                </div>
+                <button class="btn-remove-file" onclick="removeFile(${fileObj.id})">&times;</button>
+            `;
+            queueDiv.appendChild(div);
+        });
+    }
+
+    function removeFile(id) {
+        allWorkbookData = allWorkbookData.filter(f => f.id !== id);
+        renderFileQueue();
+    }
+
+    function clearFiles() {
+        if(confirm("Padam semua fail dalam senarai?")) {
+            allWorkbookData = [];
+            renderFileQueue();
+        }
     }
 
 
     // === SMART MATCH LOGIC ===
     let masterList = [];
     let rawDataMap = {}; 
+    let mergedRawRows = []; // Combined rows from all files
     let rawHeaders = [];
-    let rawRows = []; 
     let isDataLoaded = false;
     let processedData = [];
 
@@ -414,7 +407,7 @@
     function processData() {
         const masterText = document.getElementById('masterListArea').value.trim();
         
-        if(!masterText) return alert("Sila isi Master List dahulu.");
+        if(!masterText) return alert("Sila isi Master List (Kotak 1) dahulu.");
         
         // 1. Process Master List
         masterList = masterText.split('\n')
@@ -422,29 +415,30 @@
             .filter(line => line.length > 0)
             .map(line => line.replace(/^\d+[\.\)]\s*/, '')); 
 
-        // 2. Get Raw Data
-        if (activeSource === 'upload') {
-            if (uploadedData.length === 0) return alert("Sila upload sekurang-kurangnya satu fail Excel.");
-            rawRows = uploadedData;
-            
-            // Basic validation
-            if (rawRows.length < 2) return alert("Data kosong atau tidak sah.");
-            rawHeaders = rawRows[0]; // Assume first row of first file is header
-            rawRows = rawRows.slice(1);
-        } else {
-            const rawText = document.getElementById('rawMarkArea').value.trim();
-            if(!rawText) return alert("Sila paste data markah.");
-            const lines = rawText.split('\n');
-            let firstLine = lines[0].trim();
-            let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
-            rawHeaders = firstLine.split(delim).map(h => h.trim());
-            rawRows = lines.slice(1).map(line => {
-                let parts = (delim === ' ') ? line.trim().split(/\s+/) : line.split(delim);
-                return parts;
-            });
-        }
+        // 2. Process Files
+        if (allWorkbookData.length === 0) return alert("Sila tambah sekurang-kurangnya satu fail Excel.");
+        
+        // Merge Logic
+        mergedRawRows = [];
+        // Use headers from the first file found
+        // We assume all files have roughly similar structure or we rely on smart guess later
+        // Strategy: Dump ALL rows from ALL files into one giant list.
+        
+        allWorkbookData.forEach((fileObj, idx) => {
+            let rows = fileObj.rows;
+            if (rows.length > 0) {
+                // If it's the first file, take headers
+                if (mergedRawRows.length === 0) {
+                    rawHeaders = rows[0]; 
+                    mergedRawRows = rows.slice(1);
+                } else {
+                    // For subsequent files, skip header row (index 0) and add data
+                    mergedRawRows = mergedRawRows.concat(rows.slice(1));
+                }
+            }
+        });
 
-        if(rawHeaders.length < 2) return alert("Data Markah mesti ada sekurang-kurangnya 2 lajur.");
+        if(mergedRawRows.length === 0) return alert("Tiada data ditemui dalam fail.");
 
         // Setup Pickers
         const nameSel = document.getElementById('nameCol');
@@ -475,7 +469,7 @@
         
         // Build Map (Normalized Name -> Mark)
         rawDataMap = {};
-        rawRows.forEach(row => {
+        mergedRawRows.forEach(row => {
             if(row && row.length > Math.max(nameIdx, markIdx)) {
                 let nVal = row[nameIdx];
                 let mVal = row[markIdx];
@@ -484,6 +478,8 @@
                     let n = nVal.toString().trim().toUpperCase();
                     let m = parseFloat(mVal);
                     if(n && !isNaN(m)) {
+                        // Store in map. If duplicate names exist across files, later files overwrite earlier ones
+                        // Usually implies updated data.
                         rawDataMap[n] = m;
                     }
                 }
