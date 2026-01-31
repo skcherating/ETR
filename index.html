@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Pro v14: Final Fix</title>
+    <title>Headcount Pro v16: Bilingual Smart Scan</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
@@ -122,7 +122,7 @@
 
 <div class="container">
     <header>
-        <h1>Headcount Pro <span class="brand-subtitle">v14 Fix</span></h1>
+        <h1>Headcount Pro <span class="brand-subtitle">v16 Bilingual</span></h1>
         <div class="header-actions">
             <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
             <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
@@ -158,15 +158,14 @@
 
         <div class="step-box">
             <span class="step-title">2. Sumber Data Markah</span>
-            
             <div class="mode-switcher">
                 <label class="mode-option">
                     <input type="radio" name="sourceMode" value="upload" checked onclick="toggleSource('upload')">
-                    <b>📂 Upload Fail Excel</b> (Boleh banyak fail)
+                    <b>📂 Upload Fail Excel</b> (Smart Scan)
                 </label>
                 <label class="mode-option">
                     <input type="radio" name="sourceMode" value="paste" onclick="toggleSource('paste')">
-                    <b>📋 Paste Manual</b> (Data dari Excel)
+                    <b>📋 Paste Manual</b>
                 </label>
             </div>
 
@@ -296,7 +295,7 @@
 </div>
 
 <script>
-    // === DATA CONFIGURATION ===
+    // === DATA CONFIGURATION (Teachers/Admin) ===
     const teachers = [
         "AMIRAH BINTI CHE AZUHA", "AZLAN BIN DAUD", "AZLINA BINTI HANAPI", "AMANI BINTI AWANG QAMARULDEEN",
         "ANWAR SHAFIQ BIN JAMALUDIN", "ANIS SYAZWANI BINTI MAT ISA", "BAHJATU SHOLIHAH BINTI RAMAN",
@@ -396,7 +395,7 @@
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span>📄</span> 
                     <b>${index + 1}.</b> ${fileObj.name} 
-                    <span style="color:#666; font-size:0.8rem;">(${fileObj.rows.length} row)</span>
+                    <span style="color:#666; font-size:0.8rem;">(${fileObj.rows.length} baris)</span>
                 </div>
                 <button class="btn-remove-file" onclick="removeFile(${fileObj.id})">&times;</button>
             `;
@@ -416,8 +415,55 @@
         }
     }
 
+    // === SMART HEADER DETECTION (BILINGUAL) ===
+    function findHeaderAndData(rows) {
+        if (!rows || rows.length < 1) return null;
 
-    // === SMART MATCH LOGIC ===
+        // BILINGUAL KEYWORDS (BM & EN)
+        const keywords = [
+            // Malay
+            'nama', 'murid', 'pelajar', 'markah', 'gred', 'subjek', 'mata pelajaran', 'bil', 'no', 'kelas', 'tingkatan',
+            // English
+            'name', 'student', 'pupil', 'mark', 'marks', 'score', 'grade', 'subject', 'class', 'form', 'number'
+        ];
+
+        let bestHeaderRowIndex = -1;
+        let maxMatches = 0;
+
+        // Scan first 20 rows
+        for (let i = 0; i < Math.min(rows.length, 20); i++) {
+            let matches = 0;
+            let row = rows[i];
+            if (row) {
+                row.forEach(cell => {
+                    if (cell && typeof cell === 'string') {
+                        // Check if keyword exists in cell (case insensitive)
+                        if (keywords.some(k => cell.toLowerCase().includes(k))) {
+                            matches++;
+                        }
+                    }
+                });
+            }
+            if (matches > maxMatches) {
+                maxMatches = matches;
+                bestHeaderRowIndex = i;
+            }
+        }
+
+        // Fallback: If no keywords found, assume row 0
+        if (bestHeaderRowIndex === -1 && rows.length > 0) bestHeaderRowIndex = 0;
+
+        // Only return if we found reasonable data
+        if (bestHeaderRowIndex === -1) return null;
+
+        return {
+            headers: rows[bestHeaderRowIndex],
+            data: rows.slice(bestHeaderRowIndex + 1)
+        };
+    }
+
+
+    // === MAIN LOGIC ===
     let masterList = [];
     let rawDataMap = {}; 
     let mergedRawRows = [];
@@ -448,41 +494,45 @@
             .map(line => line.replace(/^\d+[\.\)]\s*/, '')); 
 
         // 2. Decide Source
+        mergedRawRows = [];
+        
         if (activeSource === 'upload') {
-            // --- UPLOAD MODE ---
+            // --- UPLOAD MODE (SMART SCAN) ---
             if (allWorkbookData.length === 0) return alert("Sila tambah sekurang-kurangnya satu fail Excel.");
             
-            mergedRawRows = [];
-            allWorkbookData.forEach((fileObj) => {
-                let rows = fileObj.rows;
-                if (rows.length > 0) {
+            allWorkbookData.forEach((fileObj, idx) => {
+                const result = findHeaderAndData(fileObj.rows);
+                if (result) {
                     if (mergedRawRows.length === 0) {
-                        rawHeaders = rows[0]; 
-                        mergedRawRows = rows.slice(1);
-                    } else {
-                        mergedRawRows = mergedRawRows.concat(rows.slice(1));
+                        rawHeaders = result.headers;
                     }
+                    mergedRawRows = mergedRawRows.concat(result.data);
                 }
             });
+
         } else {
-            // --- PASTE MODE ---
+            // --- PASTE MODE (SMART SCAN) ---
             const rawText = document.getElementById('rawMarkArea').value.trim();
             if(!rawText) return alert("Sila paste data markah di kotak Paste Manual.");
             
             const lines = rawText.split('\n');
-            let firstLine = lines[0].trim();
-            let delim = firstLine.includes('\t') ? '\t' : (firstLine.includes(',') ? ',' : ' ');
-            
-            rawHeaders = firstLine.split(delim).map(h => h.trim());
-            mergedRawRows = lines.slice(1).map(line => {
-                let parts = (delim === ' ') ? line.trim().split(/\s+/) : line.split(delim);
-                return parts;
+            const pastedRows = lines.map(line => {
+                let delim = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : ' ');
+                if (delim === ' ') {
+                     return line.trim().split(/\s{2,}/);
+                }
+                return line.split(delim);
             });
+
+            const result = findHeaderAndData(pastedRows);
+            if (result) {
+                rawHeaders = result.headers;
+                mergedRawRows = result.data;
+            }
         }
 
-        if(mergedRawRows.length === 0) return alert("Tiada data dijumpai.");
-        if(rawHeaders.length < 2) return alert("Data Markah mesti ada sekurang-kurangnya 2 lajur.");
-
+        if(mergedRawRows.length === 0) return alert("Tiada data dijumpai atau format tidak dikenali.");
+        
         // Setup Pickers
         const nameSel = document.getElementById('nameCol');
         const markSel = document.getElementById('markCol');
@@ -495,11 +545,12 @@
             markSel.innerHTML += o;
         });
 
+        // Smart Select Guess
         rawHeaders.forEach((h, i) => {
             if (!h) return;
             let low = h.toString().toLowerCase();
             if(low.includes('name') || low.includes('nama')) nameSel.value = i;
-            if(low.includes('mark') || low.includes('tov') || low.includes('gred')) markSel.value = i;
+            if(low.includes('mark') || low.includes('tov') || low.includes('gred') || low.includes('score')) markSel.value = i;
         });
 
         document.getElementById('columnPicker').style.display = 'block';
