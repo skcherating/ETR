@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Pro v16: Bilingual Smart Scan</title>
+    <title>Nexus Headcount Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
@@ -122,7 +122,7 @@
 
 <div class="container">
     <header>
-        <h1>Headcount Pro <span class="brand-subtitle">v16 Bilingual</span></h1>
+        <h1>Nexus Headcount Pro <span class="brand-subtitle">v17</span></h1>
         <div class="header-actions">
             <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
             <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
@@ -503,9 +503,11 @@
             allWorkbookData.forEach((fileObj, idx) => {
                 const result = findHeaderAndData(fileObj.rows);
                 if (result) {
+                    // Use the headers from the FIRST file found as the "Global Headers"
                     if (mergedRawRows.length === 0) {
                         rawHeaders = result.headers;
                     }
+                    // Combine data
                     mergedRawRows = mergedRawRows.concat(result.data);
                 }
             });
