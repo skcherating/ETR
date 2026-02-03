@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Headcount Pro</title>
+    <title>Nexus Headcount Pro v19 (PBD)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
@@ -28,12 +28,7 @@
         .strategy-panel { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 20px; margin-bottom: 25px; }
         .strat-header { margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; color: #6366f1; font-weight: 800; letter-spacing: 0.5px; }
         .strat-row { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
-        .strat-row:last-child { margin-bottom: 0; }
-        label { font-weight: 600; cursor: pointer; color: #312e81; }
-        input[type="radio"] { transform: scale(1.2); cursor: pointer; margin-right: 8px; accent-color: var(--primary); }
-        input[type="number"] { width: 70px; padding: 8px; border: 2px solid #c7d2fe; border-radius: 6px; text-align: center; font-weight: bold; font-size: 1rem; color: var(--primary); }
-        input[type="number"]:disabled { background: #e5e7eb; border-color: #d1d5db; color: #9ca3af; }
-        .btn-shuffle { background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 10px; display: none; }
+        .strat-info { font-size: 0.9rem; color: #4338ca; font-style: italic; }
 
         /* DATA ENTRY SECTION */
         .data-entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
@@ -42,15 +37,14 @@
         .step-desc { font-size: 0.85rem; color: #666; margin-bottom: 15px; }
         textarea { width: 100%; height: 200px; padding: 10px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; font-size: 0.85rem; flex-grow: 1; }
 
-        /* MODE SWITCHER (RADIO BUTTONS) */
+        /* MODE SWITCHER */
         .mode-switcher { display: flex; gap: 20px; margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; }
         .mode-option { display: flex; align-items: center; cursor: pointer; }
         .mode-option input { margin-right: 8px; }
 
         /* SOURCE PANELS */
-        .source-panel { display: none; } /* Hidden by default */
+        .source-panel { display: none; }
         .source-panel.active { display: block; animation: fadeIn 0.3s; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* UPLOAD STYLES */
@@ -86,28 +80,54 @@
         .btn-dark { background: #374151; padding: 10px 20px; font-size: 0.9rem; }
         .btn-excel { background: #059669; padding: 10px 20px; font-size: 0.9rem; }
 
-        /* TABLE */
+        /* TABLE & DROPDOWN TP */
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         th { text-align: left; padding: 15px; background: #f3f4f6; border-bottom: 2px solid #e5e7eb; font-weight: 700; color: #4b5563; }
-        td { padding: 12px 15px; border-bottom: 1px solid #f3f4f6; }
-        .col-target { background: #f0fdf4; color: #166534; font-weight: 700; border-left: 1px solid #e5e7eb; }
-        .col-gain { color: #059669; font-weight: 700; background: #ecfdf5; text-align: center; }
+        td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; }
+        
+        /* TP Dropdown Styling */
+        .tp-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #1f2937;
+            background-color: white;
+            cursor: pointer;
+        }
+        .tp-select:hover { border-color: var(--primary); }
+        .tp-select option { font-weight: normal; }
 
-        /* PRINT OPTIMIZATION (A4 & 10pt) */
+        /* Highlight target column */
+        .col-target .tp-select { background-color: #f0fdf4; border-color: #86efac; color: #166534; }
+
+        /* PRINT OPTIMIZATION */
         @media print {
             @page { size: A4; margin: 1.5cm; }
             body { background: white; font-family: Arial, sans-serif; font-size: 10pt; color: black; padding: 0; margin: 0; }
             .container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; width: 100%; }
             .data-entry-grid, .strategy-panel, .btn, .btn-shuffle, .header-actions, #columnPicker, .signature-controls { display: none !important; }
-            .col-gain { display: none !important; }
+            
             header { border-bottom: 2px solid black; margin-bottom: 15px; padding-bottom: 10px; justify-content: center; }
             h1 { color: black; font-size: 16pt; text-transform: uppercase; }
+            
             #resultSection { display: block !important; }
-            h3 { font-size: 12pt; margin-bottom: 10px; border: none !important; padding: 0 !important; }
             table { width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 10pt; }
             th, td { border: 1px solid black; color: black !important; padding: 4px 6px; font-size: 10pt; }
             th { background-color: #f0f0f0 !important; font-weight: bold; }
-            .col-target { background: none !important; color: black !important; border-left: 1px solid black; }
+            
+            /* Clean up Select for Print */
+            .tp-select {
+                border: none;
+                background: transparent !important;
+                appearance: none;
+                -webkit-appearance: none;
+                padding: 0;
+                font-weight: bold;
+                color: black !important;
+            }
+            
             tr { page-break-inside: avoid; }
             .print-footer { display: flex !important; margin-top: 50px; justify-content: space-between; page-break-inside: avoid; width: 100%; }
             .sig-block { width: 45%; }
@@ -122,7 +142,7 @@
 
 <div class="container">
     <header>
-        <h1>Nexus Headcount Pro <span class="brand-subtitle">v17</span></h1>
+        <h1>Nexus Headcount Pro <span class="brand-subtitle">v19 PBD</span></h1>
         <div class="header-actions">
             <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
             <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
@@ -130,38 +150,27 @@
     </header>
 
     <div class="strategy-panel">
-        <div class="strat-header">Strategi TOV ke ETR</div>
+        <div class="strat-header">Strategi Sasaran PBD</div>
         <div class="strat-row">
-            <input type="radio" name="strategy" id="stratFixed" value="fixed" checked onchange="updateLive()">
-            <label for="stratFixed">Kenaikan Tetap:</label>
-            <input type="number" id="fixedVal" value="10" oninput="updateLive()"> 
-            <span>markah.</span>
-        </div>
-        <div class="strat-row">
-            <input type="radio" name="strategy" id="stratRandom" value="random" onchange="updateLive()">
-            <label for="stratRandom">Kenaikan Rawak (Julat):</label>
-            <span>Antara</span>
-            <input type="number" id="randMin" value="5" disabled oninput="updateLive()"> 
-            <span>hingga</span>
-            <input type="number" id="randMax" value="12" disabled oninput="updateLive()"> 
-            <span>markah.</span>
-            <button class="btn-shuffle" id="btnShuffle" onclick="forceReShuffle()">🎲 Shuffle</button>
+            <input type="radio" name="strategy" id="stratPBD" value="pbd" checked>
+            <label for="stratPBD">Strategi Automatik:</label>
+            <span class="strat-info">Sasaran ETR adalah kenaikan +1 TP (Maksimum TP 6).</span>
         </div>
     </div>
 
     <div class="data-entry-grid">
         <div class="step-box" style="border-color: #4f46e5; background: #eef2ff;">
             <span class="step-title">1. Senarai Nama Master (Terkini)</span>
-            <span class="step-desc">Paste senarai nama murid ikut susunan kelas 2026 di sini.</span>
+            <span class="step-desc">Paste senarai nama murid ikut susunan kelas 2026.</span>
             <textarea id="masterListArea" placeholder="Contoh:&#10;1. ABU BIN ALl&#10;2. SITI AMINAH&#10;..."></textarea>
         </div>
 
         <div class="step-box">
-            <span class="step-title">2. Sumber Data Markah</span>
+            <span class="step-title">2. Sumber Data PBD/Markah</span>
             <div class="mode-switcher">
                 <label class="mode-option">
                     <input type="radio" name="sourceMode" value="upload" checked onclick="toggleSource('upload')">
-                    <b>📂 Upload Fail Excel</b> (Smart Scan)
+                    <b>📂 Upload Fail Excel</b>
                 </label>
                 <label class="mode-option">
                     <input type="radio" name="sourceMode" value="paste" onclick="toggleSource('paste')">
@@ -181,24 +190,24 @@
             </div>
 
             <div id="panel-paste" class="source-panel">
-                <span class="step-desc">Paste data markah dari Excel (Nama & Markah) di sini:</span>
+                <span class="step-desc">Paste data (Nama & TP/Markah). Sistem auto-tukar markah ke TP.</span>
                 <textarea id="rawMarkArea" placeholder="Paste data Excel di sini..."></textarea>
             </div>
         </div>
     </div>
     
-    <button class="btn btn-blue" onclick="processData()" style="margin-bottom: 20px;">🔍 Match & Analyze Data</button>
+    <button class="btn btn-blue" onclick="processData()" style="margin-bottom: 20px;">🔍 Match & Analyze PBD</button>
 
     <div id="columnPicker">
         <span class="step-title">3. Pilih Kolum Data</span>
-        <p style="margin:0 0 15px 0; color: #6b7280;">Sila tentukan kolum mana mewakili Nama dan Markah Subjek.</p>
+        <p style="margin:0 0 15px 0; color: #6b7280;">Pilih kolum Nama dan Kolum TP/Markah.</p>
         <div class="picker-grid">
             <div class="picker-group">
                 <label>Kolum Nama:</label>
                 <select id="nameCol"></select>
             </div>
             <div class="picker-group">
-                <label>Kolum Markah (TOV):</label>
+                <label>Kolum Data PBD/Markah (TOV):</label>
                 <select id="markCol"></select>
             </div>
             <button class="btn btn-green" onclick="generateHeadcount()">Jana Headcount</button>
@@ -259,17 +268,16 @@
         </div>
 
         <h3 id="subjectTitle" style="margin-bottom:15px; color:#374151; border-left: 5px solid var(--primary); padding-left: 10px;"></h3>
+        <p style="font-size:0.9rem; color:#6b7280; font-style:italic;">Sila klik pada menu (dropdown) TP untuk mengubah Tahap Penguasaan.</p>
+        
         <table id="dataTable">
             <thead>
                 <tr>
                     <th style="width: 5%;">No</th>
-                    <th>Nama Murid</th>
-                    <th>TOV</th>
-                    <th>OTI1</th>
-                    <th>OTI2</th>
-                    <th>OTI3</th>
-                    <th class="col-target">ETR</th>
-                    <th class="col-gain" style="width: 10%;">Gain</th>
+                    <th style="width: 40%;">Nama Murid</th>
+                    <th>TOV PBD 2025</th>
+                    <th>UP PBD 2026</th>
+                    <th class="col-target">ETR PBD 2026</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -295,7 +303,7 @@
 </div>
 
 <script>
-    // === DATA CONFIGURATION (Teachers/Admin) ===
+    // === 1. DATA CONFIGURATION ===
     const teachers = [
         "AMIRAH BINTI CHE AZUHA", "AZLAN BIN DAUD", "AZLINA BINTI HANAPI", "AMANI BINTI AWANG QAMARULDEEN",
         "ANWAR SHAFIQ BIN JAMALUDIN", "ANIS SYAZWANI BINTI MAT ISA", "BAHJATU SHOLIHAH BINTI RAMAN",
@@ -336,28 +344,22 @@
         document.getElementById('printAdminJawatan').textContent = document.getElementById('adminJawatanInput').value || "...........................................................";
     }
 
-    // === UI SWITCHING (RADIO) ===
-    let activeSource = 'upload'; // Default
+    // === UI SWITCHING ===
+    let activeSource = 'upload';
 
     function toggleSource(mode) {
         activeSource = mode;
         document.getElementById('panel-upload').classList.remove('active');
         document.getElementById('panel-paste').classList.remove('active');
-        
-        if (mode === 'upload') {
-            document.getElementById('panel-upload').classList.add('active');
-        } else {
-            document.getElementById('panel-paste').classList.add('active');
-        }
+        if (mode === 'upload') document.getElementById('panel-upload').classList.add('active');
+        else document.getElementById('panel-paste').classList.add('active');
     }
 
-    // === MULTI-FILE QUEUE SYSTEM ===
+    // === FILE HANDLING ===
     let allWorkbookData = []; 
-
     function handleFileSelect(input) {
         const files = input.files;
         if (files.length === 0) return;
-
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -366,176 +368,85 @@
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-
-                allWorkbookData.push({
-                    id: Date.now() + Math.random(),
-                    name: file.name,
-                    rows: jsonData
-                });
+                allWorkbookData.push({ id: Date.now() + Math.random(), name: file.name, rows: jsonData });
                 renderFileQueue();
             };
             reader.readAsArrayBuffer(file);
         });
         input.value = '';
     }
-
     function renderFileQueue() {
         const queueDiv = document.getElementById('fileQueue');
         queueDiv.innerHTML = '';
-
-        if (allWorkbookData.length === 0) {
-            queueDiv.innerHTML = '<div style="text-align:center; color:#999; padding-top:20px;">Tiada fail dipilih.</div>';
-            return;
-        }
-
+        if (allWorkbookData.length === 0) { queueDiv.innerHTML = '<div style="text-align:center; color:#999; padding-top:20px;">Tiada fail dipilih.</div>'; return; }
         allWorkbookData.forEach((fileObj, index) => {
             const div = document.createElement('div');
             div.className = 'file-item';
-            div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span>📄</span> 
-                    <b>${index + 1}.</b> ${fileObj.name} 
-                    <span style="color:#666; font-size:0.8rem;">(${fileObj.rows.length} baris)</span>
-                </div>
-                <button class="btn-remove-file" onclick="removeFile(${fileObj.id})">&times;</button>
-            `;
+            div.innerHTML = `<div style="display:flex; align-items:center; gap:8px;"><span>📄</span> <b>${index + 1}.</b> ${fileObj.name} <span style="color:#666; font-size:0.8rem;">(${fileObj.rows.length} row)</span></div><button class="btn-remove-file" onclick="removeFile(${fileObj.id})">&times;</button>`;
             queueDiv.appendChild(div);
         });
     }
+    function removeFile(id) { allWorkbookData = allWorkbookData.filter(f => f.id !== id); renderFileQueue(); }
+    function clearFiles() { if(confirm("Padam semua fail?")) { allWorkbookData = []; renderFileQueue(); } }
 
-    function removeFile(id) {
-        allWorkbookData = allWorkbookData.filter(f => f.id !== id);
-        renderFileQueue();
-    }
-
-    function clearFiles() {
-        if(confirm("Padam semua fail?")) {
-            allWorkbookData = [];
-            renderFileQueue();
-        }
-    }
-
-    // === SMART HEADER DETECTION (BILINGUAL) ===
     function findHeaderAndData(rows) {
         if (!rows || rows.length < 1) return null;
-
-        // BILINGUAL KEYWORDS (BM & EN)
-        const keywords = [
-            // Malay
-            'nama', 'murid', 'pelajar', 'markah', 'gred', 'subjek', 'mata pelajaran', 'bil', 'no', 'kelas', 'tingkatan',
-            // English
-            'name', 'student', 'pupil', 'mark', 'marks', 'score', 'grade', 'subject', 'class', 'form', 'number'
-        ];
-
+        const keywords = ['nama', 'murid', 'tp', 'tahap', 'pbd', 'markah', 'gred', 'subjek', 'name', 'student', 'band', 'level'];
         let bestHeaderRowIndex = -1;
         let maxMatches = 0;
-
-        // Scan first 20 rows
         for (let i = 0; i < Math.min(rows.length, 20); i++) {
             let matches = 0;
             let row = rows[i];
             if (row) {
                 row.forEach(cell => {
                     if (cell && typeof cell === 'string') {
-                        // Check if keyword exists in cell (case insensitive)
-                        if (keywords.some(k => cell.toLowerCase().includes(k))) {
-                            matches++;
-                        }
+                        if (keywords.some(k => cell.toLowerCase().includes(k))) matches++;
                     }
                 });
             }
-            if (matches > maxMatches) {
-                maxMatches = matches;
-                bestHeaderRowIndex = i;
-            }
+            if (matches > maxMatches) { maxMatches = matches; bestHeaderRowIndex = i; }
         }
-
-        // Fallback: If no keywords found, assume row 0
         if (bestHeaderRowIndex === -1 && rows.length > 0) bestHeaderRowIndex = 0;
-
-        // Only return if we found reasonable data
         if (bestHeaderRowIndex === -1) return null;
-
-        return {
-            headers: rows[bestHeaderRowIndex],
-            data: rows.slice(bestHeaderRowIndex + 1)
-        };
+        return { headers: rows[bestHeaderRowIndex], data: rows.slice(bestHeaderRowIndex + 1) };
     }
-
 
     // === MAIN LOGIC ===
     let masterList = [];
     let rawDataMap = {}; 
     let mergedRawRows = [];
     let rawHeaders = [];
-    let isDataLoaded = false;
-    let processedData = [];
-
-    function updateLive() {
-        const isFixed = document.getElementById('stratFixed').checked;
-        document.getElementById('fixedVal').disabled = !isFixed;
-        document.getElementById('randMin').disabled = isFixed;
-        document.getElementById('randMax').disabled = isFixed;
-        document.getElementById('btnShuffle').style.display = isFixed ? 'none' : 'inline-block';
-        if(isDataLoaded) generateHeadcount();
-    }
-
-    function forceReShuffle() { if(isDataLoaded) generateHeadcount(); }
 
     function processData() {
         const masterText = document.getElementById('masterListArea').value.trim();
-        
         if(!masterText) return alert("Sila isi Master List (Langkah 1) dahulu.");
-        
-        // 1. Process Master List
-        masterList = masterText.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0)
-            .map(line => line.replace(/^\d+[\.\)]\s*/, '')); 
+        masterList = masterText.split('\n').map(line => line.trim()).filter(line => line.length > 0).map(line => line.replace(/^\d+[\.\)]\s*/, '')); 
 
-        // 2. Decide Source
         mergedRawRows = [];
-        
         if (activeSource === 'upload') {
-            // --- UPLOAD MODE (SMART SCAN) ---
-            if (allWorkbookData.length === 0) return alert("Sila tambah sekurang-kurangnya satu fail Excel.");
-            
-            allWorkbookData.forEach((fileObj, idx) => {
+            if (allWorkbookData.length === 0) return alert("Sila tambah fail.");
+            allWorkbookData.forEach((fileObj) => {
                 const result = findHeaderAndData(fileObj.rows);
                 if (result) {
-                    // Use the headers from the FIRST file found as the "Global Headers"
-                    if (mergedRawRows.length === 0) {
-                        rawHeaders = result.headers;
-                    }
-                    // Combine data
+                    if (mergedRawRows.length === 0) rawHeaders = result.headers;
                     mergedRawRows = mergedRawRows.concat(result.data);
                 }
             });
-
         } else {
-            // --- PASTE MODE (SMART SCAN) ---
             const rawText = document.getElementById('rawMarkArea').value.trim();
-            if(!rawText) return alert("Sila paste data markah di kotak Paste Manual.");
-            
+            if(!rawText) return alert("Sila paste data.");
             const lines = rawText.split('\n');
             const pastedRows = lines.map(line => {
                 let delim = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : ' ');
-                if (delim === ' ') {
-                     return line.trim().split(/\s{2,}/);
-                }
+                if (delim === ' ') return line.trim().split(/\s{2,}/);
                 return line.split(delim);
             });
-
             const result = findHeaderAndData(pastedRows);
-            if (result) {
-                rawHeaders = result.headers;
-                mergedRawRows = result.data;
-            }
+            if (result) { rawHeaders = result.headers; mergedRawRows = result.data; }
         }
 
-        if(mergedRawRows.length === 0) return alert("Tiada data dijumpai atau format tidak dikenali.");
+        if(mergedRawRows.length === 0) return alert("Tiada data dijumpai.");
         
-        // Setup Pickers
         const nameSel = document.getElementById('nameCol');
         const markSel = document.getElementById('markCol');
         nameSel.innerHTML = ''; markSel.innerHTML = '';
@@ -547,15 +458,52 @@
             markSel.innerHTML += o;
         });
 
-        // Smart Select Guess
         rawHeaders.forEach((h, i) => {
             if (!h) return;
             let low = h.toString().toLowerCase();
             if(low.includes('name') || low.includes('nama')) nameSel.value = i;
-            if(low.includes('mark') || low.includes('tov') || low.includes('gred') || low.includes('score')) markSel.value = i;
+            if(low.includes('tp') || low.includes('tahap') || low.includes('band') || low.includes('mark') || low.includes('tov')) markSel.value = i;
         });
 
         document.getElementById('columnPicker').style.display = 'block';
+    }
+
+    // Helper: Convert Mark/Text to TP (1-6)
+    function convertToTP(val) {
+        if (!val) return 3; // Default TP 3 if empty
+        let vStr = val.toString().trim().toUpperCase();
+        
+        // Direct TP match
+        if (vStr === '1' || vStr === 'TP1' || vStr === 'TP 1') return 1;
+        if (vStr === '2' || vStr === 'TP2' || vStr === 'TP 2') return 2;
+        if (vStr === '3' || vStr === 'TP3' || vStr === 'TP 3') return 3;
+        if (vStr === '4' || vStr === 'TP4' || vStr === 'TP 4') return 4;
+        if (vStr === '5' || vStr === 'TP5' || vStr === 'TP 5') return 5;
+        if (vStr === '6' || vStr === 'TP6' || vStr === 'TP 6') return 6;
+
+        // Mark Conversion
+        let num = parseFloat(val);
+        if (!isNaN(num)) {
+            if (num <= 6) return Math.round(num); // assume already TP if small number
+            if (num >= 80) return 6;
+            if (num >= 65) return 5;
+            if (num >= 50) return 4;
+            if (num >= 40) return 3;
+            if (num >= 20) return 2;
+            return 1;
+        }
+        return 3; // Fallback
+    }
+
+    // Create Select Dropdown HTML
+    function createSelect(selectedVal) {
+        let html = `<select class="tp-select">`;
+        for(let i=1; i<=6; i++) {
+            let sel = (i === selectedVal) ? 'selected' : '';
+            html += `<option value="${i}" ${sel}>TP ${i}</option>`;
+        }
+        html += `</select>`;
+        return html;
     }
 
     function generateHeadcount() {
@@ -563,88 +511,76 @@
         const markIdx = parseInt(document.getElementById('markCol').value);
         const subject = document.getElementById('markCol').options[markIdx].text;
         
-        // Build Map (Normalized Name -> Mark)
         rawDataMap = {};
         mergedRawRows.forEach(row => {
             if(row && row.length > Math.max(nameIdx, markIdx)) {
                 let nVal = row[nameIdx];
                 let mVal = row[markIdx];
-                
                 if (nVal !== undefined) {
                     let n = nVal.toString().trim().toUpperCase();
-                    let m = parseFloat(mVal);
-                    if(n && !isNaN(m)) {
-                        rawDataMap[n] = m;
-                    }
+                    // Process Mark/TP here
+                    rawDataMap[n] = convertToTP(mVal);
                 }
             }
         });
 
-        // Build Table
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
-        processedData = [];
         
-        const isFixed = document.getElementById('stratFixed').checked;
-        const fixedVal = parseInt(document.getElementById('fixedVal').value) || 10;
-        let minVal = parseInt(document.getElementById('randMin').value) || 5;
-        let maxVal = parseInt(document.getElementById('randMax').value) || 12;
-        if (minVal > maxVal) { let temp = minVal; minVal = maxVal; maxVal = temp; }
-
         let count = 0;
         masterList.forEach(masterName => {
             count++;
             let key = masterName.toUpperCase();
-            let tov = rawDataMap[key] !== undefined ? rawDataMap[key] : 0; 
+            let tovTP = rawDataMap[key] !== undefined ? rawDataMap[key] : 3; // Default TP 3
             
-            let inc = isFixed ? fixedVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-            let etr = tov + inc;
-            if(etr > 100) etr = 100;
+            // Logic: Target = TOV + 1 (Cap at 6)
+            let etrTP = tovTP + 1;
+            if (etrTP > 6) etrTP = 6;
             
-            let step = (etr - tov) / 4;
-            let oti1 = fmt(tov + step);
-            let oti2 = fmt(tov + step*2);
-            let oti3 = fmt(tov + step*3);
-            let etrFmt = fmt(etr);
-
-            processedData.push({name: masterName, tov: tov, oti1, oti2, oti3, etr: etrFmt, gain: inc});
+            // UP = Same as ETR (Aim high early) or TOV? Let's default UP to ETR
+            let upTP = etrTP; 
 
             let row = `<tr>
                 <td>${count}</td>
                 <td>${masterName}</td>
-                <td>${tov}</td>
-                <td>${oti1}</td>
-                <td>${oti2}</td>
-                <td>${oti3}</td>
-                <td class="col-target">${etrFmt}</td>
-                <td class="col-gain">+${inc}</td>
+                <td>${createSelect(tovTP)}</td>
+                <td>${createSelect(upTP)}</td>
+                <td class="col-target">${createSelect(etrTP)}</td>
             </tr>`;
             tbody.innerHTML += row;
         });
 
-        document.getElementById('subjectTitle').innerText = "Analisis Headcount: " + subject;
+        document.getElementById('subjectTitle').innerText = "Analisis PBD: " + subject;
         document.getElementById('resultSection').style.display = 'block';
-        isDataLoaded = true;
         updateSignature();
     }
 
     function downloadExcel() {
-        if (!processedData.length) return alert("Tiada data.");
-        let csv = "data:text/csv;charset=utf-8,No,Nama Murid,TOV,OTI 1,OTI 2,OTI 3,ETR,Peningkatan\n";
-        processedData.forEach((row, i) => {
-            let n = row.name.includes(',') ? `"${row.name}"` : row.name;
-            csv += `${i+1},${n},${row.tov},${row.oti1},${row.oti2},${row.oti3},${row.etr},${row.gain}\n`;
+        // Read values from Select inputs
+        let csv = "data:text/csv;charset=utf-8,No,Nama Murid,TOV PBD 2025,UP PBD 2026,ETR PBD 2026\n";
+        const tableRows = document.querySelectorAll('#tableBody tr');
+        
+        tableRows.forEach((tr, i) => {
+            const tds = tr.querySelectorAll('td');
+            let name = tds[1].innerText;
+            let safeName = name.includes(',') ? `"${name}"` : name;
+            
+            let tov = tr.cells[2].querySelector('select').value;
+            let up = tr.cells[3].querySelector('select').value;
+            let etr = tr.cells[4].querySelector('select').value;
+            
+            csv += `${i+1},${safeName},TP ${tov},TP ${up},TP ${etr}\n`;
         });
+
         const markIdx = parseInt(document.getElementById('markCol').value);
         const subject = document.getElementById('markCol').options[markIdx] ? document.getElementById('markCol').options[markIdx].text : "Headcount";
         const link = document.createElement("a");
         link.href = encodeURI(csv);
-        link.download = `Analisis_Headcount_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`;
+        link.download = `Analisis_PBD_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
-    function fmt(n) { return Number.isInteger(n) ? n : n.toFixed(2); }
 </script>
 
 </body>
