@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Headcount Pro v23 (Ultimate Fix)</title>
+    <title>Nexus Headcount Pro v24 (Fixed)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
-            --primary: #2563eb; /* Royal Blue */
-            --secondary: #16a34a; /* Green */
-            --accent: #f59e0b; /* Amber */
-            --bg: #f8fafc; 
+            --primary: #2563eb; 
+            --secondary: #16a34a; 
+            --accent: #f97316;
+            --bg: #f1f5f9; 
             --text: #1e293b;
             --border: #cbd5e1;
         }
@@ -18,107 +18,96 @@
         .container { max-width: 1280px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         
         /* HEADER */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
         h1 { color: var(--primary); margin: 0; font-size: 1.8rem; font-weight: 800; }
-        .brand-subtitle { font-size: 1rem; color: #64748b; font-weight: 400; }
-        .header-actions { display: flex; gap: 10px; }
-
+        
         /* BOXES */
-        .box { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .box { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .box-title { font-weight: 700; color: var(--primary); margin-bottom: 10px; display: block; font-size: 1.1rem; }
-        .box-desc { font-size: 0.9rem; color: #64748b; margin-bottom: 15px; display: block; }
+        .box-desc { font-size: 0.9rem; color: #64748b; margin-bottom: 10px; display: block; }
 
         /* STRATEGY (MARKAH) */
         .strat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .strat-option { background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe; }
-        .strat-label { font-weight: 600; color: #1e40af; margin-bottom: 8px; display: block; }
         input[type="number"] { padding: 5px; border: 1px solid #94a3b8; border-radius: 4px; width: 60px; text-align: center; font-weight: bold; }
 
-        /* DATA INPUTS */
-        textarea { width: 100%; height: 150px; padding: 10px; border: 1px solid #94a3b8; border-radius: 6px; font-family: monospace; }
-        .upload-area { border: 2px dashed #94a3b8; background: #f1f5f9; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; }
-        .upload-area:hover { background: #e2e8f0; border-color: var(--primary); }
-        
+        /* INPUT AREAS */
+        textarea { width: 100%; height: 120px; padding: 10px; border: 1px solid #94a3b8; border-radius: 6px; font-family: monospace; }
+        .upload-area { border: 2px dashed #94a3b8; background: #f8fafc; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; }
+        .upload-area:hover { border-color: var(--primary); background: #eff6ff; }
+
         /* COLUMN PICKER */
         .picker-container { background: #f0fdf4; border: 1px solid #86efac; padding: 20px; border-radius: 8px; display: none; margin-bottom: 20px; }
-        .picker-row { display: flex; gap: 20px; align-items: flex-end; }
-        .picker-group { flex: 1; }
-        .picker-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #166534; }
         select { width: 100%; padding: 10px; border: 1px solid #94a3b8; border-radius: 6px; background: #fff; }
 
-        /* PBD BULK CONTROLS */
-        .pbd-panel { background: #fff7ed; border: 1px solid #fdba74; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .pbd-header { font-weight: 800; color: #9a3412; margin-bottom: 10px; text-transform: uppercase; font-size: 0.9rem; }
-        .pbd-controls { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        .pbd-btn { background: #f97316; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .pbd-btn:hover { background: #ea580c; }
+        /* PBD GENERATOR PANEL (NEW) */
+        .pbd-panel { 
+            background: #fff7ed; border: 2px solid #fdba74; padding: 20px; border-radius: 10px; margin-bottom: 20px; 
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .pbd-row { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .pbd-label { font-weight: 800; color: #9a3412; text-transform: uppercase; font-size: 0.9rem; }
+        .pbd-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .pbd-btn:hover { background: #ea580c; transform: translateY(-1px); }
 
         /* TABLE */
-        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; margin-top: 10px; }
-        th { background: #f1f5f9; padding: 12px; border: 1px solid #cbd5e1; font-weight: 700; text-align: center; color: #334155; }
-        td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
-        td:nth-child(2) { text-align: left; padding-left: 10px; } /* Nama Align Left */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+        th { background: #e2e8f0; padding: 10px; border: 1px solid #94a3b8; font-weight: 700; text-align: center; color: #334155; }
+        td { border: 1px solid #cbd5e1; padding: 5px; text-align: center; }
+        td:nth-child(2) { text-align: left; padding-left: 10px; } 
         
-        /* Highlight Columns */
         .col-mark { background: #eff6ff; }
         .col-pbd { background: #f0fdf4; }
-        .col-target { font-weight: bold; color: var(--primary); background: #e0e7ff; }
+        .col-target { font-weight: bold; color: var(--primary); background: #dbeafe; }
 
         /* TP Dropdown */
         .tp-select { padding: 5px; border-radius: 4px; border: 1px solid #cbd5e1; width: 100%; text-align: center; cursor: pointer; font-weight: 600; }
-        .tp-select:hover { border-color: var(--primary); }
+        .tp-select:hover { border-color: var(--secondary); background-color: #f0fdf4; }
 
-        /* BUTTONS */
+        /* Buttons */
         .btn-main { background: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
-        .btn-main:hover { background: #1d4ed8; }
-        .btn-sm { padding: 6px 12px; font-size: 0.85rem; border-radius: 4px; border: 1px solid #cbd5e1; background: white; cursor: pointer; }
+        .btn-sm { padding: 8px 15px; font-size: 0.9rem; border-radius: 6px; border: none; cursor: pointer; color: white; font-weight: 600; }
 
         /* PRINT */
         @media print {
             @page { size: A4 landscape; margin: 1cm; }
             .container { box-shadow: none; padding: 0; max-width: 100%; }
             .box, .btn-main, .header-actions, .picker-container, .pbd-panel, .upload-area { display: none !important; }
-            header { border-bottom: 2px solid #000; margin-bottom: 20px; }
+            header { border-bottom: 2px solid #000; }
             h1 { color: #000; }
-            
             table { border: 1px solid #000; width: 100%; font-size: 9pt; }
             th, td { border: 1px solid #000; padding: 4px; color: #000 !important; }
             .col-mark, .col-pbd, .col-target { background: none !important; }
-            
-            /* Clean Select for Print */
             .tp-select { border: none; background: transparent; appearance: none; -webkit-appearance: none; font-weight: bold; padding: 0; color: #000; }
-            
             #resultSection { display: block !important; }
-            .signature-section { display: flex !important; margin-top: 40px; justify-content: space-between; page-break-inside: avoid; }
+            .print-footer { display: flex !important; margin-top: 40px; justify-content: space-between; page-break-inside: avoid; }
             .sig-box { width: 40%; }
             .sig-line { border-top: 1px solid #000; margin-top: 50px; margin-bottom: 5px; }
         }
-        .signature-section { display: none; }
+        .print-footer { display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Nexus Headcount Pro <span class="brand-subtitle">v23</span></h1>
+        <h1>Nexus Headcount Pro <span class="brand-subtitle">v24 Fixed</span></h1>
         <div class="header-actions">
-            <button class="btn-sm" style="background:#16a34a; color:white; border:none;" onclick="downloadExcel()">📥 Download Excel</button>
-            <button class="btn-sm" style="background:#334155; color:white; border:none;" onclick="window.print()">🖨️ Cetak</button>
+            <button class="btn-sm" style="background:#16a34a;" onclick="downloadExcel()">📥 Excel</button>
+            <button class="btn-sm" style="background:#334155;" onclick="window.print()">🖨️ Cetak</button>
         </div>
     </header>
 
     <div class="box">
-        <span class="box-title">1. Strategi Sasaran Markah (TOV ➡️ ETR)</span>
+        <span class="box-title">1. Strategi Markah (TOV ➡️ ETR)</span>
         <div class="strat-grid">
             <div class="strat-option">
-                <input type="radio" name="strat" id="stratFixed" checked onchange="toggleStrat()">
-                <label for="stratFixed" class="strat-label">Kenaikan Statik</label>
-                Tambah <input type="number" id="valFixed" value="10"> markah untuk semua.
+                <input type="radio" name="strat" id="stratFixed" checked>
+                <label for="stratFixed"><b>Statik:</b></label> Tambah <input type="number" id="valFixed" value="10"> markah.
             </div>
             <div class="strat-option">
-                <input type="radio" name="strat" id="stratRandom" onchange="toggleStrat()">
-                <label for="stratRandom" class="strat-label">Kenaikan Rawak</label>
-                Antara <input type="number" id="valMin" value="5" disabled> hingga <input type="number" id="valMax" value="15" disabled> markah.
+                <input type="radio" name="strat" id="stratRandom">
+                <label for="stratRandom"><b>Rawak:</b></label> Antara <input type="number" id="valMin" value="5"> hingga <input type="number" id="valMax" value="12"> markah.
             </div>
         </div>
     </div>
@@ -126,37 +115,35 @@
     <div class="box">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
             <div>
-                <span class="box-title">2A. Senarai Nama Murid (Master)</span>
+                <span class="box-title">2A. Master List Nama</span>
                 <span class="box-desc">Paste nama murid ikut susunan kelas terkini (2026).</span>
                 <textarea id="masterList" placeholder="1. Abu Bin Ali&#10;2. Siti Binti Abu..."></textarea>
             </div>
             <div>
-                <span class="box-title">2B. Sumber Data Markah (Excel)</span>
-                <span class="box-desc">Upload fail Excel yang ada markah subjek.</span>
+                <span class="box-title">2B. Upload Excel (Markah)</span>
+                <span class="box-desc">Sistem akan mula baca dari <b>Baris 5</b> ke bawah.</span>
                 <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <div style="font-size:2rem;">📂</div>
-                    <div id="fileStatus">Klik untuk pilih fail Excel (.xlsx)</div>
+                    <div style="font-size:1.5rem;">📂 Klik Upload Excel</div>
+                    <div id="fileStatus" style="font-size:0.8rem; color:#64748b;">Fail .xlsx atau .csv</div>
                     <input type="file" id="fileInput" accept=".xlsx, .xls" hidden onchange="handleFile(this)">
                 </div>
-                <div style="margin-top:10px; text-align:center; font-size:0.85rem; color:#64748b;">
-                    Atau <a href="#" onclick="togglePasteMode()" style="color:var(--primary);">Paste Manual</a> jika tiada fail.
+                <div style="margin-top:10px; font-size:0.85rem; text-align:center;">
+                    Mula baca tajuk pada baris: <input type="number" id="headerRowIndex" value="5" style="width:40px;">
                 </div>
-                <textarea id="pasteData" style="display:none; height:100px; margin-top:10px;" placeholder="Paste data Excel (Header & Data) di sini..."></textarea>
             </div>
         </div>
         <button class="btn-main" onclick="analyzeData()">🔍 Padankan Data</button>
     </div>
 
     <div class="picker-container" id="columnPicker">
-        <span class="box-title">3. Padankan Kolum</span>
-        <span class="box-desc">Sila pilih kolum yang betul daripada fail Excel anda.</span>
-        <div class="picker-row">
-            <div class="picker-group">
-                <label>Kolum Nama Murid:</label>
+        <span class="box-title">3. Padankan Kolum (Dari Baris 5)</span>
+        <div style="display:flex; gap:20px;">
+            <div style="flex:1;">
+                <label>Pilih Kolum NAMA:</label>
                 <select id="colName"></select>
             </div>
-            <div class="picker-group">
-                <label>Kolum Markah Subjek (TOV):</label>
+            <div style="flex:1;">
+                <label>Pilih Kolum MARKAH (TOV):</label>
                 <select id="colMark"></select>
             </div>
         </div>
@@ -166,34 +153,42 @@
     <div id="resultSection" style="display:none;">
         
         <div class="pbd-panel">
-            <div class="pbd-header">⚡ Generator PBD Pukal (Isi Cepat)</div>
-            <div class="pbd-controls">
-                <span>Sasaran:</span>
-                <select id="pbdTarget" style="width:150px;">
-                    <option value="5">TOV PBD 2025</option>
-                    <option value="6">UP PBD 2026</option>
-                    <option value="7">UASA PBD 2026</option>
-                </select>
-
-                <span>Mod:</span>
-                <select id="pbdMode" style="width:100px;" onchange="togglePBDInput()">
-                    <option value="static">Statik</option>
-                    <option value="random">Rawak</option>
-                </select>
-
-                <div id="pbdInputStatic">
-                    TP: <input type="number" id="pbdValStatic" value="4" min="1" max="6">
-                </div>
-                <div id="pbdInputRandom" style="display:none;">
-                    Min: <input type="number" id="pbdValMin" value="3" min="1" max="6"> 
-                    Max: <input type="number" id="pbdValMax" value="5" min="1" max="6">
+            <div class="pbd-row" style="justify-content: space-between;">
+                <span class="pbd-label">⚡ Generator PBD (Pukal & Rawak)</span>
+            </div>
+            <hr style="border:0; border-top:1px dashed #fdba74; width:100%;">
+            
+            <div class="pbd-row">
+                <div>
+                    <label>Sasaran:</label>
+                    <select id="pbdTarget" style="padding:8px; border-radius:4px;">
+                        <option value="tov">1. TOV PBD 2025</option>
+                        <option value="up">2. UP PBD 2026</option>
+                        <option value="uasa">3. UASA PBD 2026</option>
+                    </select>
                 </div>
 
-                <button class="pbd-btn" onclick="applyPBD()">Jana TP</button>
+                <div>
+                    <label>Kaedah:</label>
+                    <select id="pbdMethod" style="padding:8px; border-radius:4px;" onchange="togglePbdInputs()">
+                        <option value="static">Statik (Semua Sama)</option>
+                        <option value="random">Rawak (Julat)</option>
+                    </select>
+                </div>
+
+                <div id="pbdStaticInputs">
+                    <label>TP:</label> <input type="number" id="valPbdStatic" value="4" min="1" max="6">
+                </div>
+                <div id="pbdRandomInputs" style="display:none;">
+                    <label>Min:</label> <input type="number" id="valPbdMin" value="3" min="1" max="6">
+                    <label>Max:</label> <input type="number" id="valPbdMax" value="5" min="1" max="6">
+                </div>
+
+                <button class="pbd-btn" onclick="applyBulkPBD()">Jana TP</button>
             </div>
         </div>
 
-        <h3 id="tableHeader" style="margin-bottom:15px; color:#334155;">Analisis Headcount</h3>
+        <h3 style="margin-bottom:15px; color:#334155;">Analisis Headcount</h3>
         
         <table id="dataTable">
             <thead>
@@ -201,7 +196,7 @@
                     <th rowspan="2" style="width:5%;">No</th>
                     <th rowspan="2">Nama Murid</th>
                     <th colspan="3" class="col-mark">MARKAH (0-100)</th>
-                    <th colspan="3" class="col-pbd">PBD (TP 1-6)</th>
+                    <th colspan="3" class="col-pbd">PBD (TAHAP PENGUASAAN)</th>
                 </tr>
                 <tr>
                     <th class="col-mark">TOV 2025</th>
@@ -215,7 +210,7 @@
             <tbody id="tableBody"></tbody>
         </table>
 
-        <div class="signature-section">
+        <div class="print-footer">
             <div class="sig-box">
                 <div>Disediakan oleh,</div>
                 <div class="sig-line"></div>
@@ -233,122 +228,96 @@
 </div>
 
 <script>
-    // === GLOBAL VARS ===
     let masterList = [];
-    let excelData = []; // Array of Arrays
-    let excelHeaders = [];
+    let excelData = []; // Full raw data
+    let headerRow = []; // The detected header row
 
-    // === UI LOGIC ===
-    function toggleStrat() {
-        const isFixed = document.getElementById('stratFixed').checked;
-        document.getElementById('valFixed').disabled = !isFixed;
-        document.getElementById('valMin').disabled = isFixed;
-        document.getElementById('valMax').disabled = isFixed;
-    }
-
-    function togglePasteMode() {
-        const area = document.getElementById('pasteData');
-        area.style.display = area.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function togglePBDInput() {
-        const mode = document.getElementById('pbdMode').value;
-        document.getElementById('pbdInputStatic').style.display = mode === 'static' ? 'block' : 'none';
-        document.getElementById('pbdInputRandom').style.display = mode === 'random' ? 'block' : 'none';
+    // === UI UTILS ===
+    function togglePbdInputs() {
+        const method = document.getElementById('pbdMethod').value;
+        document.getElementById('pbdStaticInputs').style.display = (method === 'static') ? 'block' : 'none';
+        document.getElementById('pbdRandomInputs').style.display = (method === 'random') ? 'block' : 'none';
     }
 
     // === FILE HANDLING ===
     function handleFile(input) {
         const file = input.files[0];
         if(!file) return;
-        document.getElementById('fileStatus').innerText = "Fail: " + file.name;
+        document.getElementById('fileStatus').innerText = "✅ " + file.name;
         
         const reader = new FileReader();
         reader.onload = function(e) {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            // Read as 2D array (Header: 1 means raw array of arrays)
+            // Read all rows
             excelData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
         };
         reader.readAsArrayBuffer(file);
     }
 
-    // === ANALYZE DATA (STEP 1) ===
+    // === ANALYZE DATA ===
     function analyzeData() {
-        // 1. Get Master List
+        // 1. Master List
         const mText = document.getElementById('masterList').value.trim();
         if(!mText) return alert("Sila masukkan Senarai Nama Master.");
         masterList = mText.split('\n').map(l => l.trim().replace(/^\d+[\.\)]\s*/, '')).filter(l => l);
 
-        // 2. Get Excel Data (File or Paste)
-        const pText = document.getElementById('pasteData').value.trim();
-        if(pText) {
-            // Parse paste data
-            excelData = pText.split('\n').map(l => l.includes('\t') ? l.split('\t') : l.split(','));
-        }
+        if(excelData.length === 0) return alert("Sila upload fail Excel dahulu.");
 
-        if(excelData.length < 2) return alert("Sila upload fail Excel atau paste data dahulu.");
+        // 2. Get Header Row (User defined, default Row 5 -> Index 4)
+        const userRow = parseInt(document.getElementById('headerRowIndex').value);
+        const rowIndex = userRow - 1; // Convert to 0-based index
 
-        // 3. Detect Headers (Take row with most columns or Row 0)
-        // Simple logic: Assume Row 0 is header.
-        // Better logic: Find row containing 'Nama' or 'Name'
-        let headerRowIdx = 0;
-        for(let i=0; i<Math.min(excelData.length, 20); i++) {
-            const rowStr = excelData[i].join(' ').toLowerCase();
-            if(rowStr.includes('nama') || rowStr.includes('name')) {
-                headerRowIdx = i;
-                break;
-            }
-        }
-        excelHeaders = excelData[headerRowIdx];
+        if (excelData.length <= rowIndex) return alert("Fail Excel tidak cukup baris.");
         
-        // Remove empty headers
-        // excelHeaders = excelHeaders.map((h, i) => h ? h : `Column ${i+1}`);
+        headerRow = excelData[rowIndex]; // Get the specific row
 
-        // 4. Populate Picker
+        // 3. Populate Picker
         const selName = document.getElementById('colName');
         const selMark = document.getElementById('colMark');
         selName.innerHTML = ''; selMark.innerHTML = '';
 
-        excelHeaders.forEach((h, i) => {
+        headerRow.forEach((h, i) => {
             const text = h ? h.toString() : `[Kolum ${i+1}]`;
             const opt = `<option value="${i}">${text}</option>`;
             selName.innerHTML += opt;
             selMark.innerHTML += opt;
         });
 
-        // Smart Select
-        excelHeaders.forEach((h, i) => {
+        // Smart Select Guess
+        headerRow.forEach((h, i) => {
             if(!h) return;
             const t = h.toString().toLowerCase();
             if(t.includes('nama') || t.includes('name')) selName.value = i;
-            if(t.includes('mark') || t.includes('tov') || t.includes('ahk')) selMark.value = i; // ahk for Markah
+            if(t.includes('mark') || t.includes('ahk') || t.includes('tov')) selMark.value = i;
         });
 
         document.getElementById('columnPicker').style.display = 'block';
     }
 
-    // === GENERATE TABLE (STEP 2) ===
+    // === GENERATE TABLE ===
     function generateHeadcount() {
         const nameIdx = parseInt(document.getElementById('colName').value);
         const markIdx = parseInt(document.getElementById('colMark').value);
+        const userRow = parseInt(document.getElementById('headerRowIndex').value);
 
-        // Map Excel Data: Name -> Mark
+        // Map Data (Skip rows before the header)
         let dataMap = {};
-        excelData.forEach(row => {
+        for(let i = userRow; i < excelData.length; i++) {
+            const row = excelData[i];
             if(row[nameIdx]) {
-                const cleanName = row[nameIdx].toString().trim().toUpperCase();
+                const name = row[nameIdx].toString().trim().toUpperCase();
                 const mark = parseFloat(row[markIdx]);
-                if(!isNaN(mark)) dataMap[cleanName] = mark;
+                if(!isNaN(mark)) dataMap[name] = mark;
             }
-        });
+        }
 
-        // Prepare Strategy
+        // Strategy
         const isFixed = document.getElementById('stratFixed').checked;
-        const vFixed = parseInt(document.getElementById('valFixed').value);
-        const vMin = parseInt(document.getElementById('valMin').value);
-        const vMax = parseInt(document.getElementById('valMax').value);
+        const fixVal = parseInt(document.getElementById('valFixed').value);
+        const minVal = parseInt(document.getElementById('valMin').value);
+        const maxVal = parseInt(document.getElementById('valMax').value);
 
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
@@ -359,12 +328,11 @@
             const cleanName = name.toUpperCase();
             const tov = dataMap[cleanName] !== undefined ? dataMap[cleanName] : 0;
             
-            // Calculate ETR
-            const inc = isFixed ? vFixed : Math.floor(Math.random() * (vMax - vMin + 1)) + vMin;
+            // Calc ETR
+            const inc = isFixed ? fixVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
             let etr = tov + inc;
             if(etr > 100) etr = 100;
 
-            // HTML Row
             const row = `
                 <tr>
                     <td>${count}</td>
@@ -372,53 +340,56 @@
                     <td>${tov}</td>
                     <td class="col-target">${etr}</td>
                     <td style="color:green; font-size:0.8rem;">+${inc}</td>
-                    <td>${createTpDropdown(3)}</td> <td>${createTpDropdown(4)}</td> <td>${createTpDropdown(4)}</td> </tr>
+                    
+                    <td>${createTpSelect('tov', 3)}</td>
+                    <td>${createTpSelect('up', 3)}</td>
+                    <td>${createTpSelect('uasa', 3)}</td>
+                </tr>
             `;
             tbody.innerHTML += row;
         });
 
         document.getElementById('resultSection').style.display = 'block';
-        document.getElementById('tableHeader').scrollIntoView({behavior: 'smooth'});
     }
 
-    function createTpDropdown(defaultVal) {
-        let html = `<select class="tp-select">`;
+    function createTpSelect(type, val) {
+        let html = `<select class="tp-select" data-type="${type}">`;
         for(let i=1; i<=6; i++) {
-            const sel = i === defaultVal ? 'selected' : '';
-            html += `<option value="${i}" ${sel}>TP ${i}</option>`;
+            html += `<option value="${i}" ${i==val?'selected':''}>TP ${i}</option>`;
         }
         html += `</select>`;
         return html;
     }
 
-    // === PBD BULK GENERATOR ===
-    function applyPBD() {
-        const colIdx = parseInt(document.getElementById('pbdTarget').value); // 5, 6, or 7 (Based on table structure)
-        const mode = document.getElementById('pbdMode').value;
+    // === PBD BULK GENERATOR FUNCTION ===
+    function applyBulkPBD() {
+        const target = document.getElementById('pbdTarget').value; // tov, up, uasa
+        const method = document.getElementById('pbdMethod').value; // static, random
         
-        const rows = document.querySelectorAll('#tableBody tr');
-        rows.forEach(tr => {
-            const select = tr.children[colIdx].querySelector('select');
-            if(select) {
-                let val = 1;
-                if(mode === 'static') {
-                    val = parseInt(document.getElementById('pbdValStatic').value);
-                } else {
-                    const min = parseInt(document.getElementById('pbdValMin').value);
-                    const max = parseInt(document.getElementById('pbdValMax').value);
-                    val = Math.floor(Math.random() * (max - min + 1)) + min;
-                }
-                select.value = val;
+        // Get all selects that match the target data-type
+        const selects = document.querySelectorAll(`select[data-type="${target}"]`);
+        
+        selects.forEach(sel => {
+            let newVal = 1;
+            if (method === 'static') {
+                newVal = parseInt(document.getElementById('valPbdStatic').value);
+            } else {
+                const min = parseInt(document.getElementById('valPbdMin').value);
+                const max = parseInt(document.getElementById('valPbdMax').value);
+                newVal = Math.floor(Math.random() * (max - min + 1)) + min;
             }
+            sel.value = newVal;
         });
+        
+        // Visual feedback
+        alert(`Berjaya kemaskini ${selects.length} data PBD (${target.toUpperCase()}).`);
     }
 
     // === EXPORT ===
     function downloadExcel() {
         let csv = "No,Nama Murid,TOV Markah,ETR Markah,Gain,TOV PBD 2025,UP PBD 2026,UASA PBD 2026\n";
-        
         const rows = document.querySelectorAll('#tableBody tr');
-        if(rows.length === 0) return alert("Tiada data untuk dimuat turun.");
+        if(rows.length === 0) return alert("Tiada data.");
 
         rows.forEach((tr, i) => {
             const tds = tr.children;
@@ -428,7 +399,6 @@
             const etrM = tds[3].innerText;
             const gain = tds[4].innerText;
             
-            // Get value from dropdowns
             const tovP = tds[5].querySelector('select').value;
             const upP = tds[6].querySelector('select').value;
             const uasaP = tds[7].querySelector('select').value;
@@ -436,10 +406,9 @@
             csv += `${no},"${name}",${tovM},${etrM},${gain},TP ${tovP},TP ${upP},TP ${uasaP}\n`;
         });
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "Analisis_Headcount_PBD.csv";
+        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        link.download = "Analisis_Headcount_PBD_v24.csv";
         link.click();
     }
 </script>
