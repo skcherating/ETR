@@ -3,82 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Headcount Pro v25 (Smart Fix)</title>
+    <title>Nexus Headcount Pro v26 (Multi-File)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
             --primary: #2563eb; 
             --secondary: #16a34a; 
             --accent: #f97316;
-            --bg: #f8fafc; 
-            --text: #0f172a;
-            --border: #e2e8f0;
+            --bg: #f1f5f9; 
+            --text: #1e293b;
+            --border: #cbd5e1;
         }
-        body { font-family: "Inter", "Segoe UI", sans-serif; background: var(--bg); color: var(--text); padding: 30px; margin: 0; }
-        .container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        body { font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 1280px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         
         /* HEADER */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
-        h1 { color: var(--primary); margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+        h1 { color: var(--primary); margin: 0; font-size: 1.8rem; font-weight: 800; }
         
         /* BOXES */
-        .box { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .box-title { font-weight: 700; color: var(--primary); margin-bottom: 15px; display: block; font-size: 1.1rem; }
+        .box { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .box-title { font-weight: 700; color: var(--primary); margin-bottom: 10px; display: block; font-size: 1.1rem; }
         
         /* STRATEGY */
         .strat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .strat-option { background: #eff6ff; padding: 20px; border-radius: 8px; border: 1px solid #bfdbfe; display: flex; align-items: center; gap: 10px; }
-        input[type="number"] { padding: 8px; border: 1px solid #94a3b8; border-radius: 6px; width: 70px; text-align: center; font-weight: bold; font-size: 1rem; }
+        .strat-option { background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe; }
+        input[type="number"] { padding: 5px; border: 1px solid #94a3b8; border-radius: 4px; width: 60px; text-align: center; font-weight: bold; }
 
         /* INPUTS */
-        textarea { width: 100%; height: 150px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-size: 0.9rem; }
-        .upload-area { border: 2px dashed #cbd5e1; background: #f8fafc; padding: 30px; text-align: center; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+        textarea { width: 100%; height: 120px; padding: 10px; border: 1px solid #94a3b8; border-radius: 6px; font-family: monospace; }
+        
+        .upload-area { border: 2px dashed #94a3b8; background: #f8fafc; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; }
         .upload-area:hover { border-color: var(--primary); background: #eff6ff; }
         
+        .file-list { margin-top: 10px; font-size: 0.85rem; color: #475569; max-height: 100px; overflow-y: auto; text-align: left; }
+        .file-tag { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; margin-right: 5px; display: inline-block; margin-bottom: 2px; }
+
         /* COLUMN PICKER */
-        .picker-container { background: #f0fdf4; border: 1px solid #86efac; padding: 20px; border-radius: 10px; display: none; margin-bottom: 20px; }
-        select { width: 100%; padding: 10px; border: 1px solid #94a3b8; border-radius: 6px; font-size: 0.95rem; }
+        .picker-container { background: #f0fdf4; border: 1px solid #86efac; padding: 20px; border-radius: 8px; display: none; margin-bottom: 20px; }
+        select { width: 100%; padding: 10px; border: 1px solid #94a3b8; border-radius: 6px; background: #fff; }
 
         /* PBD PANEL */
-        .pbd-panel { background: #fff7ed; border: 1px solid #fdba74; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-        .pbd-label { font-weight: 800; color: #9a3412; margin-right: 10px; }
+        .pbd-panel { 
+            background: #fff7ed; border: 2px solid #fdba74; padding: 20px; border-radius: 10px; margin-bottom: 20px; 
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .pbd-row { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
         .pbd-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .pbd-btn:hover { background: #c2410c; }
+        .pbd-btn:hover { background: #ea580c; }
 
         /* TABLE */
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 20px; }
-        th { background: #f1f5f9; padding: 12px; border: 1px solid #cbd5e1; font-weight: 700; text-align: center; color: #334155; }
-        td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
-        td:nth-child(2) { text-align: left; padding-left: 12px; font-weight: 600; color: #334155; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+        th { background: #e2e8f0; padding: 10px; border: 1px solid #94a3b8; font-weight: 700; text-align: center; color: #334155; }
+        td { border: 1px solid #cbd5e1; padding: 5px; text-align: center; }
+        td:nth-child(2) { text-align: left; padding-left: 10px; } 
         
-        .col-mark { background: #f8fafc; }
-        .col-target { background: #e0e7ff; color: var(--primary); font-weight: bold; }
-        .col-pbd { background: #f0fdf4; }
+        .col-target { font-weight: bold; color: var(--primary); background: #dbeafe; }
+        .tp-select { padding: 5px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; text-align: center; cursor: pointer; font-weight: 600; }
 
-        /* TP SELECT */
-        .tp-select { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; text-align: center; cursor: pointer; font-weight: 600; color: #334155; }
-        .tp-select:hover { border-color: var(--secondary); background: #f0fdf4; }
-
-        /* BUTTONS */
-        .btn-main { background: var(--primary); color: white; padding: 12px; width: 100%; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; }
-        .btn-main:hover { background: #1d4ed8; }
-        .btn-sm { padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; color: white; font-size: 0.9rem; }
+        /* Buttons */
+        .btn-main { background: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-sm { padding: 8px 15px; font-size: 0.9rem; border-radius: 6px; border: none; cursor: pointer; color: white; font-weight: 600; }
 
         /* PRINT */
         @media print {
             @page { size: A4 landscape; margin: 1cm; }
             .container { box-shadow: none; padding: 0; max-width: 100%; }
             .box, .btn-main, .header-actions, .picker-container, .pbd-panel, .upload-area { display: none !important; }
-            header { border-bottom: 2px solid black; }
-            h1 { color: black; }
-            table { border: 1px solid black; width: 100%; font-size: 9pt; }
-            th, td { border: 1px solid black; color: black !important; padding: 4px; }
-            .col-mark, .col-target, .col-pbd { background: none !important; }
-            .tp-select { border: none; background: none; appearance: none; padding: 0; font-weight: bold; color: black !important; }
+            header { border-bottom: 2px solid #000; }
+            table { border: 1px solid #000; width: 100%; font-size: 9pt; }
+            th, td { border: 1px solid #000; padding: 4px; color: #000 !important; }
+            .col-target { background: none !important; }
+            .tp-select { border: none; background: transparent; appearance: none; padding: 0; color: #000; font-weight: bold; }
             #resultSection { display: block !important; }
             .print-footer { display: flex !important; margin-top: 40px; justify-content: space-between; page-break-inside: avoid; }
             .sig-box { width: 40%; }
-            .sig-line { border-top: 1px solid black; margin-top: 60px; margin-bottom: 5px; }
+            .sig-line { border-top: 1px solid #000; margin-top: 50px; margin-bottom: 5px; }
         }
         .print-footer { display: none; }
     </style>
@@ -87,7 +87,7 @@
 
 <div class="container">
     <header>
-        <h1>Nexus Headcount Pro <span class="brand-subtitle">v25</span></h1>
+        <h1>Nexus Headcount Pro <span class="brand-subtitle">v26 Multi-File</span></h1>
         <div class="header-actions">
             <button class="btn-sm" style="background:#16a34a;" onclick="downloadExcel()">📥 Excel</button>
             <button class="btn-sm" style="background:#334155;" onclick="window.print()">🖨️ Cetak</button>
@@ -99,13 +99,11 @@
         <div class="strat-grid">
             <div class="strat-option">
                 <input type="radio" name="strat" id="stratFixed" checked>
-                <label for="stratFixed"><b>Statik:</b> Tambah</label>
-                <input type="number" id="valFixed" value="10"> markah.
+                <label for="stratFixed"><b>Statik:</b></label> Tambah <input type="number" id="valFixed" value="10"> markah.
             </div>
             <div class="strat-option">
                 <input type="radio" name="strat" id="stratRandom">
-                <label for="stratRandom"><b>Rawak:</b> Antara</label>
-                <input type="number" id="valMin" value="5"> - <input type="number" id="valMax" value="12">
+                <label for="stratRandom"><b>Rawak:</b></label> Antara <input type="number" id="valMin" value="5"> hingga <input type="number" id="valMax" value="12">.
             </div>
         </div>
     </div>
@@ -117,23 +115,21 @@
                 <textarea id="masterList" placeholder="Paste nama murid ikut susunan kelas terkini (2026)..."></textarea>
             </div>
             <div>
-                <span class="box-title">2B. Upload Excel (Markah)</span>
+                <span class="box-title">2B. Upload Excel (Banyak Fail)</span>
                 <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <div style="font-size:2rem; margin-bottom:10px;">📂</div>
-                    <div id="fileStatus" style="font-weight:600; color:#475569;">Klik untuk pilih fail Excel</div>
-                    <input type="file" id="fileInput" accept=".xlsx, .xls" hidden onchange="handleFile(this)">
+                    <div style="font-size:1.5rem; margin-bottom:5px;">📂 Klik Upload</div>
+                    <div style="font-size:0.8rem; color:#64748b;">Boleh pilih banyak fail (.xlsx)</div>
+                    <input type="file" id="fileInput" accept=".xlsx, .xls" multiple hidden onchange="handleFiles(this)">
                 </div>
-                <div style="margin-top:15px; font-size:0.85rem; color:#64748b; text-align: center;">
-                    * Sistem automatik mengesan baris tajuk (Header).<br>
-                    * Sel kosong akan dipaparkan sebagai " - ".
-                </div>
+                <div class="file-list" id="fileListDisplay">Tiada fail dipilih.</div>
+                <button class="btn-sm" style="background:#ef4444; margin-top:5px; width:100%;" onclick="clearFiles()">Padam Semua Fail</button>
             </div>
         </div>
-        <button class="btn-main" onclick="analyzeData()">🔍 Padankan Data</button>
+        <button class="btn-main" onclick="analyzeData()">🔍 Padankan Data (Merge)</button>
     </div>
 
     <div class="picker-container" id="columnPicker">
-        <span class="box-title">3. Padankan Kolum</span>
+        <span class="box-title">3. Padankan Kolum (Dari fail pertama)</span>
         <div style="display:flex; gap:20px;">
             <div style="flex:1;">
                 <label style="font-weight:600; color:#166534; display:block; margin-bottom:5px;">Pilih Kolum NAMA:</label>
@@ -150,28 +146,29 @@
     <div id="resultSection" style="display:none;">
         
         <div class="pbd-panel">
-            <span class="pbd-label">⚡ Generator PBD Pukal</span>
-            
-            <select id="pbdTarget" style="padding:8px; border-radius:6px; border:1px solid #fdba74;">
-                <option value="tov">1. TOV PBD 2025</option>
-                <option value="up">2. UP PBD 2026</option>
-                <option value="uasa">3. UASA PBD 2026</option>
-            </select>
+            <span style="font-weight:800; color:#9a3412;">⚡ Generator PBD Pukal</span>
+            <div class="pbd-row">
+                <select id="pbdTarget" style="padding:8px; border-radius:6px; border:1px solid #fdba74;">
+                    <option value="tov">1. TOV PBD 2025</option>
+                    <option value="up">2. UP PBD 2026</option>
+                    <option value="uasa">3. UASA PBD 2026</option>
+                </select>
 
-            <select id="pbdMode" style="padding:8px; border-radius:6px; border:1px solid #fdba74;" onchange="togglePbdInputs()">
-                <option value="static">Statik (Sama)</option>
-                <option value="random">Rawak (Julat)</option>
-            </select>
+                <select id="pbdMode" style="padding:8px; border-radius:6px; border:1px solid #fdba74;" onchange="togglePbdInputs()">
+                    <option value="static">Statik</option>
+                    <option value="random">Rawak</option>
+                </select>
 
-            <div id="pbdStaticInputs" style="display:flex; align-items:center; gap:5px;">
-                <b>TP:</b> <input type="number" id="valPbdStatic" value="4" min="1" max="6">
+                <div id="pbdStaticInputs" style="display:flex; align-items:center; gap:5px;">
+                    <b>TP:</b> <input type="number" id="valPbdStatic" value="4" min="1" max="6">
+                </div>
+                <div id="pbdRandomInputs" style="display:none; align-items:center; gap:5px;">
+                    <b>Min:</b> <input type="number" id="valPbdMin" value="3" min="1" max="6">
+                    <b>Max:</b> <input type="number" id="valPbdMax" value="5" min="1" max="6">
+                </div>
+
+                <button class="pbd-btn" onclick="applyBulkPBD()">Jana</button>
             </div>
-            <div id="pbdRandomInputs" style="display:none; align-items:center; gap:5px;">
-                <b>Min:</b> <input type="number" id="valPbdMin" value="3" min="1" max="6">
-                <b>Max:</b> <input type="number" id="valPbdMax" value="5" min="1" max="6">
-            </div>
-
-            <button class="pbd-btn" onclick="applyBulkPBD()">Jana</button>
         </div>
 
         <h3 id="tableHeader" style="margin-bottom:15px; color:#334155;">Analisis Headcount & PBD</h3>
@@ -215,42 +212,61 @@
 
 <script>
     let masterList = [];
-    let excelData = [];
-    let excelHeaders = [];
-    let headerRowIndex = 0;
-
+    let allFilesData = []; // Stores objects {name: "filename", data: [rows]}
+    
+    // === UI UTILS ===
     function togglePbdInputs() {
         const mode = document.getElementById('pbdMode').value;
         document.getElementById('pbdStaticInputs').style.display = (mode === 'static') ? 'flex' : 'none';
         document.getElementById('pbdRandomInputs').style.display = (mode === 'random') ? 'flex' : 'none';
     }
 
-    function handleFile(input) {
-        const file = input.files[0];
-        if(!file) return;
-        document.getElementById('fileStatus').innerText = "✅ " + file.name;
+    // === MULTI-FILE HANDLING ===
+    function handleFiles(input) {
+        if(input.files.length === 0) return;
         
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, {type: 'array'});
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            excelData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
-        };
-        reader.readAsArrayBuffer(file);
+        Array.from(input.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+                
+                allFilesData.push({
+                    name: file.name,
+                    data: jsonData
+                });
+                updateFileListUI();
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        // Reset input so same files can be selected again if needed
+        input.value = '';
     }
 
-    // === SMART HEADER SEARCH ===
+    function updateFileListUI() {
+        const div = document.getElementById('fileListDisplay');
+        if (allFilesData.length === 0) {
+            div.innerHTML = "Tiada fail dipilih.";
+        } else {
+            div.innerHTML = allFilesData.map(f => `<span class="file-tag">📄 ${f.name}</span>`).join('');
+        }
+    }
+
+    function clearFiles() {
+        allFilesData = [];
+        updateFileListUI();
+    }
+
+    // === ANALYZE DATA (SMART HEADER SCAN ACROSS ALL FILES) ===
     function findHeaderRow(data) {
-        // Cari baris yang ada perkataan 'NAMA' atau 'NAME'
-        // Kita limit carian dalam 20 baris pertama
         for(let i=0; i < Math.min(data.length, 20); i++) {
             const rowStr = data[i].join(' ').toUpperCase();
-            if(rowStr.includes('NAMA') || rowStr.includes('NAME') || rowStr.includes('STUDENT')) {
-                return i;
-            }
+            if(rowStr.includes('NAMA') || rowStr.includes('NAME')) return i;
         }
-        return 0; // Fallback ke baris pertama jika tak jumpa
+        return 0; 
     }
 
     function analyzeData() {
@@ -258,11 +274,13 @@
         if(!mText) return alert("Sila masukkan Senarai Nama Master.");
         masterList = mText.split('\n').map(l => l.trim().replace(/^\d+[\.\)]\s*/, '')).filter(l => l);
 
-        if(excelData.length === 0) return alert("Sila upload fail Excel dahulu.");
+        if(allFilesData.length === 0) return alert("Sila upload sekurang-kurangnya satu fail Excel.");
 
-        // AUTO DETECT HEADER
-        headerRowIndex = findHeaderRow(excelData);
-        excelHeaders = excelData[headerRowIndex];
+        // Use the first file to determine columns for the picker
+        // (Assuming all files have roughly similar format)
+        const sampleData = allFilesData[0].data;
+        const headerIdx = findHeaderRow(sampleData);
+        const excelHeaders = sampleData[headerIdx];
 
         // Populate Pickers
         const selName = document.getElementById('colName');
@@ -287,40 +305,46 @@
         document.getElementById('columnPicker').style.display = 'block';
     }
 
+    // === GENERATE TABLE (SEARCH ALL FILES) ===
     function generateHeadcount() {
         const nameIdx = parseInt(document.getElementById('colName').value);
         const markIdx = parseInt(document.getElementById('colMark').value);
 
-        // Map Data (Start scanning FROM headerRowIndex + 1)
+        // Build a Map from ALL loaded files
+        // Key: Clean Name, Value: Mark
         let dataMap = {};
-        for(let i = headerRowIndex + 1; i < excelData.length; i++) {
-            const row = excelData[i];
-            if(row[nameIdx]) {
-                const name = row[nameIdx].toString().trim().toUpperCase();
-                let rawMark = row[markIdx];
-                
-                // DATA CLEANING LOGIC (The Fix for '0')
-                let finalMark = null; // Default null (empty)
 
-                if (rawMark !== undefined && rawMark !== null && rawMark !== "") {
-                    // Try parsing
-                    let parsed = parseFloat(rawMark);
-                    if (!isNaN(parsed)) {
-                        finalMark = parsed;
-                    } else {
-                        // Keep text like "TH" if explicitly stated
-                        let str = rawMark.toString().trim().toUpperCase();
-                        if (str === "TH" || str === "G" || str === "TIDAK HADIR") {
-                            finalMark = "TH";
+        allFilesData.forEach(fileObj => {
+            const data = fileObj.data;
+            const hIdx = findHeaderRow(data);
+            
+            // Scan from header + 1
+            for(let i = hIdx + 1; i < data.length; i++) {
+                const row = data[i];
+                if(row && row[nameIdx]) {
+                    const name = row[nameIdx].toString().trim().toUpperCase();
+                    let rawMark = row[markIdx];
+                    
+                    // CLEANING LOGIC (The Fix for '0' and Empty)
+                    let finalMark = null;
+
+                    if (rawMark !== undefined && rawMark !== null && rawMark !== "") {
+                        let parsed = parseFloat(rawMark);
+                        if (!isNaN(parsed)) {
+                            finalMark = parsed;
+                        } else {
+                            // Keep string if it's "TH" or "G"
+                            let str = rawMark.toString().trim().toUpperCase();
+                            if (str === "TH" || str === "G") finalMark = "TH";
                         }
                     }
-                }
-                
-                if (finalMark !== null) {
-                    dataMap[name] = finalMark;
+                    
+                    if (finalMark !== null) {
+                        dataMap[name] = finalMark; // Store in map
+                    }
                 }
             }
-        }
+        });
 
         // Strategy Params
         const isFixed = document.getElementById('stratFixed').checked;
@@ -351,7 +375,7 @@
                 displayGain = "+" + inc;
             } else if (tov === "TH") {
                 displayTov = "TH";
-                displayEtr = "TH"; // Target stays TH? Or maybe Pass? Let's keep TH for now.
+                displayEtr = "TH";
             }
 
             const row = `
@@ -402,6 +426,7 @@
         alert(`Berjaya kemaskini PBD: ${target.toUpperCase()}`);
     }
 
+    // === EXPORT ===
     function downloadExcel() {
         let csv = "No,Nama Murid,TOV Markah,ETR Markah,Gain,TOV PBD 2025,UP PBD 2026,UASA PBD 2026\n";
         const rows = document.querySelectorAll('#tableBody tr');
@@ -414,6 +439,7 @@
             const tovM = tds[2].innerText;
             const etrM = tds[3].innerText;
             const gain = tds[4].innerText;
+            
             const tovP = tds[5].querySelector('select').value;
             const upP = tds[6].querySelector('select').value;
             const uasaP = tds[7].querySelector('select').value;
@@ -423,7 +449,7 @@
 
         const link = document.createElement("a");
         link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-        link.download = "Analisis_Headcount_PBD.csv";
+        link.download = "Analisis_Headcount_PBD_v26.csv";
         link.click();
     }
 </script>
