@@ -3,117 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Headcount Pro v16: Bilingual Smart Scan</title>
+    <title>Nexus Headcount Pro v25 (Smart Fix)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root { 
-            --primary: #4f46e5; 
-            --bg: #f3f4f6; 
-            --white: #ffffff; 
-            --text: #1f2937; 
-            --border: #d1d5db; 
-            --success: #059669; 
-            --warning: #f59e0b;
+            --primary: #2563eb; 
+            --secondary: #16a34a; 
+            --accent: #f97316;
+            --bg: #f8fafc; 
+            --text: #0f172a;
+            --border: #e2e8f0;
         }
-        body { font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
-        .container { max-width: 1100px; margin: 0 auto; background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        body { font-family: "Inter", "Segoe UI", sans-serif; background: var(--bg); color: var(--text); padding: 30px; margin: 0; }
+        .container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         
         /* HEADER */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; }
-        h1 { color: var(--primary); margin: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
-        .brand-subtitle { font-size: 1rem; color: #6b7280; font-weight: 400; margin-left: 5px; }
-        .header-actions { display: flex; gap: 10px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
+        h1 { color: var(--primary); margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
+        
+        /* BOXES */
+        .box { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .box-title { font-weight: 700; color: var(--primary); margin-bottom: 15px; display: block; font-size: 1.1rem; }
+        
+        /* STRATEGY */
+        .strat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .strat-option { background: #eff6ff; padding: 20px; border-radius: 8px; border: 1px solid #bfdbfe; display: flex; align-items: center; gap: 10px; }
+        input[type="number"] { padding: 8px; border: 1px solid #94a3b8; border-radius: 6px; width: 70px; text-align: center; font-weight: bold; font-size: 1rem; }
 
-        /* STRATEGY PANEL */
-        .strategy-panel { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 20px; margin-bottom: 25px; }
-        .strat-header { margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; color: #6366f1; font-weight: 800; letter-spacing: 0.5px; }
-        .strat-row { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
-        .strat-row:last-child { margin-bottom: 0; }
-        label { font-weight: 600; cursor: pointer; color: #312e81; }
-        input[type="radio"] { transform: scale(1.2); cursor: pointer; margin-right: 8px; accent-color: var(--primary); }
-        input[type="number"] { width: 70px; padding: 8px; border: 2px solid #c7d2fe; border-radius: 6px; text-align: center; font-weight: bold; font-size: 1rem; color: var(--primary); }
-        input[type="number"]:disabled { background: #e5e7eb; border-color: #d1d5db; color: #9ca3af; }
-        .btn-shuffle { background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 10px; display: none; }
-
-        /* DATA ENTRY SECTION */
-        .data-entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-        .step-box { border: 1px solid var(--border); border-radius: 10px; padding: 20px; background: #f9fafb; display: flex; flex-direction: column; }
-        .step-title { font-weight: 700; margin-bottom: 10px; display: block; font-size: 1rem; color: var(--primary); }
-        .step-desc { font-size: 0.85rem; color: #666; margin-bottom: 15px; }
-        textarea { width: 100%; height: 200px; padding: 10px; border-radius: 8px; border: 1px solid #9ca3af; font-family: monospace; resize: vertical; font-size: 0.85rem; flex-grow: 1; }
-
-        /* MODE SWITCHER (RADIO BUTTONS) */
-        .mode-switcher { display: flex; gap: 20px; margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; }
-        .mode-option { display: flex; align-items: center; cursor: pointer; }
-        .mode-option input { margin-right: 8px; }
-
-        /* SOURCE PANELS */
-        .source-panel { display: none; } /* Hidden by default */
-        .source-panel.active { display: block; animation: fadeIn 0.3s; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* UPLOAD STYLES */
-        .upload-controls { display: flex; gap: 10px; margin-bottom: 10px; }
-        .btn-add-file { background: #4f46e5; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
-        .btn-clear-files { background: #fff; border: 1px solid #ef4444; color: #ef4444; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-        .file-list-container { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; min-height: 100px; max-height: 200px; overflow-y: auto; margin-top: 10px; }
-        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-bottom: 1px solid #f3f4f6; font-size: 0.85rem; }
-        .file-item:last-child { border-bottom: none; }
-        .btn-remove-file { background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; }
-        #fileInput { display: none; }
-
+        /* INPUTS */
+        textarea { width: 100%; height: 150px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-size: 0.9rem; }
+        .upload-area { border: 2px dashed #cbd5e1; background: #f8fafc; padding: 30px; text-align: center; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+        .upload-area:hover { border-color: var(--primary); background: #eff6ff; }
+        
         /* COLUMN PICKER */
-        #columnPicker { display: none; background: #ecfdf5; border-color: #6ee7b7; padding: 20px; border-radius: 10px; border: 1px solid #6ee7b7; margin-bottom: 25px; }
-        .picker-grid { display: flex; gap: 20px; align-items: flex-end; margin-top: 10px; flex-wrap: wrap; }
-        .picker-group { display: flex; flex-direction: column; gap: 5px; }
-        select { padding: 10px; border-radius: 6px; border: 1px solid #9ca3af; min-width: 200px; font-size: 0.95rem; }
+        .picker-container { background: #f0fdf4; border: 1px solid #86efac; padding: 20px; border-radius: 10px; display: none; margin-bottom: 20px; }
+        select { width: 100%; padding: 10px; border: 1px solid #94a3b8; border-radius: 6px; font-size: 0.95rem; }
 
-        /* SIGNATURE */
-        .signature-controls {
-            background: #fff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 20px;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
-        }
-        .sig-section h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 0.9rem; text-transform: uppercase; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
-        .input-group label { font-size: 0.85rem; color: #6b7280; font-weight: 600; }
-        .input-group input, .input-group select { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; width: 100%; font-size: 0.9rem; }
-
-        /* BUTTONS */
-        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; font-size: 1rem; }
-        .btn-blue { background: var(--primary); width: 100%; margin-top: 10px; }
-        .btn-green { background: var(--success); }
-        .btn-dark { background: #374151; padding: 10px 20px; font-size: 0.9rem; }
-        .btn-excel { background: #059669; padding: 10px 20px; font-size: 0.9rem; }
+        /* PBD PANEL */
+        .pbd-panel { background: #fff7ed; border: 1px solid #fdba74; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+        .pbd-label { font-weight: 800; color: #9a3412; margin-right: 10px; }
+        .pbd-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .pbd-btn:hover { background: #c2410c; }
 
         /* TABLE */
-        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-        th { text-align: left; padding: 15px; background: #f3f4f6; border-bottom: 2px solid #e5e7eb; font-weight: 700; color: #4b5563; }
-        td { padding: 12px 15px; border-bottom: 1px solid #f3f4f6; }
-        .col-target { background: #f0fdf4; color: #166534; font-weight: 700; border-left: 1px solid #e5e7eb; }
-        .col-gain { color: #059669; font-weight: 700; background: #ecfdf5; text-align: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 20px; }
+        th { background: #f1f5f9; padding: 12px; border: 1px solid #cbd5e1; font-weight: 700; text-align: center; color: #334155; }
+        td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+        td:nth-child(2) { text-align: left; padding-left: 12px; font-weight: 600; color: #334155; }
+        
+        .col-mark { background: #f8fafc; }
+        .col-target { background: #e0e7ff; color: var(--primary); font-weight: bold; }
+        .col-pbd { background: #f0fdf4; }
 
-        /* PRINT OPTIMIZATION (A4 & 10pt) */
+        /* TP SELECT */
+        .tp-select { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; text-align: center; cursor: pointer; font-weight: 600; color: #334155; }
+        .tp-select:hover { border-color: var(--secondary); background: #f0fdf4; }
+
+        /* BUTTONS */
+        .btn-main { background: var(--primary); color: white; padding: 12px; width: 100%; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .btn-main:hover { background: #1d4ed8; }
+        .btn-sm { padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; color: white; font-size: 0.9rem; }
+
+        /* PRINT */
         @media print {
-            @page { size: A4; margin: 1.5cm; }
-            body { background: white; font-family: Arial, sans-serif; font-size: 10pt; color: black; padding: 0; margin: 0; }
-            .container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; width: 100%; }
-            .data-entry-grid, .strategy-panel, .btn, .btn-shuffle, .header-actions, #columnPicker, .signature-controls { display: none !important; }
-            .col-gain { display: none !important; }
-            header { border-bottom: 2px solid black; margin-bottom: 15px; padding-bottom: 10px; justify-content: center; }
-            h1 { color: black; font-size: 16pt; text-transform: uppercase; }
+            @page { size: A4 landscape; margin: 1cm; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .box, .btn-main, .header-actions, .picker-container, .pbd-panel, .upload-area { display: none !important; }
+            header { border-bottom: 2px solid black; }
+            h1 { color: black; }
+            table { border: 1px solid black; width: 100%; font-size: 9pt; }
+            th, td { border: 1px solid black; color: black !important; padding: 4px; }
+            .col-mark, .col-target, .col-pbd { background: none !important; }
+            .tp-select { border: none; background: none; appearance: none; padding: 0; font-weight: bold; color: black !important; }
             #resultSection { display: block !important; }
-            h3 { font-size: 12pt; margin-bottom: 10px; border: none !important; padding: 0 !important; }
-            table { width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 10pt; }
-            th, td { border: 1px solid black; color: black !important; padding: 4px 6px; font-size: 10pt; }
-            th { background-color: #f0f0f0 !important; font-weight: bold; }
-            .col-target { background: none !important; color: black !important; border-left: 1px solid black; }
-            tr { page-break-inside: avoid; }
-            .print-footer { display: flex !important; margin-top: 50px; justify-content: space-between; page-break-inside: avoid; width: 100%; }
-            .sig-block { width: 45%; }
-            .sig-title { font-weight: bold; margin-bottom: 40px; }
-            .sig-line { border-top: 1px solid black; margin-top: 5px; margin-bottom: 5px; }
-            .sig-text { font-size: 10pt; line-height: 1.5; text-transform: uppercase; }
+            .print-footer { display: flex !important; margin-top: 40px; justify-content: space-between; page-break-inside: avoid; }
+            .sig-box { width: 40%; }
+            .sig-line { border-top: 1px solid black; margin-top: 60px; margin-bottom: 5px; }
         }
         .print-footer { display: none; }
     </style>
@@ -122,527 +87,345 @@
 
 <div class="container">
     <header>
-        <h1>Headcount Pro <span class="brand-subtitle">v16 Bilingual</span></h1>
+        <h1>Nexus Headcount Pro <span class="brand-subtitle">v25</span></h1>
         <div class="header-actions">
-            <button class="btn btn-excel" onclick="downloadExcel()">📥 Excel</button>
-            <button class="btn btn-dark" onclick="window.print()">🖨️ Print</button>
+            <button class="btn-sm" style="background:#16a34a;" onclick="downloadExcel()">📥 Excel</button>
+            <button class="btn-sm" style="background:#334155;" onclick="window.print()">🖨️ Cetak</button>
         </div>
     </header>
 
-    <div class="strategy-panel">
-        <div class="strat-header">Strategi TOV ke ETR</div>
-        <div class="strat-row">
-            <input type="radio" name="strategy" id="stratFixed" value="fixed" checked onchange="updateLive()">
-            <label for="stratFixed">Kenaikan Tetap:</label>
-            <input type="number" id="fixedVal" value="10" oninput="updateLive()"> 
-            <span>markah.</span>
-        </div>
-        <div class="strat-row">
-            <input type="radio" name="strategy" id="stratRandom" value="random" onchange="updateLive()">
-            <label for="stratRandom">Kenaikan Rawak (Julat):</label>
-            <span>Antara</span>
-            <input type="number" id="randMin" value="5" disabled oninput="updateLive()"> 
-            <span>hingga</span>
-            <input type="number" id="randMax" value="12" disabled oninput="updateLive()"> 
-            <span>markah.</span>
-            <button class="btn-shuffle" id="btnShuffle" onclick="forceReShuffle()">🎲 Shuffle</button>
-        </div>
-    </div>
-
-    <div class="data-entry-grid">
-        <div class="step-box" style="border-color: #4f46e5; background: #eef2ff;">
-            <span class="step-title">1. Senarai Nama Master (Terkini)</span>
-            <span class="step-desc">Paste senarai nama murid ikut susunan kelas 2026 di sini.</span>
-            <textarea id="masterListArea" placeholder="Contoh:&#10;1. ABU BIN ALl&#10;2. SITI AMINAH&#10;..."></textarea>
-        </div>
-
-        <div class="step-box">
-            <span class="step-title">2. Sumber Data Markah</span>
-            <div class="mode-switcher">
-                <label class="mode-option">
-                    <input type="radio" name="sourceMode" value="upload" checked onclick="toggleSource('upload')">
-                    <b>📂 Upload Fail Excel</b> (Smart Scan)
-                </label>
-                <label class="mode-option">
-                    <input type="radio" name="sourceMode" value="paste" onclick="toggleSource('paste')">
-                    <b>📋 Paste Manual</b>
-                </label>
+    <div class="box">
+        <span class="box-title">1. Strategi Markah (TOV ➡️ ETR)</span>
+        <div class="strat-grid">
+            <div class="strat-option">
+                <input type="radio" name="strat" id="stratFixed" checked>
+                <label for="stratFixed"><b>Statik:</b> Tambah</label>
+                <input type="number" id="valFixed" value="10"> markah.
             </div>
-
-            <div id="panel-upload" class="source-panel active">
-                <div class="upload-controls">
-                    <button class="btn-add-file" onclick="document.getElementById('fileInput').click()"><span>➕</span> Tambah Fail</button>
-                    <button class="btn-clear-files" onclick="clearFiles()">Reset</button>
-                    <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" multiple onchange="handleFileSelect(this)">
-                </div>
-                <div class="file-list-container" id="fileQueue">
-                    <div style="text-align:center; color:#999; padding-top:20px;">Tiada fail dipilih.</div>
-                </div>
-            </div>
-
-            <div id="panel-paste" class="source-panel">
-                <span class="step-desc">Paste data markah dari Excel (Nama & Markah) di sini:</span>
-                <textarea id="rawMarkArea" placeholder="Paste data Excel di sini..."></textarea>
+            <div class="strat-option">
+                <input type="radio" name="strat" id="stratRandom">
+                <label for="stratRandom"><b>Rawak:</b> Antara</label>
+                <input type="number" id="valMin" value="5"> - <input type="number" id="valMax" value="12">
             </div>
         </div>
     </div>
-    
-    <button class="btn btn-blue" onclick="processData()" style="margin-bottom: 20px;">🔍 Match & Analyze Data</button>
 
-    <div id="columnPicker">
-        <span class="step-title">3. Pilih Kolum Data</span>
-        <p style="margin:0 0 15px 0; color: #6b7280;">Sila tentukan kolum mana mewakili Nama dan Markah Subjek.</p>
-        <div class="picker-grid">
-            <div class="picker-group">
-                <label>Kolum Nama:</label>
-                <select id="nameCol"></select>
+    <div class="box">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
+            <div>
+                <span class="box-title">2A. Master List Nama</span>
+                <textarea id="masterList" placeholder="Paste nama murid ikut susunan kelas terkini (2026)..."></textarea>
             </div>
-            <div class="picker-group">
-                <label>Kolum Markah (TOV):</label>
-                <select id="markCol"></select>
+            <div>
+                <span class="box-title">2B. Upload Excel (Markah)</span>
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size:2rem; margin-bottom:10px;">📂</div>
+                    <div id="fileStatus" style="font-weight:600; color:#475569;">Klik untuk pilih fail Excel</div>
+                    <input type="file" id="fileInput" accept=".xlsx, .xls" hidden onchange="handleFile(this)">
+                </div>
+                <div style="margin-top:15px; font-size:0.85rem; color:#64748b; text-align: center;">
+                    * Sistem automatik mengesan baris tajuk (Header).<br>
+                    * Sel kosong akan dipaparkan sebagai " - ".
+                </div>
             </div>
-            <button class="btn btn-green" onclick="generateHeadcount()">Jana Headcount</button>
         </div>
+        <button class="btn-main" onclick="analyzeData()">🔍 Padankan Data</button>
+    </div>
+
+    <div class="picker-container" id="columnPicker">
+        <span class="box-title">3. Padankan Kolum</span>
+        <div style="display:flex; gap:20px;">
+            <div style="flex:1;">
+                <label style="font-weight:600; color:#166534; display:block; margin-bottom:5px;">Pilih Kolum NAMA:</label>
+                <select id="colName"></select>
+            </div>
+            <div style="flex:1;">
+                <label style="font-weight:600; color:#1e40af; display:block; margin-bottom:5px;">Pilih Kolum MARKAH (TOV):</label>
+                <select id="colMark"></select>
+            </div>
+        </div>
+        <button class="btn-main" style="background:var(--secondary); margin-top:20px;" onclick="generateHeadcount()">Jana Analisis</button>
     </div>
 
     <div id="resultSection" style="display:none;">
         
-        <div class="signature-controls">
-            <div class="sig-section">
-                <h4>Disediakan Oleh</h4>
-                <div class="input-group">
-                    <label>Nama Guru:</label>
-                    <input list="teacherList" id="teacherInput" placeholder="Pilih nama..." onchange="updateSignature()">
-                    <datalist id="teacherList"></datalist>
-                </div>
-                <div class="input-group">
-                    <label>Jawatan:</label>
-                    <select id="jawatanInput" onchange="updateSignature()">
-                        <option value="" disabled selected>Pilih Jawatan...</option>
-                        <optgroup label="GURU MATA PELAJARAN (TERAS)">
-                            <option value="GURU MATA PELAJARAN BAHASA MELAYU">GURU MATA PELAJARAN BAHASA MELAYU</option>
-                            <option value="GURU MATA PELAJARAN BAHASA INGGERIS">GURU MATA PELAJARAN BAHASA INGGERIS</option>
-                            <option value="GURU MATA PELAJARAN MATEMATIK">GURU MATA PELAJARAN MATEMATIK</option>
-                            <option value="GURU MATA PELAJARAN SAINS">GURU MATA PELAJARAN SAINS</option>
-                            <option value="GURU MATA PELAJARAN PENDIDIKAN ISLAM">GURU MATA PELAJARAN PENDIDIKAN ISLAM</option>
-                            <option value="GURU MATA PELAJARAN SEJARAH">GURU MATA PELAJARAN SEJARAH</option>
-                        </optgroup>
-                        <optgroup label="GURU MATA PELAJARAN (ELEKTIF)">
-                            <option value="GURU MATA PELAJARAN RBT">GURU MATA PELAJARAN RBT</option>
-                            <option value="GURU MATA PELAJARAN PSV">GURU MATA PELAJARAN PSV</option>
-                            <option value="GURU MATA PELAJARAN PENDIDIKAN MUZIK">GURU MATA PELAJARAN PENDIDIKAN MUZIK</option>
-                            <option value="GURU MATA PELAJARAN PJPK">GURU MATA PELAJARAN PJPK</option>
-                            <option value="GURU MATA PELAJARAN BAHASA ARAB">GURU MATA PELAJARAN BAHASA ARAB</option>
-                            <option value="GURU MATA PELAJARAN PENDIDIKAN MORAL">GURU MATA PELAJARAN PENDIDIKAN MORAL</option>
-                        </optgroup>
-                        <optgroup label="KETUA PANITIA">
-                            <option value="KETUA PANITIA BAHASA MELAYU">KETUA PANITIA BAHASA MELAYU</option>
-                            <option value="KETUA PANITIA MATEMATIK">KETUA PANITIA MATEMATIK</option>
-                            <option value="KETUA PANITIA SAINS">KETUA PANITIA SAINS</option>
-                            <option value="KETUA PANITIA BAHASA INGGERIS">KETUA PANITIA BAHASA INGGERIS</option>
-                        </optgroup>
-                    </select>
-                </div>
+        <div class="pbd-panel">
+            <span class="pbd-label">⚡ Generator PBD Pukal</span>
+            
+            <select id="pbdTarget" style="padding:8px; border-radius:6px; border:1px solid #fdba74;">
+                <option value="tov">1. TOV PBD 2025</option>
+                <option value="up">2. UP PBD 2026</option>
+                <option value="uasa">3. UASA PBD 2026</option>
+            </select>
+
+            <select id="pbdMode" style="padding:8px; border-radius:6px; border:1px solid #fdba74;" onchange="togglePbdInputs()">
+                <option value="static">Statik (Sama)</option>
+                <option value="random">Rawak (Julat)</option>
+            </select>
+
+            <div id="pbdStaticInputs" style="display:flex; align-items:center; gap:5px;">
+                <b>TP:</b> <input type="number" id="valPbdStatic" value="4" min="1" max="6">
             </div>
-            <div class="sig-section">
-                <h4>Disahkan Oleh</h4>
-                <div class="input-group">
-                    <label>Nama Pentadbir:</label>
-                    <input list="adminList" id="adminInput" placeholder="Pilih..." onchange="autoFillAdmin()">
-                    <datalist id="adminList"></datalist>
-                </div>
-                <div class="input-group">
-                    <label>Jawatan:</label>
-                    <input type="text" id="adminJawatanInput" value="GURU BESAR" oninput="updateSignature()">
-                </div>
+            <div id="pbdRandomInputs" style="display:none; align-items:center; gap:5px;">
+                <b>Min:</b> <input type="number" id="valPbdMin" value="3" min="1" max="6">
+                <b>Max:</b> <input type="number" id="valPbdMax" value="5" min="1" max="6">
             </div>
+
+            <button class="pbd-btn" onclick="applyBulkPBD()">Jana</button>
         </div>
 
-        <h3 id="subjectTitle" style="margin-bottom:15px; color:#374151; border-left: 5px solid var(--primary); padding-left: 10px;"></h3>
+        <h3 id="tableHeader" style="margin-bottom:15px; color:#334155;">Analisis Headcount & PBD</h3>
+        
         <table id="dataTable">
             <thead>
                 <tr>
-                    <th style="width: 5%;">No</th>
-                    <th>Nama Murid</th>
-                    <th>TOV</th>
-                    <th>OTI1</th>
-                    <th>OTI2</th>
-                    <th>OTI3</th>
-                    <th class="col-target">ETR</th>
-                    <th class="col-gain" style="width: 10%;">Gain</th>
+                    <th rowspan="2" style="width:5%;">No</th>
+                    <th rowspan="2">Nama Murid</th>
+                    <th colspan="3" class="col-mark">MARKAH (0-100)</th>
+                    <th colspan="3" class="col-pbd">PBD (TAHAP PENGUASAAN)</th>
+                </tr>
+                <tr>
+                    <th class="col-mark">TOV 2025</th>
+                    <th class="col-mark col-target">ETR 2026</th>
+                    <th class="col-mark">Gain</th>
+                    <th class="col-pbd">TOV PBD 2025</th>
+                    <th class="col-pbd">UP PBD 2026</th>
+                    <th class="col-pbd">UASA PBD 2026</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-        
+
         <div class="print-footer">
-            <div class="sig-block">
-                <div class="sig-title">Disediakan oleh,</div>
-                <br><br><br>
+            <div class="sig-box">
+                <div>Disediakan oleh,</div>
                 <div class="sig-line"></div>
-                <div class="sig-text">Nama: <span id="printName">..............................................................</span></div>
-                <div class="sig-text">Jawatan: <span id="printJawatan">...........................................................</span></div>
+                <div>Nama: .....................................................</div>
+                <div>Jawatan: GURU MATA PELAJARAN</div>
             </div>
-            <div class="sig-block">
-                <div class="sig-title">Disahkan oleh,</div>
-                <br><br><br>
+            <div class="sig-box">
+                <div>Disahkan oleh,</div>
                 <div class="sig-line"></div>
-                <div class="sig-text">Nama: <span id="printAdminName">..............................................................</span></div>
-                <div class="sig-text">Jawatan: <span id="printAdminJawatan">...........................................................</span></div>
+                <div>Nama: .....................................................</div>
+                <div>Jawatan: GURU BESAR</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // === DATA CONFIGURATION (Teachers/Admin) ===
-    const teachers = [
-        "AMIRAH BINTI CHE AZUHA", "AZLAN BIN DAUD", "AZLINA BINTI HANAPI", "AMANI BINTI AWANG QAMARULDEEN",
-        "ANWAR SHAFIQ BIN JAMALUDIN", "ANIS SYAZWANI BINTI MAT ISA", "BAHJATU SHOLIHAH BINTI RAMAN",
-        "FAZILAH BINTI MUDA", "HANIS AYUNI BINTI HADI", "MAKTAR BIN MOHAMED", "MOHD AFIZU BIN ADENAN",
-        "MUHAMAD HAKIMI BIN AMER", "MUHAMMAD SAUFI FIRDAUS BIN SABUDIN", "NURAZIZAH BINTI OMAR",
-        "NOOR IDAYU BINTI ISMAIL", "NOOR AIN BINTI MOHD YUSOFF", "NOR HUDA DHAMIRAH BINTI ISA",
-        "NUR IDAYU BINTI ABDULL ROZAK", "NOR NAZAHIYAH BINTI NASARUDIN", "NOR SHAZIRA BINTI AZIZ",
-        "NOR SYAZALIAH BINTI MAT RADZI", "NURIN IZZAH BINTI ROSMAN", "NUR FATIHATULHUSNA BINTI YA'ACOB",
-        "NURUL ADILLAH BINTI ZAKARIA", "NURUL IZZATI BINTI MUHAMMAD NAZIR", "NUR ZAKIAH BINTI ZAINUDDIN",
-        "RAJIAH BINTI HAJI MUHAMMAD", "RAMLAH BINTI HASSAN", "RAZIAH BINTI WAHAB", "RAUDZAH BINTI HAJI KAMALUDIN",
-        "RASHIDAH BINTI ZULKIFLI", "ROSHANIDA BINTI ROHANUDDIN", "SITI ZURAIHA BINTI MAPOL",
-        "SUHAIDA BINTI SIDEK", "SUHAIMI BIN ISMAIL", "SUZIMARLIANA BINTI IBRAHIM", "SYAIMA' BINTI ABDUL HALIM@BAKAR",
-        "UMMI FARAH BINTI ALIAS", "WAN SITI NOR ADILAH BINTI WAN OTHMAN", "WAN NOOR UMMI BINTI W.RAMLI",
-        "ZURAYA BINTI OTHMAN", "ZIRATUL ASYIKIN BINTI MUSA", "ZAILATUL ROZAIDI BIN ZAKARIA"
-    ];
-    const admins = [
-        { name: "ASRI BIN MOHAMED", pos: "GURU BESAR" },
-        { name: "TUAN KAMARIAH BINTI TUAN SARIF", pos: "PENOLONG KANAN PENTADBIRAN" },
-        { name: "ZAINON BINTI HJ JUFRI", pos: "PENOLONG KANAN HAL EHWAL MURID" },
-        { name: "ASYRAF BIN ROSLAN", pos: "PENOLONG KANAN KO-KURIKULUM" }
-    ];
-
-    const teacherDatalist = document.getElementById('teacherList');
-    teachers.forEach(n => { let o = document.createElement('option'); o.value = n; teacherDatalist.appendChild(o); });
-    const adminDatalist = document.getElementById('adminList');
-    admins.forEach(a => { let o = document.createElement('option'); o.value = a.name; adminDatalist.appendChild(o); });
-
-    function autoFillAdmin() {
-        const selected = document.getElementById('adminInput').value;
-        const obj = admins.find(a => a.name === selected);
-        if (obj) document.getElementById('adminJawatanInput').value = obj.pos;
-        updateSignature();
-    }
-    function updateSignature() {
-        document.getElementById('printName').textContent = document.getElementById('teacherInput').value || "..............................................................";
-        document.getElementById('printJawatan').textContent = document.getElementById('jawatanInput').value || "...........................................................";
-        document.getElementById('printAdminName').textContent = document.getElementById('adminInput').value || "..............................................................";
-        document.getElementById('printAdminJawatan').textContent = document.getElementById('adminJawatanInput').value || "...........................................................";
-    }
-
-    // === UI SWITCHING (RADIO) ===
-    let activeSource = 'upload'; // Default
-
-    function toggleSource(mode) {
-        activeSource = mode;
-        document.getElementById('panel-upload').classList.remove('active');
-        document.getElementById('panel-paste').classList.remove('active');
-        
-        if (mode === 'upload') {
-            document.getElementById('panel-upload').classList.add('active');
-        } else {
-            document.getElementById('panel-paste').classList.add('active');
-        }
-    }
-
-    // === MULTI-FILE QUEUE SYSTEM ===
-    let allWorkbookData = []; 
-
-    function handleFileSelect(input) {
-        const files = input.files;
-        if (files.length === 0) return;
-
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-
-                allWorkbookData.push({
-                    id: Date.now() + Math.random(),
-                    name: file.name,
-                    rows: jsonData
-                });
-                renderFileQueue();
-            };
-            reader.readAsArrayBuffer(file);
-        });
-        input.value = '';
-    }
-
-    function renderFileQueue() {
-        const queueDiv = document.getElementById('fileQueue');
-        queueDiv.innerHTML = '';
-
-        if (allWorkbookData.length === 0) {
-            queueDiv.innerHTML = '<div style="text-align:center; color:#999; padding-top:20px;">Tiada fail dipilih.</div>';
-            return;
-        }
-
-        allWorkbookData.forEach((fileObj, index) => {
-            const div = document.createElement('div');
-            div.className = 'file-item';
-            div.innerHTML = `
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span>📄</span> 
-                    <b>${index + 1}.</b> ${fileObj.name} 
-                    <span style="color:#666; font-size:0.8rem;">(${fileObj.rows.length} baris)</span>
-                </div>
-                <button class="btn-remove-file" onclick="removeFile(${fileObj.id})">&times;</button>
-            `;
-            queueDiv.appendChild(div);
-        });
-    }
-
-    function removeFile(id) {
-        allWorkbookData = allWorkbookData.filter(f => f.id !== id);
-        renderFileQueue();
-    }
-
-    function clearFiles() {
-        if(confirm("Padam semua fail?")) {
-            allWorkbookData = [];
-            renderFileQueue();
-        }
-    }
-
-    // === SMART HEADER DETECTION (BILINGUAL) ===
-    function findHeaderAndData(rows) {
-        if (!rows || rows.length < 1) return null;
-
-        // BILINGUAL KEYWORDS (BM & EN)
-        const keywords = [
-            // Malay
-            'nama', 'murid', 'pelajar', 'markah', 'gred', 'subjek', 'mata pelajaran', 'bil', 'no', 'kelas', 'tingkatan',
-            // English
-            'name', 'student', 'pupil', 'mark', 'marks', 'score', 'grade', 'subject', 'class', 'form', 'number'
-        ];
-
-        let bestHeaderRowIndex = -1;
-        let maxMatches = 0;
-
-        // Scan first 20 rows
-        for (let i = 0; i < Math.min(rows.length, 20); i++) {
-            let matches = 0;
-            let row = rows[i];
-            if (row) {
-                row.forEach(cell => {
-                    if (cell && typeof cell === 'string') {
-                        // Check if keyword exists in cell (case insensitive)
-                        if (keywords.some(k => cell.toLowerCase().includes(k))) {
-                            matches++;
-                        }
-                    }
-                });
-            }
-            if (matches > maxMatches) {
-                maxMatches = matches;
-                bestHeaderRowIndex = i;
-            }
-        }
-
-        // Fallback: If no keywords found, assume row 0
-        if (bestHeaderRowIndex === -1 && rows.length > 0) bestHeaderRowIndex = 0;
-
-        // Only return if we found reasonable data
-        if (bestHeaderRowIndex === -1) return null;
-
-        return {
-            headers: rows[bestHeaderRowIndex],
-            data: rows.slice(bestHeaderRowIndex + 1)
-        };
-    }
-
-
-    // === MAIN LOGIC ===
     let masterList = [];
-    let rawDataMap = {}; 
-    let mergedRawRows = [];
-    let rawHeaders = [];
-    let isDataLoaded = false;
-    let processedData = [];
+    let excelData = [];
+    let excelHeaders = [];
+    let headerRowIndex = 0;
 
-    function updateLive() {
-        const isFixed = document.getElementById('stratFixed').checked;
-        document.getElementById('fixedVal').disabled = !isFixed;
-        document.getElementById('randMin').disabled = isFixed;
-        document.getElementById('randMax').disabled = isFixed;
-        document.getElementById('btnShuffle').style.display = isFixed ? 'none' : 'inline-block';
-        if(isDataLoaded) generateHeadcount();
+    function togglePbdInputs() {
+        const mode = document.getElementById('pbdMode').value;
+        document.getElementById('pbdStaticInputs').style.display = (mode === 'static') ? 'flex' : 'none';
+        document.getElementById('pbdRandomInputs').style.display = (mode === 'random') ? 'flex' : 'none';
     }
 
-    function forceReShuffle() { if(isDataLoaded) generateHeadcount(); }
-
-    function processData() {
-        const masterText = document.getElementById('masterListArea').value.trim();
+    function handleFile(input) {
+        const file = input.files[0];
+        if(!file) return;
+        document.getElementById('fileStatus').innerText = "✅ " + file.name;
         
-        if(!masterText) return alert("Sila isi Master List (Langkah 1) dahulu.");
-        
-        // 1. Process Master List
-        masterList = masterText.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0)
-            .map(line => line.replace(/^\d+[\.\)]\s*/, '')); 
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            excelData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+        };
+        reader.readAsArrayBuffer(file);
+    }
 
-        // 2. Decide Source
-        mergedRawRows = [];
-        
-        if (activeSource === 'upload') {
-            // --- UPLOAD MODE (SMART SCAN) ---
-            if (allWorkbookData.length === 0) return alert("Sila tambah sekurang-kurangnya satu fail Excel.");
-            
-            allWorkbookData.forEach((fileObj, idx) => {
-                const result = findHeaderAndData(fileObj.rows);
-                if (result) {
-                    if (mergedRawRows.length === 0) {
-                        rawHeaders = result.headers;
-                    }
-                    mergedRawRows = mergedRawRows.concat(result.data);
-                }
-            });
-
-        } else {
-            // --- PASTE MODE (SMART SCAN) ---
-            const rawText = document.getElementById('rawMarkArea').value.trim();
-            if(!rawText) return alert("Sila paste data markah di kotak Paste Manual.");
-            
-            const lines = rawText.split('\n');
-            const pastedRows = lines.map(line => {
-                let delim = line.includes('\t') ? '\t' : (line.includes(',') ? ',' : ' ');
-                if (delim === ' ') {
-                     return line.trim().split(/\s{2,}/);
-                }
-                return line.split(delim);
-            });
-
-            const result = findHeaderAndData(pastedRows);
-            if (result) {
-                rawHeaders = result.headers;
-                mergedRawRows = result.data;
+    // === SMART HEADER SEARCH ===
+    function findHeaderRow(data) {
+        // Cari baris yang ada perkataan 'NAMA' atau 'NAME'
+        // Kita limit carian dalam 20 baris pertama
+        for(let i=0; i < Math.min(data.length, 20); i++) {
+            const rowStr = data[i].join(' ').toUpperCase();
+            if(rowStr.includes('NAMA') || rowStr.includes('NAME') || rowStr.includes('STUDENT')) {
+                return i;
             }
         }
+        return 0; // Fallback ke baris pertama jika tak jumpa
+    }
 
-        if(mergedRawRows.length === 0) return alert("Tiada data dijumpai atau format tidak dikenali.");
-        
-        // Setup Pickers
-        const nameSel = document.getElementById('nameCol');
-        const markSel = document.getElementById('markCol');
-        nameSel.innerHTML = ''; markSel.innerHTML = '';
-        
-        rawHeaders.forEach((h, i) => {
-            let safeH = h || `Column ${i+1}`;
-            let o = `<option value="${i}">${safeH}</option>`;
-            nameSel.innerHTML += o;
-            markSel.innerHTML += o;
+    function analyzeData() {
+        const mText = document.getElementById('masterList').value.trim();
+        if(!mText) return alert("Sila masukkan Senarai Nama Master.");
+        masterList = mText.split('\n').map(l => l.trim().replace(/^\d+[\.\)]\s*/, '')).filter(l => l);
+
+        if(excelData.length === 0) return alert("Sila upload fail Excel dahulu.");
+
+        // AUTO DETECT HEADER
+        headerRowIndex = findHeaderRow(excelData);
+        excelHeaders = excelData[headerRowIndex];
+
+        // Populate Pickers
+        const selName = document.getElementById('colName');
+        const selMark = document.getElementById('colMark');
+        selName.innerHTML = ''; selMark.innerHTML = '';
+
+        excelHeaders.forEach((h, i) => {
+            const text = h ? h.toString() : `[Kolum ${i+1}]`;
+            const opt = `<option value="${i}">${text}</option>`;
+            selName.innerHTML += opt;
+            selMark.innerHTML += opt;
         });
 
         // Smart Select Guess
-        rawHeaders.forEach((h, i) => {
-            if (!h) return;
-            let low = h.toString().toLowerCase();
-            if(low.includes('name') || low.includes('nama')) nameSel.value = i;
-            if(low.includes('mark') || low.includes('tov') || low.includes('gred') || low.includes('score')) markSel.value = i;
+        excelHeaders.forEach((h, i) => {
+            if(!h) return;
+            const t = h.toString().toLowerCase();
+            if(t.includes('nama') || t.includes('name')) selName.value = i;
+            if(t.includes('mark') || t.includes('tov') || t.includes('ahk') || t.includes('gred')) selMark.value = i;
         });
 
         document.getElementById('columnPicker').style.display = 'block';
     }
 
     function generateHeadcount() {
-        const nameIdx = parseInt(document.getElementById('nameCol').value);
-        const markIdx = parseInt(document.getElementById('markCol').value);
-        const subject = document.getElementById('markCol').options[markIdx].text;
-        
-        // Build Map (Normalized Name -> Mark)
-        rawDataMap = {};
-        mergedRawRows.forEach(row => {
-            if(row && row.length > Math.max(nameIdx, markIdx)) {
-                let nVal = row[nameIdx];
-                let mVal = row[markIdx];
+        const nameIdx = parseInt(document.getElementById('colName').value);
+        const markIdx = parseInt(document.getElementById('colMark').value);
+
+        // Map Data (Start scanning FROM headerRowIndex + 1)
+        let dataMap = {};
+        for(let i = headerRowIndex + 1; i < excelData.length; i++) {
+            const row = excelData[i];
+            if(row[nameIdx]) {
+                const name = row[nameIdx].toString().trim().toUpperCase();
+                let rawMark = row[markIdx];
                 
-                if (nVal !== undefined) {
-                    let n = nVal.toString().trim().toUpperCase();
-                    let m = parseFloat(mVal);
-                    if(n && !isNaN(m)) {
-                        rawDataMap[n] = m;
+                // DATA CLEANING LOGIC (The Fix for '0')
+                let finalMark = null; // Default null (empty)
+
+                if (rawMark !== undefined && rawMark !== null && rawMark !== "") {
+                    // Try parsing
+                    let parsed = parseFloat(rawMark);
+                    if (!isNaN(parsed)) {
+                        finalMark = parsed;
+                    } else {
+                        // Keep text like "TH" if explicitly stated
+                        let str = rawMark.toString().trim().toUpperCase();
+                        if (str === "TH" || str === "G" || str === "TIDAK HADIR") {
+                            finalMark = "TH";
+                        }
                     }
                 }
+                
+                if (finalMark !== null) {
+                    dataMap[name] = finalMark;
+                }
             }
-        });
+        }
 
-        // Build Table
+        // Strategy Params
+        const isFixed = document.getElementById('stratFixed').checked;
+        const fixVal = parseInt(document.getElementById('valFixed').value);
+        const minVal = parseInt(document.getElementById('valMin').value);
+        const maxVal = parseInt(document.getElementById('valMax').value);
+
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
-        processedData = [];
-        
-        const isFixed = document.getElementById('stratFixed').checked;
-        const fixedVal = parseInt(document.getElementById('fixedVal').value) || 10;
-        let minVal = parseInt(document.getElementById('randMin').value) || 5;
-        let maxVal = parseInt(document.getElementById('randMax').value) || 12;
-        if (minVal > maxVal) { let temp = minVal; minVal = maxVal; maxVal = temp; }
 
         let count = 0;
-        masterList.forEach(masterName => {
+        masterList.forEach(name => {
             count++;
-            let key = masterName.toUpperCase();
-            let tov = rawDataMap[key] !== undefined ? rawDataMap[key] : 0; 
+            const cleanName = name.toUpperCase();
+            const tov = dataMap[cleanName]; // Can be number, "TH", or undefined
             
-            let inc = isFixed ? fixedVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
-            let etr = tov + inc;
-            if(etr > 100) etr = 100;
-            
-            let step = (etr - tov) / 4;
-            let oti1 = fmt(tov + step);
-            let oti2 = fmt(tov + step*2);
-            let oti3 = fmt(tov + step*3);
-            let etrFmt = fmt(etr);
+            let displayTov = "-";
+            let displayEtr = "-";
+            let displayGain = "-";
 
-            processedData.push({name: masterName, tov: tov, oti1, oti2, oti3, etr: etrFmt, gain: inc});
+            // LOGIC PENGIRAAN ETR
+            if (typeof tov === 'number') {
+                displayTov = tov;
+                const inc = isFixed ? fixVal : Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                let etr = tov + inc;
+                if(etr > 100) etr = 100;
+                displayEtr = etr;
+                displayGain = "+" + inc;
+            } else if (tov === "TH") {
+                displayTov = "TH";
+                displayEtr = "TH"; // Target stays TH? Or maybe Pass? Let's keep TH for now.
+            }
 
-            let row = `<tr>
-                <td>${count}</td>
-                <td>${masterName}</td>
-                <td>${tov}</td>
-                <td>${oti1}</td>
-                <td>${oti2}</td>
-                <td>${oti3}</td>
-                <td class="col-target">${etrFmt}</td>
-                <td class="col-gain">+${inc}</td>
-            </tr>`;
+            const row = `
+                <tr>
+                    <td>${count}</td>
+                    <td>${name}</td>
+                    <td style="background:#f8fafc;">${displayTov}</td>
+                    <td class="col-target">${displayEtr}</td>
+                    <td style="color:green; font-size:0.8rem;">${displayGain}</td>
+                    <td>${createTpSelect('tov', 3)}</td>
+                    <td>${createTpSelect('up', 3)}</td>
+                    <td>${createTpSelect('uasa', 3)}</td>
+                </tr>
+            `;
             tbody.innerHTML += row;
         });
 
-        document.getElementById('subjectTitle').innerText = "Analisis Headcount: " + subject;
         document.getElementById('resultSection').style.display = 'block';
-        isDataLoaded = true;
-        updateSignature();
+        document.getElementById('tableHeader').scrollIntoView({behavior: 'smooth'});
+    }
+
+    function createTpSelect(type, val) {
+        let html = `<select class="tp-select" data-type="${type}">`;
+        for(let i=1; i<=6; i++) {
+            html += `<option value="${i}" ${i==val?'selected':''}>TP ${i}</option>`;
+        }
+        html += `</select>`;
+        return html;
+    }
+
+    // === PBD BULK GENERATOR ===
+    function applyBulkPBD() {
+        const target = document.getElementById('pbdTarget').value; 
+        const mode = document.getElementById('pbdMode').value;
+        const selects = document.querySelectorAll(`select[data-type="${target}"]`);
+        
+        selects.forEach(sel => {
+            let newVal = 1;
+            if (mode === 'static') {
+                newVal = parseInt(document.getElementById('valPbdStatic').value);
+            } else {
+                const min = parseInt(document.getElementById('valPbdMin').value);
+                const max = parseInt(document.getElementById('valPbdMax').value);
+                newVal = Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            sel.value = newVal;
+        });
+        alert(`Berjaya kemaskini PBD: ${target.toUpperCase()}`);
     }
 
     function downloadExcel() {
-        if (!processedData.length) return alert("Tiada data.");
-        let csv = "data:text/csv;charset=utf-8,No,Nama Murid,TOV,OTI 1,OTI 2,OTI 3,ETR,Peningkatan\n";
-        processedData.forEach((row, i) => {
-            let n = row.name.includes(',') ? `"${row.name}"` : row.name;
-            csv += `${i+1},${n},${row.tov},${row.oti1},${row.oti2},${row.oti3},${row.etr},${row.gain}\n`;
+        let csv = "No,Nama Murid,TOV Markah,ETR Markah,Gain,TOV PBD 2025,UP PBD 2026,UASA PBD 2026\n";
+        const rows = document.querySelectorAll('#tableBody tr');
+        if(rows.length === 0) return alert("Tiada data.");
+
+        rows.forEach((tr, i) => {
+            const tds = tr.children;
+            const no = i + 1;
+            const name = tds[1].innerText;
+            const tovM = tds[2].innerText;
+            const etrM = tds[3].innerText;
+            const gain = tds[4].innerText;
+            const tovP = tds[5].querySelector('select').value;
+            const upP = tds[6].querySelector('select').value;
+            const uasaP = tds[7].querySelector('select').value;
+
+            csv += `${no},"${name}",${tovM},${etrM},${gain},TP ${tovP},TP ${upP},TP ${uasaP}\n`;
         });
-        const markIdx = parseInt(document.getElementById('markCol').value);
-        const subject = document.getElementById('markCol').options[markIdx] ? document.getElementById('markCol').options[markIdx].text : "Headcount";
+
         const link = document.createElement("a");
-        link.href = encodeURI(csv);
-        link.download = `Analisis_Headcount_${subject.replace(/[^a-z0-9]/gi, '_')}.csv`;
-        document.body.appendChild(link);
+        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        link.download = "Analisis_Headcount_PBD.csv";
         link.click();
-        document.body.removeChild(link);
     }
-    function fmt(n) { return Number.isInteger(n) ? n : n.toFixed(2); }
 </script>
 
 </body>
